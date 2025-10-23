@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <!-- NOVO: Meta tag viewport essencial para responsividade -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Importa uma fonte moderna */
@@ -10,14 +12,13 @@
         /* Configurações Globais */
         body {
             font-family: 'Roboto', sans-serif;
-            /* NOVO: Fundo Dark Mode com Gradiente */
             background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #081c15 100%);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            background-attachment: fixed; /* Mantém o gradiente fixo no scroll */
-            color: #e0e0e0; /* NOVO: Cor de texto clara */
+            background-attachment: fixed; 
+            color: #e0e0e0; 
             margin: 0;
-            padding: 20px;
+            padding: 10px; /* Reduzido para mobile */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -31,12 +32,11 @@
 
         .container {
             max-width: 900px;
-            margin: 20px auto;
-            /* NOVO: Efeito Glassmorphism (Vidro Fosco) */
+            margin: 10px auto; /* Margem reduzida */
             background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
+            border-radius: 15px; /* Menos arredondado */
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             overflow: hidden;
@@ -44,8 +44,7 @@
 
         header {
             text-align: center;
-            padding: 40px 20px;
-            /* NOVO: Vidro mais claro no topo */
+            padding: 25px 15px; /* Padding reduzido */
             background: rgba(255, 255, 255, 0.1);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
@@ -53,7 +52,7 @@
 
         header h1 {
             margin: 0;
-            font-size: 2.5em;
+            font-size: 1.8em; /* Tamanho reduzido para mobile */
             font-weight: 700;
             text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
         }
@@ -61,23 +60,27 @@
         /* Menu de Navegação */
         nav {
             background: rgba(0, 0, 0, 0.1);
-            padding: 15px;
+            padding: 10px 5px; /* Padding reduzido */
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            /* Permite scroll horizontal se não couber */
+            white-space: nowrap;
+            overflow-x: auto; 
         }
 
         nav a {
             display: inline-block;
             text-decoration: none;
-            color: #d8f3dc; /* NOVO: Verde claro */
+            color: #d8f3dc; 
             font-weight: 500;
-            padding: 12px 18px;
-            margin: 0 5px;
-            border-radius: 10px;
+            padding: 10px 12px; /* Padding reduzido */
+            margin: 0 3px; /* Margem reduzida */
+            border-radius: 8px; /* Menos arredondado */
             transition: all 0.3s ease;
             cursor: pointer;
             background: transparent;
             box-shadow: none;
+            font-size: 0.9em; /* Fonte menor no menu */
         }
 
         nav a:hover {
@@ -87,168 +90,161 @@
         }
         
         nav a.active {
-            /* NOVO: Destaque verde vibrante */
             background: #52b788;
-            color: #081c15; /* Texto escuro para contraste */
+            color: #081c15; 
             font-weight: 700;
-            box-shadow: 0 0 15px rgba(82, 183, 136, 0.5); /* Efeito Glow */
+            box-shadow: 0 0 10px rgba(82, 183, 136, 0.4); /* Glow reduzido */
             transform: translateY(0);
         }
 
         /* --- Seletor de Mês --- */
         .month-selector-bar {
             background: transparent;
-            padding: 20px 30px;
+            padding: 15px 15px; /* Padding reduzido */
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 8px; /* Gap reduzido */
         }
         
         .month-selector-bar label {
             font-weight: 500;
-            font-size: 1.1em;
+            font-size: 1em; /* Tamanho reduzido */
             color: #d8f3dc;
         }
         
         #seletorMes {
             font-family: 'Roboto', sans-serif;
-            font-size: 1.1em;
-            padding: 10px;
+            font-size: 1em; /* Tamanho reduzido */
+            padding: 8px; /* Padding reduzido */
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            border-radius: 6px; /* Menos arredondado */
             color: #ffffff;
-            background: rgba(0, 0, 0, 0.3); /* NOVO: Fundo escuro */
+            background: rgba(0, 0, 0, 0.3); 
             box-shadow: none;
         }
         /* --- Fim do CSS Seletor --- */
 
         /* Estilo das Seções */
         section {
-            padding: 30px 35px;
+            padding: 20px 15px; /* Padding reduzido */
         }
         
         .page-section { display: none; }
         .page-section.active { display: block; }
 
         h2 {
-            font-size: 1.8em;
-            color: #ffffff; /* NOVO: Título branco */
+            font-size: 1.5em; /* Tamanho reduzido */
+            color: #ffffff; 
             margin-top: 0;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px; /* Padding reduzido */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Linha mais fina */
             font-weight: 700;
         }
         
         h3 {
-            color: #b7e4c7; /* Verde claro para sub-cabeçalhos */
+            color: #b7e4c7; 
             font-weight: 500;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 8px;
+            padding-bottom: 6px; /* Padding reduzido */
+            font-size: 1.2em; /* Tamanho reduzido */
         }
 
         /* Estilo dos Grupos de Input */
         .input-group {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 10px 0;
+             /* NOVO: Quebra a linha em telas pequenas */
+            flex-direction: column; 
+            align-items: flex-start; /* Alinha label à esquerda */
+            margin-bottom: 15px; /* Margem reduzida */
+            padding: 8px 0; /* Padding reduzido */
             border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
         }
         
-        /* NOVO: Estilo para Rendas/Despesas extras "fixas" */
         .fixed-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            padding: 15px;
+            margin-bottom: 8px; /* Margem reduzida */
+            padding: 12px; /* Padding reduzido */
             background: rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
+            border-radius: 8px; /* Menos arredondado */
+            flex-wrap: wrap; /* Permite quebra */
         }
         .fixed-item span {
-            font-size: 1.1em;
+            font-size: 1em; /* Tamanho reduzido */
             font-weight: 500;
             color: #e0e0e0;
+             margin-bottom: 5px; /* Espaço se quebrar linha */
         }
         .fixed-item span:first-child {
-            color: #d8f3dc; /* Verde claro para descrição */
+            color: #d8f3dc; 
+            margin-right: 10px; /* Espaço entre descrição e valor */
         }
         
         .input-group label {
             font-weight: 500;
-            font-size: 1.1em;
-            color: #d8f3dc; /* NOVO: Label verde claro */
+            font-size: 1em; /* Tamanho reduzido */
+            color: #d8f3dc; 
+            margin-bottom: 5px; /* Espaço entre label e input */
         }
 
         input[type="number"],
         input[type="text"],
         input[type="date"],
         input[type="time"] {
-            padding: 12px 15px;
+            padding: 10px 12px; /* Padding reduzido */
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            font-size: 1.1em;
-            text-align: right;
-            width: 200px;
+            border-radius: 8px; /* Menos arredondado */
+            font-size: 1em; /* Tamanho reduzido */
+            text-align: left; /* Alinha à esquerda no mobile */
+            width: 100%; /* Ocupa toda a largura */
             box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.3); /* NOVO: Input escuro */
-            color: #ffffff; /* NOVO: Texto branco */
+            background: rgba(0, 0, 0, 0.3); 
+            color: #ffffff; 
             box-shadow: none;
             transition: all 0.2s ease-in-out;
+             margin-top: 5px; /* Espaço se estiver abaixo do label */
         }
         
         input:focus {
             outline: none;
             background: rgba(0, 0, 0, 0.5);
-            border-color: #52b788; /* Destaque verde */
-            box-shadow: 0 0 10px rgba(82, 183, 136, 0.3); /* Glow suave */
+            border-color: #52b788; 
+            box-shadow: 0 0 8px rgba(82, 183, 136, 0.2); /* Glow menor */
         }
         
         /* Ajuste para inputs em formulários dinâmicos */
-        .dynamic-item input[type="text"] {
-            flex-grow: 1;
-            margin-right: 0;
-            text-align: left;
-            width: auto;
-        }
-        .dynamic-item input[type="number"] { width: 140px; }
-        .dynamic-item input[type="date"] { width: 150px; text-align: left; }
-        .dynamic-item input[type="time"] { width: 110px; text-align: left; }
-        
-        /* NOVO: Formulário para adicionar itens */
-        form.add-item-form {
+         form.add-item-form {
             display: flex;
-            flex-wrap: wrap; /* Permite quebra de linha em telas menores */
+            flex-direction: column; /* Coluna no mobile */
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Margem reduzida */
         }
-        form.add-item-form input[type="text"] { flex-grow: 1; text-align: left; min-width: 150px; /* Garante tamanho mínimo */}
+        form.add-item-form input[type="text"],
         form.add-item-form input[type="number"],
         form.add-item-form input[type="date"],
         form.add-item-form input[type="time"] { 
-             flex-grow: 1; /* Permite crescer */
-             min-width: 110px; /* Tamanho mínimo */
+            width: 100%; /* Largura total */
+            text-align: left; /* Alinha à esquerda */
+            min-width: 0; /* Remove min-width */
         } 
         form.add-item-form button { 
-            margin-top: 0; 
-            padding: 12px 18px; 
-            flex-shrink: 0; /* Impede que o botão encolha */
+            margin-top: 5px; /* Espaço */
+            padding: 10px 15px; /* Padding reduzido */
+            align-self: flex-end; /* Alinha botão à direita */
         }
-
 
         /* Resumo Financeiro */
         .summary {
-            /* NOVO: Card de vidro interno */
             background: rgba(0, 0, 0, 0.25);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            padding: 20px; /* Padding reduzido */
+            border-radius: 12px; /* Menos arredondado */
+            margin-bottom: 15px; /* Margem reduzida */
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
@@ -256,21 +252,21 @@
         .summary-item {
             display: flex;
             justify-content: space-between;
-            font-size: 1.3em;
-            margin-bottom: 12px;
+            font-size: 1.1em; /* Tamanho reduzido */
+            margin-bottom: 10px; /* Margem reduzida */
             font-weight: 700;
             color: #f0f0f0;
+            flex-wrap: wrap; /* Quebra linha se necessário */
         }
         
-        /* NOVO: Cores para Receita/Despesa */
         .summary-item .receita-valor { color: #28a745 !important; }
         .summary-item .despesa-valor { color: #dc3545 !important; }
 
         .summary-item.saldo-final {
-            font-size: 1.6em;
+            font-size: 1.3em; /* Tamanho reduzido */
             color: #ffffff;
-            padding-top: 15px;
-            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            padding-top: 10px; /* Padding reduzido */
+            border-top: 1px solid rgba(255, 255, 255, 0.1); /* Linha mais fina */
         }
 
         .positive { color: #28a745; }
@@ -279,76 +275,78 @@
         /* Botões */
         button {
             background: linear-gradient(145deg, #52b788, #40916c);
-            color: #081c15; /* NOVO: Texto escuro para contraste */
-            font-weight: 700; /* NOVO: Mais forte */
+            color: #081c15; 
+            font-weight: 700; 
             border: none;
-            padding: 12px 22px;
-            border-radius: 10px;
+            padding: 10px 18px; /* Padding reduzido */
+            border-radius: 8px; /* Menos arredondado */
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.9em; /* Tamanho reduzido */
             transition: all 0.2s ease-in-out;
-            margin-top: 10px;
-            /* NOVO: Efeito Glow */
-            box-shadow: 0 4px 15px rgba(82, 183, 136, 0.3);
+            margin-top: 8px; /* Margem reduzida */
+            box-shadow: 0 3px 10px rgba(82, 183, 136, 0.2); /* Sombra menor */
             text-shadow: none;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(82, 183, 136, 0.4);
+            transform: translateY(-1px); /* Menos elevação */
+            box-shadow: 0 4px 15px rgba(82, 183, 136, 0.3); /* Sombra menor */
         }
         
         button:active {
             transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(82, 183, 136, 0.3);
+            box-shadow: 0 1px 5px rgba(82, 183, 136, 0.2); /* Sombra menor */
         }
 
         button.remove-btn {
             background: linear-gradient(145deg, #e53935, #c62828);
             color: white;
             font-weight: 500;
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
-            font-size: 0.9em;
-            padding: 8px 12px;
-            margin-left: 10px;
-            margin-top: 0; /* Ajuste para botões de remoção em formulários */
+            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.2); /* Sombra menor */
+            font-size: 0.8em; /* Tamanho reduzido */
+            padding: 6px 10px; /* Padding reduzido */
+            margin-left: 8px; /* Margem reduzida */
+            margin-top: 0; 
         }
         button.remove-btn:hover {
-            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); /* Sombra menor */
         }
         button.remove-btn:active {
-            box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
+            box-shadow: 0 1px 5px rgba(220, 53, 69, 0.2); /* Sombra menor */
         }
 
         /* Listas (Lazer, Tarefas, Manutenção, Gasolina) */
         ul { list-style-type: none; padding-left: 0; }
         ul li {
-            background: rgba(0, 0, 0, 0.15); /* NOVO: Fundo escuro */
+            background: rgba(0, 0, 0, 0.15); 
             border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            padding: 12px; /* Padding reduzido */
+            border-radius: 8px; /* Menos arredondado */
+            margin-bottom: 8px; /* Margem reduzida */
             border-left: none;
             box-shadow: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: #e0e0e0;
-            flex-wrap: wrap; /* Para mobile */
+            flex-wrap: wrap; 
         }
         ul li strong { 
             color: #ffffff;
-            background-color: #2d6a4f; /* NOVO: Tag escura */
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 0.9em;
-            margin-right: 15px;
+            background-color: #2d6a4f; 
+            padding: 4px 8px; /* Padding reduzido */
+            border-radius: 5px; /* Menos arredondado */
+            font-size: 0.8em; /* Tamanho reduzido */
+            margin-right: 10px; /* Margem reduzida */
         }
         
         ul li span {
             flex-grow: 1;
-            margin-right: 10px; /* Espaço antes do botão de remover */
-            word-break: break-word; /* Quebra palavras longas */
+            margin-right: 8px; /* Margem reduzida */
+            word-break: break-word; 
+            font-size: 0.9em; /* Fonte menor nos itens */
+             width: calc(100% - 40px); /* Garante espaço para o botão */
+             margin-bottom: 5px; /* Espaço se quebrar linha */
         }
         
         /* NOVO: Botão de remoção para listas <li> */
@@ -356,36 +354,89 @@
             background: linear-gradient(145deg, #e53935, #c62828);
             color: white;
             border: none;
-            border-radius: 50%; /* Botão redondo */
-            width: 25px;
-            height: 25px;
+            border-radius: 50%; 
+            width: 22px; /* Tamanho reduzido */
+            height: 22px; /* Tamanho reduzido */
             cursor: pointer;
-            font-size: 0.8em;
+            font-size: 0.7em; /* Tamanho reduzido */
             font-weight: 700;
-            line-height: 25px;
+            line-height: 22px; /* Ajustado */
             text-align: center;
             padding: 0;
-            margin-left: 10px;
-            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+            margin-left: 8px; /* Margem reduzida */
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2); /* Sombra menor */
             transition: all 0.2s ease;
-            flex-shrink: 0; /* Impede que o botão encolha */
+            flex-shrink: 0; 
         }
         ul li .remove-btn-li:hover {
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3); /* Sombra menor */
             transform: scale(1.1);
         }
 
         /* Gráfico */
-        .grafico-container { /* Classe genérica para containers de gráfico */
-            max-width: 600px; /* Aumentei um pouco */
-            margin: 30px auto; /* Mais espaço */
-            padding: 25px;
-            border-radius: 15px;
+        .grafico-container { 
+            max-width: 100%; /* Ocupa largura total no mobile */
+            margin: 20px auto; /* Margem reduzida */
+            padding: 15px; /* Padding reduzido */
+            border-radius: 12px; /* Menos arredondado */
             background: rgba(0, 0, 0, 0.25);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        /* --- Media Queries Adicionais --- */
+        
+        /* Telas um pouco maiores (tablets pequenos, celulares grandes em paisagem) */
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            .container { margin: 20px auto; border-radius: 20px; }
+            header { padding: 30px 20px; }
+            header h1 { font-size: 2.2em; }
+            nav { padding: 15px; }
+            nav a { padding: 12px 18px; margin: 0 5px; font-size: 1em; }
+            .month-selector-bar { padding: 20px 30px; }
+            .month-selector-bar label { font-size: 1.1em; }
+            #seletorMes { font-size: 1.1em; padding: 10px; }
+            section { padding: 25px 30px; }
+            h2 { font-size: 1.7em; }
+            h3 { font-size: 1.3em; }
+            .input-group { 
+                 flex-direction: row; /* Volta para linha */
+                 align-items: center; /* Centraliza verticalmente */
+            }
+             .input-group label { margin-bottom: 0; }
+             input[type="number"], input[type="text"], input[type="date"], input[type="time"] { 
+                 width: 200px; /* Largura original */
+                 text-align: right; /* Volta a alinhar à direita */
+                 margin-top: 0;
+             }
+            form.add-item-form { 
+                flex-direction: row; /* Volta para linha */
+            }
+            form.add-item-form input[type="text"] { flex-grow: 1; }
+            form.add-item-form input[type="number"] { width: 140px; }
+             form.add-item-form input[type="date"] { width: 150px; }
+             form.add-item-form input[type="time"] { width: 110px; }
+            .summary { padding: 25px; border-radius: 15px; }
+            .summary-item { font-size: 1.2em; }
+            .summary-item.saldo-final { font-size: 1.5em; }
+            button { padding: 12px 22px; font-size: 1em; }
+            button.remove-btn { padding: 8px 12px; font-size: 0.9em; }
+            ul li { padding: 15px; border-radius: 10px; }
+             ul li span { font-size: 1em; width: auto; margin-bottom: 0; }
+            ul li strong { font-size: 0.9em; }
+            ul li .remove-btn-li { width: 25px; height: 25px; font-size: 0.8em; line-height: 25px; }
+            .grafico-container { max-width: 600px; padding: 25px; border-radius: 15px; }
+        }
+
+        /* Telas de Desktop */
+         @media (min-width: 900px) {
+             /* Estilos originais podem ser reconfirmados aqui se necessário */
+              header h1 { font-size: 2.5em; }
+              /* ... outros ajustes finos para desktop ... */
+         }
+
     </style>
 </head>
 <body>
@@ -872,6 +923,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false, // Permite ajustar altura/largura
                     cutout: '60%', 
                     plugins: {
                         legend: { 
@@ -920,7 +972,7 @@
                     let valorCartao = 0;
                     if (docSnap.exists) {
                         const dados = docSnap.data();
-                        // Busca o valor salvo como 'cartaoCredito' ou 'totalDespesasFixas' se o primeiro não existir
+                        // Busca o valor salvo como 'cartaoCredito'
                         valorCartao = dados.cartaoCredito || 0; 
                     }
                     dadosGrafico.push(valorCartao);
@@ -960,6 +1012,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false, // Permite ajustar altura/largura
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -1048,7 +1101,11 @@
             
             // Adiciona ouvintes aos inputs fixos APENAS uma vez
              document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
-                input.addEventListener('input', calcularTudoFinanceiro);
+                 // Garante que o ouvinte só seja adicionado uma vez
+                 if(!input.hasAttribute('data-listener-added')) {
+                    input.addEventListener('input', calcularTudoFinanceiro);
+                    input.setAttribute('data-listener-added', 'true');
+                 }
             });
         }
         
@@ -1237,7 +1294,12 @@
                 valorInput.value = '';
             });
             
-            document.getElementById('valorTotalVA').addEventListener('input', calcularAlimentacao);
+             // Garante que o ouvinte só seja adicionado uma vez
+             const inputVA = document.getElementById('valorTotalVA');
+             if(!inputVA.hasAttribute('data-listener-added')) {
+                inputVA.addEventListener('input', calcularAlimentacao);
+                inputVA.setAttribute('data-listener-added', 'true');
+             }
         }
         
         // ATUALIZADO: Cria o item de Compra na UI (agora é <li>)
@@ -1446,12 +1508,15 @@
                    km: li.dataset.km,
                    valor: parseFloat(li.dataset.valor) || 0
                };
-               itens.push(item);
-               totalManutencao += item.valor; 
+               // Evita adicionar o novo item duas vezes se ele já estiver na UI
+               if(!novoItem || item.data !== novoItem.data || item.descricao !== novoItem.descricao) {
+                  itens.push(item);
+                  totalManutencao += item.valor; 
+               }
             });
             
             // Adiciona novo item se houver
-             if(novoItem && !itens.some(i => i.data === novoItem.data && i.descricao === novoItem.descricao)) { // Evita duplicar se já foi adicionado
+             if(novoItem) { 
                 itens.push(novoItem);
                 totalManutencao += novoItem.valor;
             }
@@ -1479,8 +1544,10 @@
             let consumoInfo = '';
              if (consumo > 0) {
                 consumoInfo = `(<span style="color: ${consumo >= 10 ? '#28a745' : '#ffc107'};">${consumo.toFixed(2)} KM/L</span>)`; // Cor condicional
-            } else if (consumo === 0) {
+            } else if (consumo === 0 && ultimoKmAnterior > 0) { // Só mostra se tiver KM anterior
                  consumoInfo = '(Primeiro registro do mês)'; // Mantido
+            } else if (consumo === 0 && ultimoKmAnterior === 0) {
+                 consumoInfo = '(Referência anterior não encontrada)';
             } else { // consumo < 0 indica erro de KM
                  consumoInfo = '<span style="color: #dc3545;">(KM inválido!)</span>';
             }
@@ -1555,6 +1622,7 @@
             }
         }
         
+        let ultimoKmAnterior = 0; // Variável global para guardar o último KM do mês anterior
         
         // ATUALIZADO: Carrega a lista de Manutenção e Gasolina
         async function carregarDadosCarro() {
@@ -1564,9 +1632,10 @@
             document.getElementById('listaManutencao').innerHTML = ''; // Limpa a lista
             document.getElementById('listaAbastecimento').innerHTML = ''; // Limpa a lista
             
+            ultimoKmAnterior = 0; // Reseta a variável global
+            
             try {
                 // Busca KM do mês anterior PRIMEIRO e FORA do IF principal
-                let ultimoKmAnterior = 0;
                 const mesAnteriorId = obterMesAnteriorId(mesId);
                 const docAnteriorSnap = await db.collection("financas").doc(mesAnteriorId).get();
                 if (docAnteriorSnap.exists) {
@@ -1623,6 +1692,8 @@
                     }
                 } else {
                      console.log(`Nenhum documento encontrado para ${mesId}.`);
+                     // Mesmo sem dados do mês atual, mostra o primeiro item com base no mês anterior (se houver)
+                     // Isso pode ser ajustado conforme a preferência
                 }
             } catch (error) {
                 console.error("Erro ao carregar listas do carro:", error);
