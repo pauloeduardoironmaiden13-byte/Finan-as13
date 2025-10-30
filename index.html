@@ -15,8 +15,8 @@
             background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #081c15 100%);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            background-attachment: fixed; 
-            color: #e0e0e0; 
+            background-attachment: fixed;
+            color: #e0e0e0;
             margin: 0;
             padding: 10px; /* Reduzido para mobile */
             -webkit-font-smoothing: antialiased;
@@ -65,13 +65,13 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             /* Permite scroll horizontal se não couber */
             white-space: nowrap;
-            overflow-x: auto; 
+            overflow-x: auto;
         }
 
         nav a {
             display: inline-block;
             text-decoration: none;
-            color: #d8f3dc; 
+            color: #d8f3dc;
             font-weight: 500;
             padding: 10px 12px; /* Padding reduzido */
             margin: 0 3px; /* Margem reduzida */
@@ -88,10 +88,10 @@
             color: #ffffff;
             transform: translateY(-2px);
         }
-        
+
         nav a.active {
             background: #52b788;
-            color: #081c15; 
+            color: #081c15;
             font-weight: 700;
             box-shadow: 0 0 10px rgba(82, 183, 136, 0.4); /* Glow reduzido */
             transform: translateY(0);
@@ -107,13 +107,13 @@
             align-items: center;
             gap: 8px; /* Gap reduzido */
         }
-        
+
         .month-selector-bar label {
             font-weight: 500;
             font-size: 1em; /* Tamanho reduzido */
             color: #d8f3dc;
         }
-        
+
         #seletorMes {
             font-family: 'Roboto', sans-serif;
             font-size: 1em; /* Tamanho reduzido */
@@ -121,47 +121,68 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 6px; /* Menos arredondado */
             color: #ffffff;
-            background: rgba(0, 0, 0, 0.3); 
+            background: rgba(0, 0, 0, 0.3);
             box-shadow: none;
+            /* Estilo para o indicador de data no modo escuro */
+            color-scheme: dark;
         }
+        #seletorMes::-webkit-calendar-picker-indicator {
+             filter: invert(0.8); /* Inverte a cor do ícone */
+        }
+
         /* --- Fim do CSS Seletor --- */
 
         /* Estilo das Seções */
         section {
             padding: 20px 15px; /* Padding reduzido */
         }
-        
+
         .page-section { display: none; }
         .page-section.active { display: block; }
 
         h2 {
             font-size: 1.5em; /* Tamanho reduzido */
-            color: #ffffff; 
+            color: #ffffff;
             margin-top: 0;
             padding-bottom: 10px; /* Padding reduzido */
             border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Linha mais fina */
             font-weight: 700;
         }
-        
+
         h3 {
-            color: #b7e4c7; 
+            color: #b7e4c7;
             font-weight: 500;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 6px; /* Padding reduzido */
             font-size: 1.2em; /* Tamanho reduzido */
+            margin-top: 20px; /* Espaçamento antes do h3 */
+            margin-bottom: 15px;
         }
 
         /* Estilo dos Grupos de Input */
         .input-group {
             display: flex;
              /* NOVO: Quebra a linha em telas pequenas */
-            flex-direction: column; 
-            align-items: flex-start; /* Alinha label à esquerda */
+            flex-direction: column;
+            align-items: stretch; /* Alinha inputs stretch */
             margin-bottom: 15px; /* Margem reduzida */
             padding: 8px 0; /* Padding reduzido */
             border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
         }
-        
+        /* NOVO: Container para valor e data */
+        .input-value-date-container {
+             display: flex;
+             flex-direction: column; /* Coluna no mobile */
+             gap: 10px;
+             width: 100%;
+             margin-top: 5px;
+        }
+         .input-value-date-container > div {
+             flex-grow: 1;
+         }
+
+
+        /* Itens dinâmicos (outras rendas, despesas) */
         .fixed-item {
             display: flex;
             justify-content: space-between;
@@ -172,24 +193,54 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 8px; /* Menos arredondado */
             flex-wrap: wrap; /* Permite quebra */
+            gap: 10px; /* Espaço entre os elementos se quebrar */
         }
-        .fixed-item span {
-            font-size: 1em; /* Tamanho reduzido */
-            font-weight: 500;
-            color: #e0e0e0;
-             margin-bottom: 5px; /* Espaço se quebrar linha */
+        .fixed-item .item-info {
+            flex-grow: 1; /* Ocupa espaço disponível */
+            min-width: 150px; /* Largura mínima antes de quebrar */
         }
-        .fixed-item span:first-child {
-            color: #d8f3dc; 
-            margin-right: 10px; /* Espaço entre descrição e valor */
+        .fixed-item .item-info span {
+             display: block; /* Quebra linha entre descrição e data */
+             font-size: 0.9em; /* Tamanho reduzido */
         }
-        
+        .fixed-item .item-info .descricao {
+             font-weight: 500;
+             color: #d8f3dc;
+        }
+        .fixed-item .item-info .vencimento {
+             color: #a0aec0; /* Cinza claro */
+             font-size: 0.8em;
+        }
+        .fixed-item .item-valor {
+            font-weight: bold;
+            text-align: right;
+            min-width: 80px; /* Garante espaço para o valor */
+        }
+        .fixed-item .item-status {
+             font-size: 0.8em;
+             font-weight: bold;
+             text-align: right;
+             margin-top: 2px;
+             display: block; /* Garante que fique abaixo do valor */
+        }
+        .fixed-item .item-actions {
+            display: flex;
+            gap: 8px; /* Espaço entre botões */
+        }
+
         .input-group label {
             font-weight: 500;
             font-size: 1em; /* Tamanho reduzido */
-            color: #d8f3dc; 
+            color: #d8f3dc;
             margin-bottom: 5px; /* Espaço entre label e input */
         }
+        /* NOVO: Label menor para Vencimento */
+         .input-value-date-container label {
+             font-size: 0.8em;
+             color: #b7e4c7;
+             display: block;
+             margin-bottom: 3px;
+         }
 
         input[type="number"],
         input[type="text"],
@@ -202,39 +253,60 @@
             text-align: left; /* Alinha à esquerda no mobile */
             width: 100%; /* Ocupa toda a largura */
             box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.3); 
-            color: #ffffff; 
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
             box-shadow: none;
             transition: all 0.2s ease-in-out;
-             margin-top: 5px; /* Espaço se estiver abaixo do label */
+             margin-top: 0px; /* Removido margin-top para alinhar com label novo */
+             color-scheme: dark; /* Garante estilo escuro para date/time */
         }
-        
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+             filter: invert(0.8); /* Inverte a cor do ícone */
+        }
+
+
         input:focus {
             outline: none;
             background: rgba(0, 0, 0, 0.5);
-            border-color: #52b788; 
+            border-color: #52b788;
             box-shadow: 0 0 8px rgba(82, 183, 136, 0.2); /* Glow menor */
         }
-        
+
         /* Ajuste para inputs em formulários dinâmicos */
          form.add-item-form {
             display: flex;
-            flex-direction: column; /* Coluna no mobile */
+            flex-wrap: wrap; /* Permite quebrar linha */
             gap: 10px;
             margin-bottom: 15px; /* Margem reduzida */
+            align-items: flex-end; /* Alinha itens na base */
         }
+        form.add-item-form .form-group {
+             flex-grow: 1; /* Permite que os inputs cresçam */
+             min-width: 120px; /* Largura mínima antes de quebrar */
+        }
+        form.add-item-form label {
+             display: block; /* Label em cima */
+             font-size: 0.8em;
+             margin-bottom: 3px;
+             color: #b7e4c7;
+        }
+
         form.add-item-form input[type="text"],
         form.add-item-form input[type="number"],
         form.add-item-form input[type="date"],
-        form.add-item-form input[type="time"] { 
-            width: 100%; /* Largura total */
+        form.add-item-form input[type="time"] {
+            width: 100%; /* Largura total dentro do form-group */
             text-align: left; /* Alinha à esquerda */
-            min-width: 0; /* Remove min-width */
-        } 
-        form.add-item-form button { 
+            margin-top: 0; /* Remove margem superior */
+            padding: 8px 10px; /* Padding menor */
+        }
+        form.add-item-form button {
             margin-top: 5px; /* Espaço */
             padding: 10px 15px; /* Padding reduzido */
-            align-self: flex-end; /* Alinha botão à direita */
+            /* align-self: flex-end; /* Alinha botão à direita - removido para alinhar com inputs */
+            height: 40px; /* Altura igual aos inputs */
+            margin-bottom: 0; /* Alinha com a base dos inputs */
         }
 
         /* Resumo Financeiro */
@@ -258,7 +330,7 @@
             color: #f0f0f0;
             flex-wrap: wrap; /* Quebra linha se necessário */
         }
-        
+
         .summary-item .receita-valor { color: #28a745 !important; }
         .summary-item .despesa-valor { color: #dc3545 !important; }
 
@@ -269,14 +341,39 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1); /* Linha mais fina */
         }
 
+        /* NOVO: Estilo para Saldo Devedor */
+        .summary-devedor {
+            background: rgba(220, 53, 69, 0.1); /* Fundo vermelho leve */
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #f8d7da; /* Texto vermelho claro */
+        }
+        .summary-devedor .summary-item.saldo-final {
+            color: #f8d7da; /* Texto vermelho claro */
+            border-top: 1px solid rgba(220, 53, 69, 0.3);
+            font-size: 1.3em;
+        }
+        .summary-devedor .summary-item span:last-child {
+            color: #e6a2a9; /* Valor em tom de vermelho */
+        }
+
+
         .positive { color: #28a745; }
         .negative { color: #dc3545; }
+        /* NOVO: Estilo para Status */
+        .status-pendente { color: #ffc107; } /* Amarelo */
+        .status-pago { color: #28a745; text-decoration: line-through;} /* Verde com risco */
+        .status-atrasado { color: #dc3545; font-weight: bold; animation: blink 1.5s linear infinite;} /* Vermelho piscando */
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+
 
         /* Botões */
         button {
             background: linear-gradient(145deg, #52b788, #40916c);
-            color: #081c15; 
-            font-weight: 700; 
+            color: #081c15;
+            font-weight: 700;
             border: none;
             padding: 10px 18px; /* Padding reduzido */
             border-radius: 8px; /* Menos arredondado */
@@ -292,12 +389,13 @@
             transform: translateY(-1px); /* Menos elevação */
             box-shadow: 0 4px 15px rgba(82, 183, 136, 0.3); /* Sombra menor */
         }
-        
+
         button:active {
             transform: translateY(0);
             box-shadow: 0 1px 5px rgba(82, 183, 136, 0.2); /* Sombra menor */
         }
 
+        /* Botão Remover Genérico (usado em Rendas/Despesas Extras) */
         button.remove-btn {
             background: linear-gradient(145deg, #e53935, #c62828);
             color: white;
@@ -306,7 +404,8 @@
             font-size: 0.8em; /* Tamanho reduzido */
             padding: 6px 10px; /* Padding reduzido */
             margin-left: 8px; /* Margem reduzida */
-            margin-top: 0; 
+            margin-top: 0;
+            flex-shrink: 0; /* Impede que o botão encolha */
         }
         button.remove-btn:hover {
             box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); /* Sombra menor */
@@ -315,10 +414,32 @@
             box-shadow: 0 1px 5px rgba(220, 53, 69, 0.2); /* Sombra menor */
         }
 
-        /* Listas (Lazer, Tarefas, Manutenção, Gasolina) */
+        /* NOVO: Botão Pagar (Despesas) */
+        button.pay-btn {
+            background: linear-gradient(145deg, #007bff, #0056b3); /* Azul */
+            color: white;
+            font-size: 0.8em;
+            padding: 6px 10px;
+            margin-left: 8px;
+            margin-top: 0;
+            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.2);
+            flex-shrink: 0;
+        }
+        button.pay-btn:hover {
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        button.pay-btn:disabled {
+            background: #5a5a5a;
+            color: #9a9a9a;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Listas (Lazer, Tarefas, Manutenção, Gasolina, Compras) */
         ul { list-style-type: none; padding-left: 0; }
         ul li {
-            background: rgba(0, 0, 0, 0.15); 
+            background: rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.05);
             padding: 12px; /* Padding reduzido */
             border-radius: 8px; /* Menos arredondado */
@@ -329,32 +450,52 @@
             justify-content: space-between;
             align-items: center;
             color: #e0e0e0;
-            flex-wrap: wrap; 
+            flex-wrap: wrap; /* Permite quebra */
+            gap: 10px; /* Espaço entre itens se quebrar */
         }
-        ul li strong { 
+        /* Ajuste para span dentro de LI genérico */
+        ul li > span:first-of-type { /* Seleciona o primeiro span (descrição) */
+            flex-grow: 1; /* Ocupa espaço */
+            margin-right: 8px; /* Margem reduzida */
+            word-break: break-word; /* Quebra palavras longas */
+            font-size: 0.9em; /* Fonte menor nos itens */
+        }
+
+        ul li strong { /* Usado em Agenda, Manutenção, Gasolina */
             color: #ffffff;
-            background-color: #2d6a4f; 
+            background-color: #2d6a4f;
             padding: 4px 8px; /* Padding reduzido */
             border-radius: 5px; /* Menos arredondado */
             font-size: 0.8em; /* Tamanho reduzido */
-            margin-right: 10px; /* Margem reduzida */
+            margin-right: 5px; /* Margem reduzida */
+            display: inline-block; /* Garante padding */
         }
-        
-        ul li span {
-            flex-grow: 1;
-            margin-right: 8px; /* Margem reduzida */
-            word-break: break-word; 
-            font-size: 0.9em; /* Fonte menor nos itens */
-             width: calc(100% - 40px); /* Garante espaço para o botão */
-             margin-bottom: 5px; /* Espaço se quebrar linha */
+
+        /* NOVO: Input de Preço na Lista de Compras */
+        ul#listaComprasContainer li .compra-details {
+             display: flex;
+             align-items: center;
+             gap: 5px;
+             flex-wrap: wrap; /* Permite quebra */
         }
-        
+        ul#listaComprasContainer li .compra-details label {
+             font-size: 0.8em;
+             color: #b7e4c7;
+        }
+        ul#listaComprasContainer li .compra-details input[type="number"] {
+             width: 80px; /* Largura fixa menor */
+             padding: 5px 8px; /* Padding menor */
+             font-size: 0.9em;
+             text-align: right;
+             background: rgba(0, 0, 0, 0.4);
+        }
+
         /* NOVO: Botão de remoção para listas <li> */
         ul li .remove-btn-li {
             background: linear-gradient(145deg, #e53935, #c62828);
             color: white;
             border: none;
-            border-radius: 50%; 
+            border-radius: 50%;
             width: 22px; /* Tamanho reduzido */
             height: 22px; /* Tamanho reduzido */
             cursor: pointer;
@@ -366,7 +507,7 @@
             margin-left: 8px; /* Margem reduzida */
             box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2); /* Sombra menor */
             transition: all 0.2s ease;
-            flex-shrink: 0; 
+            flex-shrink: 0; /* Impede que encolha */
         }
         ul li .remove-btn-li:hover {
             box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3); /* Sombra menor */
@@ -374,7 +515,7 @@
         }
 
         /* Gráfico */
-        .grafico-container { 
+        .grafico-container {
             max-width: 100%; /* Ocupa largura total no mobile */
             margin: 20px auto; /* Margem reduzida */
             padding: 15px; /* Padding reduzido */
@@ -386,7 +527,7 @@
         }
 
         /* --- Media Queries Adicionais --- */
-        
+
         /* Telas um pouco maiores (tablets pequenos, celulares grandes em paisagem) */
         @media (min-width: 600px) {
             body { padding: 20px; }
@@ -401,30 +542,62 @@
             section { padding: 25px 30px; }
             h2 { font-size: 1.7em; }
             h3 { font-size: 1.3em; }
-            .input-group { 
+
+            .input-group {
                  flex-direction: row; /* Volta para linha */
                  align-items: center; /* Centraliza verticalmente */
+                 gap: 15px; /* Espaço entre label e container valor/data */
             }
-             .input-group label { margin-bottom: 0; }
-             input[type="number"], input[type="text"], input[type="date"], input[type="time"] { 
+             .input-group label { margin-bottom: 0; width: auto; flex-basis: 200px; /* Largura fixa para label */ text-align: right; margin-right: 0;}
+             .input-value-date-container {
+                 flex-direction: row; /* Linha para valor e data */
+                 flex-grow: 1; /* Ocupa o resto */
+                 margin-top: 0;
+                 gap: 10px;
+             }
+             .input-value-date-container > div {
+                 flex-basis: 150px; /* Largura base para cada input */
+                 flex-grow: 1; /* Permite crescer se houver espaço */
+             }
+             .input-value-date-container input[type="number"],
+             .input-value-date-container input[type="date"] {
+                  width: 100%; /* Ocupa todo o espaço do div pai */
+                  text-align: right;
+             }
+
+             /* Ajusta especificamente os inputs de Renda Fixa que não tem data */
+             #salarioPaulo, #salarioDiullia, #inss {
                  width: 200px; /* Largura original */
-                 text-align: right; /* Volta a alinhar à direita */
+                 text-align: right;
                  margin-top: 0;
              }
-            form.add-item-form { 
-                flex-direction: row; /* Volta para linha */
+
+
+            form.add-item-form {
+                 flex-direction: row; /* Volta para linha */
+                 flex-wrap: nowrap; /* Não quebra mais */
+                 align-items: flex-end;
             }
-            form.add-item-form input[type="text"] { flex-grow: 1; }
-            form.add-item-form input[type="number"] { width: 140px; }
-             form.add-item-form input[type="date"] { width: 150px; }
-             form.add-item-form input[type="time"] { width: 110px; }
+             /* Ajustes específicos para cada formulário */
+            #formOutraRenda input[type="text"],
+            #formOutraDespesa input[type="text"] { flex-grow: 1; }
+            #formOutraRenda input[type="number"],
+            #formOutraDespesa input[type="number"] { width: 140px; }
+            #formOutraDespesa input[type="date"] { width: 150px; } /* NOVO */
+
+            #formAddItemCompra .form-group:nth-child(1) { flex-grow: 1; } /* Item */
+            #formAddItemCompra .form-group:nth-child(2) { flex-basis: 100px; flex-grow: 0;} /* Qtd */
+
+            ul#listaComprasContainer li .compra-details input[type="number"] { width: 100px; } /* Input de preço maior */
+
             .summary { padding: 25px; border-radius: 15px; }
             .summary-item { font-size: 1.2em; }
             .summary-item.saldo-final { font-size: 1.5em; }
             button { padding: 12px 22px; font-size: 1em; }
             button.remove-btn { padding: 8px 12px; font-size: 0.9em; }
-            ul li { padding: 15px; border-radius: 10px; }
-             ul li span { font-size: 1em; width: auto; margin-bottom: 0; }
+             button.pay-btn { padding: 8px 12px; font-size: 0.9em; } /* NOVO */
+            ul li { padding: 15px; border-radius: 10px; flex-wrap: nowrap; } /* Não quebra mais linha */
+             ul li > span:first-of-type { font-size: 1em; width: auto; margin-bottom: 0; }
             ul li strong { font-size: 0.9em; }
             ul li .remove-btn-li { width: 25px; height: 25px; font-size: 0.8em; line-height: 25px; }
             .grafico-container { max-width: 600px; padding: 25px; border-radius: 15px; }
@@ -434,7 +607,10 @@
          @media (min-width: 900px) {
              /* Estilos originais podem ser reconfirmados aqui se necessário */
               header h1 { font-size: 2.5em; }
-              /* ... outros ajustes finos para desktop ... */
+             /* ... outros ajustes finos para desktop ... */
+              .input-group label { flex-basis: 250px;} /* Label maior no desktop */
+              .input-value-date-container > div { flex-basis: 180px;}
+
          }
 
     </style>
@@ -444,11 +620,11 @@
         <header>
             <h1>Meu Organizador Financeiro</h1>
         </header>
-        
+
         <nav id="main-nav">
             <a href="#principal" class="nav-link active">🏠 Principal</a>
             <a href="#financeiro" class="nav-link">💰 Financeiro</a>
-            <a href="#compras" class="nav-link">🛒 Compras</a> 
+            <a href="#compras" class="nav-link">🛒 Compras</a>
             <a href="#carro" class="nav-link">🚗 Carro</a>
             <a href="#agenda" class="nav-link">📅 Agenda</a>
         </nav>
@@ -488,7 +664,7 @@
                     <canvas id="graficoDespesas"></canvas>
                 </div>
             </section>
-            
+
             <!-- ============================================== -->
             <!-- NOVO: Seção para Gráfico de Cartão de Crédito -->
             <!-- ============================================== -->
@@ -512,10 +688,18 @@
                         <span id="totalReceitasFinanceiro" class="receita-valor">R$ 0,00</span>
                     </div>
                     <div class="summary-item">
-                        <span>Total de Despesas Fixas + Extras:</span>
+                        <span>Total Despesas (Fixas + Extras):</span>
                         <span id="totalDespesasFinanceiro" class="despesa-valor">R$ 0,00</span>
                     </div>
                 </div>
+                <!-- NOVO: Saldo Devedor -->
+                 <h2 style="margin-top: 30px;">📉 Saldo Devedor (Contas Não Pagas)</h2>
+                 <div class="summary summary-devedor">
+                    <div class="summary-item saldo-final">
+                         <span>Valor Pendente:</span>
+                         <span id="saldoDevedorValor">R$ 0,00</span>
+                    </div>
+                 </div>
             </section>
 
             <section>
@@ -532,11 +716,17 @@
                     <label for="inss">Benefício INSS:</label>
                     <input type="number" id="inss" class="receita-input" placeholder="R$ 0,00" min="0" step="0.01">
                 </div>
-                
+
                 <h3>Outras Fontes de Renda</h3>
                 <form id="formOutraRenda" class="add-item-form">
-                    <input type="text" id="outraRendaDescricao" placeholder="Descrição (Ex: Freelance)">
-                    <input type="number" id="outraRendaValor" placeholder="R$ 0,00" min="0" step="0.01">
+                    <div class="form-group">
+                        <label for="outraRendaDescricao">Descrição</label>
+                        <input type="text" id="outraRendaDescricao" placeholder="Ex: Freelance">
+                    </div>
+                    <div class="form-group">
+                         <label for="outraRendaValor">Valor</label>
+                        <input type="number" id="outraRendaValor" placeholder="R$ 0,00" min="0" step="0.01">
+                    </div>
                     <button type="submit">+ Adicionar</button>
                 </form>
                 <div id="outrasRendasContainer"></div>
@@ -544,46 +734,84 @@
 
             <section>
                 <h2>💸 Despesas Fixas (Saídas)</h2>
+                <!-- ALTERADO: Adicionado input de data para despesas fixas -->
                 <div class="input-group">
                     <label for="escola">Escola Crianças:</label>
-                    <input type="number" id="escola" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
+                    <div class="input-value-date-container">
+                         <div><label for="escola">Valor</label><input type="number" id="escola" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
+                         <div><label for="vencimentoEscola">Vencimento</label><input type="date" id="vencimentoEscola" class="vencimento-input"></div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="agua">Conta de Água:</label>
-                    <input type="number" id="agua" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
+                    <div class="input-value-date-container">
+                         <div><label for="agua">Valor</label><input type="number" id="agua" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
+                         <div><label for="vencimentoAgua">Vencimento</label><input type="date" id="vencimentoAgua" class="vencimento-input"></div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="luz">Conta de Luz:</label>
-                    <input type="number" id="luz" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
+                     <div class="input-value-date-container">
+                         <div><label for="luz">Valor</label><input type="number" id="luz" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
+                         <div><label for="vencimentoLuz">Vencimento</label><input type="date" id="vencimentoLuz" class="vencimento-input"></div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="internet">Internet:</label>
-                    <input type="number" id="internet" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
+                    <div class="input-value-date-container">
+                         <div><label for="internet">Valor</label><input type="number" id="internet" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
+                         <div><label for="vencimentoInternet">Vencimento</label><input type="date" id="vencimentoInternet" class="vencimento-input"></div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="financiamentoCasa">Financiamento Casa:</label>
-                    <input type="number" id="financiamentoCasa" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
+                     <div class="input-value-date-container">
+                         <div><label for="financiamentoCasa">Valor</label><input type="number" id="financiamentoCasa" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
+                         <div><label for="vencimentoFinanciamentoCasa">Vencimento</label><input type="date" id="vencimentoFinanciamentoCasa" class="vencimento-input"></div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="financiamentoCarro">Financiamento Carro:</label>
-                    <input type="number" id="financiamentoCarro" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
+                     <div class="input-value-date-container">
+                         <div><label for="financiamentoCarro">Valor</label><input type="number" id="financiamentoCarro" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
+                         <div><label for="vencimentoFinanciamentoCarro">Vencimento</label><input type="date" id="vencimentoFinanciamentoCarro" class="vencimento-input"></div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="seguroCarro">Seguro Carro:</label>
-                    <input type="number" id="seguroCarro" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
+                    <div class="input-value-date-container">
+                         <div><label for="seguroCarro">Valor</label><input type="number" id="seguroCarro" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
+                         <div><label for="vencimentoSeguroCarro">Vencimento</label><input type="date" id="vencimentoSeguroCarro" class="vencimento-input"></div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="cartaoCredito">Cartão de Crédito (Fatura):</label>
-                    <input type="number" id="cartaoCredito" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
+                    <div class="input-value-date-container">
+                         <div><label for="cartaoCredito">Valor</label><input type="number" id="cartaoCredito" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
+                         <div><label for="vencimentoCartaoCredito">Vencimento</label><input type="date" id="vencimentoCartaoCredito" class="vencimento-input"></div>
+                    </div>
                 </div>
-                
-                <h3>Outras Despesas</h3>
+
+                <h3>Outras Despesas (Contas a Pagar)</h3>
+                <!-- ALTERADO: Formulário de Outras Despesas com Data Vencimento -->
                 <form id="formOutraDespesa" class="add-item-form">
-                    <input type="text" id="outraDespesaDescricao" placeholder="Descrição (Ex: Presente)">
-                    <input type="number" id="outraDespesaValor" placeholder="R$ 0,00" min="0" step="0.01">
+                     <div class="form-group">
+                          <label for="outraDespesaDescricao">Descrição</label>
+                         <input type="text" id="outraDespesaDescricao" placeholder="Descrição (Ex: Presente)">
+                     </div>
+                     <div class="form-group">
+                          <label for="outraDespesaValor">Valor</label>
+                         <input type="number" id="outraDespesaValor" placeholder="R$ 0,00" min="0" step="0.01">
+                     </div>
+                     <div class="form-group">
+                          <label for="outraDespesaVencimento">Vencimento</label>
+                         <input type="date" id="outraDespesaVencimento">
+                     </div>
                     <button type="submit">+ Adicionar</button>
                 </form>
-                <div id="outrasDespesasContainer"></div>
+                <div id="outrasDespesasContainer">
+                    <!-- Itens serão adicionados aqui -->
+                </div>
             </section>
         </div>
 
@@ -610,14 +838,21 @@
                         <span id="saldoVA" class="positive">R$ 0,00</span>
                     </div>
                 </div>
-                
+
                 <h3>Lista de Compras</h3>
+                 <!-- ALTERADO: Formulário de Compras pede Item e Quantidade -->
                 <form id="formAddItemCompra" class="add-item-form">
-                    <input type="text" id="itemCompraDescricao" placeholder="Nome do Item (Ex: Arroz)">
-                    <input type="number" id="itemCompraValor" placeholder="R$ 0,00" min="0" step="0.01">
-                    <button type="submit">+ Adicionar</button>
+                     <div class="form-group">
+                          <label for="itemCompraDescricao">Item</label>
+                         <input type="text" id="itemCompraDescricao" placeholder="Nome do Item (Ex: Arroz)">
+                     </div>
+                     <div class="form-group">
+                          <label for="itemCompraQtd">Quantidade</label>
+                         <input type="number" id="itemCompraQtd" value="1" min="1" step="1">
+                     </div>
+                    <button type="submit">+ Adicionar Item</button>
                 </form>
-                <ul id="listaComprasContainer"> 
+                <ul id="listaComprasContainer">
                     <!-- Itens da lista serão adicionados aqui -->
                 </ul>
             </section>
@@ -630,10 +865,10 @@
             <section>
                 <h2>🚗 Manutenção do Carro</h2>
                 <form id="formManutencao" class="add-item-form">
-                    <input type="date" id="manutencaoData" style="width: 150px;">
-                    <input type="text" id="manutencaoDescricao" placeholder="Ex: Troca de Óleo, Pneu">
-                    <input type="number" id="manutencaoKm" placeholder="Próxima (KM)" style="width: 140px;">
-                    <input type="number" id="manutencaoValor" placeholder="Valor (R$)" style="width: 120px;" step="0.01">
+                    <div class="form-group"><label>Data</label><input type="date" id="manutencaoData"></div>
+                    <div class="form-group" style="flex-grow: 2;"><label>Descrição</label><input type="text" id="manutencaoDescricao" placeholder="Ex: Troca de Óleo, Pneu"></div>
+                    <div class="form-group"><label>Próxima (KM)</label><input type="number" id="manutencaoKm" placeholder="KM"></div>
+                    <div class="form-group"><label>Valor (R$)</label><input type="number" id="manutencaoValor" placeholder="R$ 0,00" step="0.01"></div>
                     <button type="submit">+ Registrar</button>
                 </form>
                 <ul id="listaManutencao" style="margin-top: 20px;"></ul>
@@ -642,13 +877,13 @@
             <section>
                 <h2>⛽️ Controle de Gasolina</h2>
                 <form id="formAbastecimento" class="add-item-form">
-                    <input type="date" id="gasData" style="width: 150px;">
-                    <input type="number" id="gasKmAtual" placeholder="KM Atual" style="width: 130px;">
-                    <input type="number" id="gasLitros" placeholder="Litros (L)" style="width: 120px;" step="0.01">
-                    <input type="number" id="gasValorTotal" placeholder="Valor Total (R$)" step="0.01"> <!-- Permite centavos -->
+                     <div class="form-group"><label>Data</label><input type="date" id="gasData"></div>
+                     <div class="form-group"><label>KM Atual</label><input type="number" id="gasKmAtual" placeholder="KM"></div>
+                     <div class="form-group"><label>Litros (L)</label><input type="number" id="gasLitros" placeholder="L" step="0.01"></div>
+                     <div class="form-group"><label>Valor Total (R$)</label><input type="number" id="gasValorTotal" placeholder="R$ 0,00" step="0.01"></div>
                     <button type="submit">+ Registrar</button>
                 </form>
-                
+
                 <h3 style="margin-top: 20px; color: #f0f0f0;">Histórico de Abastecimento</h3>
                 <ul id="listaAbastecimento" style="margin-top: 20px;"></ul>
             </section>
@@ -661,20 +896,20 @@
             <section>
                 <h2>🏖️ Lazer e Agenda</h2>
                 <form id="formLazer" class="add-item-form">
-                    <input type="date" id="eventoData" style="width: 150px;">
-                    <input type="time" id="eventoHorario" style="width: 110px;">
-                    <input type="text" id="eventoDescricao" placeholder="Ex: Ir ao parque, Missa">
+                     <div class="form-group"><label>Data</label><input type="date" id="eventoData"></div>
+                     <div class="form-group"><label>Horário</label><input type="time" id="eventoHorario"></div>
+                     <div class="form-group" style="flex-grow: 2;"><label>Descrição</label><input type="text" id="eventoDescricao" placeholder="Ex: Ir ao parque, Missa"></div>
                     <button type="submit">+ Agendar</button>
                 </form>
                 <ul id="listaEventos" style="margin-top: 20px;"></ul>
             </section>
-            
+
             <section>
                 <h2>🏠 Tarefas de Casa</h2>
                 <form id="formTarefa" class="add-item-form">
-                    <input type="date" id="tarefaData" style="width: 150px;">
-                    <input type="time" id="tarefaHorario" style="width: 110px;">
-                    <input type="text" id="tarefaDescricao" placeholder="Ex: Lavar banheiros">
+                     <div class="form-group"><label>Data</label><input type="date" id="tarefaData"></div>
+                     <div class="form-group"><label>Horário</label><input type="time" id="tarefaHorario"></div>
+                     <div class="form-group" style="flex-grow: 2;"><label>Descrição</label><input type="text" id="tarefaDescricao" placeholder="Ex: Lavar banheiros"></div>
                     <button type="submit">+ Agendar</button>
                 </form>
                 <ul id="listaTarefas" style="margin-top: 20px;"></ul>
@@ -689,7 +924,7 @@
     <!-- Scripts do Firebase (SDKs) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
+
     <!-- Script Principal (Lógica do App) -->
     <script>
         // Configuração do Firebase fornecida pelo usuário
@@ -697,23 +932,23 @@
           apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
           authDomain: "finan1313.firebaseapp.com",
           projectId: "finan1313",
-          storageBucket: "finan1313.firebasestorage.app",
+          storageBucket: "finan1313.appspot.com", // CORRIGIDO: Removido 'firebasestorage.'
           messagingSenderId: "92060764433",
           appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
         };
-        
+
         // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(); // Conecta ao Firestore
-        
+
         console.log("Firebase conectado ao projeto:", firebaseConfig.projectId);
 
         // --- NOVO: Configurações Padrão do Gráfico para Dark Mode ---
         Chart.defaults.color = '#e0e0e0';
         Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-        
+
         // --- LÓGICA DE NAVEGAÇÃO ---
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             const navLinks = document.querySelectorAll('.nav-link');
             const pageSections = document.querySelectorAll('.page-section');
@@ -724,7 +959,7 @@
             const mesAtual = (d.getMonth() + 1).toString().padStart(2, '0');
             const anoAtual = d.getFullYear();
             seletorMes.value = `${anoAtual}-${mesAtual}`;
-            
+
             // Ouvinte para quando o mês mudar
             seletorMes.addEventListener('change', () => {
                 console.log("Mês selecionado:", getMesId());
@@ -737,13 +972,13 @@
                 pageSections.forEach(section => {
                     section.classList.remove('active');
                 });
-                
+
                 // Mostra a seção correta
                 const activePage = document.getElementById(`page-${pageId}`);
                 if (activePage) {
                     activePage.classList.add('active');
                 }
-                
+
                 // Atualiza a classe 'active' nos links
                 navLinks.forEach(link => {
                     link.classList.remove('active');
@@ -751,7 +986,7 @@
                         link.classList.add('active');
                     }
                 });
-                
+
                 // Ação especial ao carregar a página principal
                 if (pageId === 'principal') {
                     // Recarrega os dados do Firebase para atualizar o resumo
@@ -774,7 +1009,7 @@
             initCompras();
             initCarro();
             initAgenda();
-            
+
             // Mostra a página principal por padrão
             showPage('principal');
         });
@@ -785,46 +1020,48 @@
             document.getElementById('outrasRendasContainer').innerHTML = '';
             document.getElementById('outrasDespesasContainer').innerHTML = '';
             document.getElementById('listaComprasContainer').innerHTML = '';
-            document.getElementById('listaManutencao').innerHTML = ''; 
+            document.getElementById('listaManutencao').innerHTML = '';
             document.getElementById('listaAbastecimento').innerHTML = ''; // NOVO: Limpa lista de gasolina
-            document.getElementById('listaEventos').innerHTML = ''; 
-            document.getElementById('listaTarefas').innerHTML = ''; 
-            
+            document.getElementById('listaEventos').innerHTML = '';
+            document.getElementById('listaTarefas').innerHTML = '';
+
             // Recarrega os dados de todas as seções
             carregarDadosPrincipal();
             carregarDadosFinanceiro();
             carregarDadosCompras();
-            carregarDadosCarro(); 
-            carregarDadosAgenda(); 
+            carregarDadosCarro();
+            carregarDadosAgenda();
         }
-        
+
         // --- Funções Auxiliares Globais ---
         function formatCurrency(value) {
             // Garante que o valor é um número antes de formatar
             const numberValue = parseFloat(value) || 0;
             return numberValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
-        
+
         function formatDate(dateString) {
-            if (!dateString) return '';
-            const [year, month, day] = dateString.split('-');
-            return `${day}/${month}/${year}`;
+            if (!dateString || !dateString.includes('-')) return ''; // Verifica se é uma string de data válida
+            const date = new Date(dateString + 'T00:00:00-03:00'); // Adiciona T00:00 para evitar problemas de fuso
+            if (isNaN(date)) return ''; // Retorna vazio se a data for inválida
+            return date.toLocaleDateString('pt-BR');
         }
-        
+
+
         // Função para pegar o ID do mês selecionado
         function getMesId() {
             const seletor = document.getElementById('seletorMes');
             if (seletor && seletor.value) {
                 return seletor.value; // Retorna "AAAA-MM"
             }
-            
+
             // Fallback para o mês atual se algo der errado
             const d = new Date();
             const mes = (d.getMonth() + 1).toString().padStart(2, '0');
             const ano = d.getFullYear();
             return `${ano}-${mes}`;
         }
-        
+
         // NOVO: Função auxiliar para obter o ID do mês anterior
         function obterMesAnteriorId(mesId, mesesAtras = 1) {
             const [ano, mes] = mesId.split('-').map(Number);
@@ -836,32 +1073,32 @@
         }
 
         // --- Lógica da Página Principal (index.html) ---
-        
+
         function initPrincipal() {
             // Esta função é chamada no DOMContentLoaded
             carregarDadosPrincipal();
         }
-        
+
         // ATUALIZADO: Carrega todos os totais e histórico do cartão
         async function carregarDadosPrincipal() {
             const mesId = getMesId(); // Usa o mês selecionado
             const docRef = db.collection("financas").doc(mesId);
-            
+
             try {
                 const docSnap = await docRef.get();
                 let totalReceitas = 0;
                 let totalDespesasFixas = 0; // Despesas da pág. Financeiro
                 let totalCompras = 0;
-                let totalGasolina = 0; 
-                let totalManutencao = 0; 
+                let totalGasolina = 0;
+                let totalManutencao = 0;
 
-                if (docSnap.exists) { 
+                if (docSnap.exists) {
                     const dados = docSnap.data();
                     totalReceitas = dados.totalReceitas || 0;
-                    totalDespesasFixas = dados.totalDespesasFixas || 0; 
+                    totalDespesasFixas = dados.totalDespesasFixas || 0;
                     totalCompras = dados.totalCompras || 0;
-                    totalGasolina = dados.totalGasolina || 0; 
-                    totalManutencao = dados.totalManutencao || 0; 
+                    totalGasolina = dados.totalGasolina || 0;
+                    totalManutencao = dados.totalManutencao || 0;
                 } else {
                     console.log(`Nenhum documento encontrado para ${mesId}, iniciando do zero.`);
                 }
@@ -882,13 +1119,13 @@
                     saldoEl.classList.remove('positive');
                     saldoEl.classList.add('negative');
                 }
-                
+
                 // ATUALIZADO: Gráfico agora exclui gasolina
                 gerarGraficoDespesas(totalDespesasFixas, totalCompras, totalManutencao);
-                
+
                 // NOVO: Carrega e exibe o histórico do cartão
                 carregarEExibirHistoricoCartao();
-                
+
             } catch (error) {
                 console.error("Erro ao carregar dados principais:", error);
             }
@@ -901,12 +1138,12 @@
                 window.myPieChart.destroy();
             }
             window.myPieChart = new Chart(ctx, {
-                type: 'doughnut', 
+                type: 'doughnut',
                 data: {
                     labels: ['Despesas Fixas', 'Compras', 'Manutenção'], // Gasolina removida
                     datasets: [{
                         data: [
-                            despesasFixas > 0 ? despesasFixas : 0, 
+                            despesasFixas > 0 ? despesasFixas : 0,
                             compras > 0 ? compras : 0,
                             // gasolina > 0 ? gasolina : 0, // Removido
                             manutencao > 0 ? manutencao : 0
@@ -924,28 +1161,28 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false, // Permite ajustar altura/largura
-                    cutout: '60%', 
+                    cutout: '60%',
                     plugins: {
-                        legend: { 
+                        legend: {
                             position: 'top',
                             labels: {
-                                color: '#e0e0e0' 
+                                color: '#e0e0e0'
                             }
                         },
-                        title: { 
-                            display: true, 
+                        title: {
+                            display: true,
                             text: 'Distribuição das Saídas (Exceto Gasolina)', // Título atualizado
-                            color: '#ffffff' 
+                            color: '#ffffff'
                         }
                     }
                 }
             });
         }
-        
+
         // =============================================== //
         // NOVO: Funções para o Gráfico de Cartão de Crédito //
         // =============================================== //
-        
+
         async function carregarEExibirHistoricoCartao() {
             const mesIdAtual = getMesId();
             const mesesParaBuscar = 6; // Quantos meses no histórico
@@ -959,7 +1196,7 @@
                 idsDosMeses.push(mesId);
                 labelsGrafico.push(mesId); // Usa o ID como label inicial
             }
-            
+
             console.log("Buscando histórico do cartão para:", idsDosMeses);
 
             try {
@@ -973,18 +1210,18 @@
                     if (docSnap.exists) {
                         const dados = docSnap.data();
                         // Busca o valor salvo como 'cartaoCredito'
-                        valorCartao = dados.cartaoCredito || 0; 
+                        valorCartao = dados.cartaoCredito || 0;
                     }
                     dadosGrafico.push(valorCartao);
                 });
-                
+
                 console.log("Dados do cartão:", dadosGrafico);
                 gerarGraficoCartao(labelsGrafico, dadosGrafico);
 
             } catch (error) {
                 console.error("Erro ao carregar histórico do cartão:", error);
                 // Limpa o gráfico em caso de erro
-                gerarGraficoCartao([], []); 
+                gerarGraficoCartao([], []);
             }
         }
 
@@ -1031,133 +1268,228 @@
                             text: 'Gasto Mensal - Cartão de Crédito (Últimos 6 Meses)',
                             color: '#ffffff'
                         },
-                         tooltip: { // Formata o tooltip
+                          tooltip: { // Formata o tooltip
                              callbacks: {
-                                 label: function(context) {
-                                     let label = context.dataset.label || '';
-                                     if (label) {
-                                         label += ': ';
-                                     }
-                                     if (context.parsed.y !== null) {
-                                         label += formatCurrency(context.parsed.y);
-                                     }
-                                     return label;
-                                 }
-                             }
+                                  label: function(context) {
+                                      let label = context.dataset.label || '';
+                                      if (label) {
+                                          label += ': ';
+                                      }
+                                      if (context.parsed.y !== null) {
+                                          label += formatCurrency(context.parsed.y);
+                                      }
+                                      return label;
+                                  }
+                              }
                          }
                     }
                 }
             });
         }
-        
+
         // --- Lógica da Página Financeiro (financeiro.html) ---
-        
+
         function initFinanceiro() {
             carregarDadosFinanceiro();
-            
-            // ATUALIZADO: Captura o submit do formulário de Renda
-            document.getElementById('formOutraRenda').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const descricaoInput = document.getElementById('outraRendaDescricao');
-                const valorInput = document.getElementById('outraRendaValor');
-                
-                const descricao = descricaoInput.value;
-                const valor = parseFloat(valorInput.value) || 0;
-                
-                if (!descricao || valor <= 0) {
-                    alert('Preencha a descrição e um valor válido.');
-                    return;
-                }
-                
-                criarItemRendaUI({ descricao, valor }); // Adiciona na UI
-                calcularTudoFinanceiro(); // Salva totais E a lista
-                
-                // Limpa o formulário
-                descricaoInput.value = '';
-                valorInput.value = '';
-            });
-            
-            // ATUALIZADO: Captura o submit do formulário de Despesa
-            document.getElementById('formOutraDespesa').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const descricaoInput = document.getElementById('outraDespesaDescricao');
-                const valorInput = document.getElementById('outraDespesaValor');
-                
-                const descricao = descricaoInput.value;
-                const valor = parseFloat(valorInput.value) || 0;
-                
-                if (!descricao || valor <= 0) {
-                    alert('Preencha a descrição e um valor válido.');
-                    return;
-                }
-                
-                criarItemDespesaUI({ descricao, valor }); // Adiciona na UI
-                calcularTudoFinanceiro(); // Salva totais E a lista
-                
-                // Limpa o formulário
-                descricaoInput.value = '';
-                valorInput.value = '';
-            });
-            
-            // Adiciona ouvintes aos inputs fixos APENAS uma vez
-             document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
+
+            // Adiciona ouvintes de submit AOS FORMULÁRIOS uma única vez
+            const formRenda = document.getElementById('formOutraRenda');
+            if (!formRenda.hasAttribute('data-listener-added')) {
+                 formRenda.addEventListener('submit', handleAddOutraRenda);
+                 formRenda.setAttribute('data-listener-added', 'true');
+            }
+
+            const formDespesa = document.getElementById('formOutraDespesa');
+            if (!formDespesa.hasAttribute('data-listener-added')) {
+                 formDespesa.addEventListener('submit', handleAddOutraDespesa);
+                 formDespesa.setAttribute('data-listener-added', 'true');
+            }
+
+            // Adiciona ouvintes aos inputs fixos (valor E data) APENAS uma vez
+             document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input, #page-financeiro .vencimento-input').forEach(input => { // Inclui .vencimento-input
                  // Garante que o ouvinte só seja adicionado uma vez
                  if(!input.hasAttribute('data-listener-added')) {
-                    input.addEventListener('input', calcularTudoFinanceiro);
-                    input.setAttribute('data-listener-added', 'true');
+                     input.addEventListener('input', calcularTudoFinanceiro);
+                     input.setAttribute('data-listener-added', 'true');
                  }
             });
         }
-        
-        // ATUALIZADO: Cria o item "fixo" de Renda na UI
+
+        // NOVO: Handler para adicionar Outra Renda
+        function handleAddOutraRenda(e) {
+             e.preventDefault();
+             const descricaoInput = document.getElementById('outraRendaDescricao');
+             const valorInput = document.getElementById('outraRendaValor');
+
+             const descricao = descricaoInput.value.trim();
+             const valor = parseFloat(valorInput.value) || 0;
+
+             if (!descricao || valor <= 0) {
+                 alert('Preencha a descrição e um valor válido para a renda.');
+                 return;
+             }
+
+             const novaRenda = { id: Date.now().toString(), descricao, valor }; // Adiciona ID
+             criarItemRendaUI(novaRenda); // Adiciona na UI
+             calcularTudoFinanceiro(); // Salva totais E a lista
+
+             // Limpa o formulário
+             descricaoInput.value = '';
+             valorInput.value = '';
+        }
+
+        // NOVO: Handler para adicionar Outra Despesa
+        function handleAddOutraDespesa(e) {
+             e.preventDefault();
+             const descricaoInput = document.getElementById('outraDespesaDescricao');
+             const valorInput = document.getElementById('outraDespesaValor');
+             const vencimentoInput = document.getElementById('outraDespesaVencimento'); // NOVO
+
+             const descricao = descricaoInput.value.trim();
+             const valor = parseFloat(valorInput.value) || 0;
+             const vencimento = vencimentoInput.value; // NOVO
+
+             if (!descricao || valor <= 0 || !vencimento) { // Verifica vencimento
+                 alert('Preencha descrição, valor e data de vencimento válidos.');
+                 return;
+             }
+
+             const novaDespesa = {
+                 id: Date.now().toString(), // ID único como string
+                 descricao,
+                 valor,
+                 vencimento,
+                 paga: false // Começa como não paga
+             };
+
+             criarItemDespesaUI(novaDespesa); // Adiciona na UI
+             calcularTudoFinanceiro(); // Salva totais E a lista
+
+             // Limpa o formulário
+             descricaoInput.value = '';
+             valorInput.value = '';
+             vencimentoInput.value = '';
+        }
+
+        // ATUALIZADO: Cria o item "fixo" de Renda na UI (com ID)
         function criarItemRendaUI(item) {
             const container = document.getElementById('outrasRendasContainer');
             const newItem = document.createElement('div');
-            newItem.classList.add('fixed-item'); // Mudei a classe
+            newItem.classList.add('fixed-item');
+            newItem.dataset.id = item.id; // Guarda o ID no elemento
+
             newItem.innerHTML = `
-                <span>${item.descricao}</span>
-                <span class="receita-valor">${formatCurrency(item.valor)}</span>
-                <button class="remove-btn-li">X</button>
+                 <div class="item-info">
+                      <span class="descricao">${item.descricao}</span>
+                 </div>
+                 <div class="item-valor receita-valor">${formatCurrency(item.valor)}</div>
+                 <div class="item-actions">
+                      <button class="remove-btn remove-renda-btn">Remover</button>
+                 </div>
             `;
-            
-            // Adiciona dados ao elemento para fácil leitura
-            newItem.dataset.descricao = item.descricao;
-            newItem.dataset.valor = item.valor;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                container.removeChild(newItem);
-                calcularTudoFinanceiro(); // Recalcula e salva tudo
-            });
-            container.appendChild(newItem);
-        }
-        
-        // ATUALIZADO: Cria o item "fixo" de Despesa na UI
-        function criarItemDespesaUI(item) {
-            const container = document.getElementById('outrasDespesasContainer');
-            const newItem = document.createElement('div');
-            newItem.classList.add('fixed-item'); // Mudei a classe
-            newItem.innerHTML = `
-                <span>${item.descricao}</span>
-                <span class="despesa-valor">${formatCurrency(item.valor)}</span>
-                <button class="remove-btn-li">X</button>
-            `;
-            
-            // Adiciona dados ao elemento para fácil leitura
-            newItem.dataset.descricao = item.descricao;
-            newItem.dataset.valor = item.valor;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
+
+            newItem.querySelector('.remove-renda-btn').addEventListener('click', () => {
                 container.removeChild(newItem);
                 calcularTudoFinanceiro(); // Recalcula e salva tudo
             });
             container.appendChild(newItem);
         }
 
-        // ATUALIZADO: Calcula e Salva TUDO (Totais e Listas)
+        // ATUALIZADO: Cria o item "fixo" de Despesa na UI (com ID, Vencimento, Status, Pagar)
+        function criarItemDespesaUI(item) {
+            const container = document.getElementById('outrasDespesasContainer');
+            const newItem = document.createElement('div');
+            newItem.classList.add('fixed-item');
+            newItem.dataset.id = item.id; // Guarda o ID
+
+            // --- Lógica de Status ---
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0); // Zera hora para comparar só data
+            const vencimento = new Date(item.vencimento + 'T00:00:00-03:00'); // Fuso horário
+            let statusClasse = 'status-pendente';
+            let statusTexto = 'Pendente';
+            let desabilitarPagar = false;
+
+            if (item.paga) {
+                statusClasse = 'status-pago';
+                statusTexto = 'Pago';
+                desabilitarPagar = true;
+            } else if (vencimento < hoje) {
+                statusClasse = 'status-atrasado';
+                statusTexto = 'ATRASADO';
+            }
+            // --- Fim Lógica Status ---
+
+            newItem.innerHTML = `
+                <div class="item-info">
+                     <span class="descricao ${item.paga ? 'status-pago' : ''}">${item.descricao}</span>
+                     <span class="vencimento">Vence: ${formatDate(item.vencimento)}</span>
+                </div>
+                <div class="item-valor ${item.paga ? 'status-pago' : 'despesa-valor'}">
+                    ${formatCurrency(item.valor)}
+                    <span class="item-status ${statusClasse}">${statusTexto}</span>
+                </div>
+                <div class="item-actions">
+                     <button class="pay-btn" ${desabilitarPagar ? 'disabled' : ''}>${item.paga ? 'Pago' : 'Pagar'}</button>
+                     <button class="remove-btn remove-despesa-btn">Remover</button>
+                </div>
+            `;
+
+            // Botão Pagar
+            newItem.querySelector('.pay-btn').addEventListener('click', () => {
+                marcarDespesaComoPaga(item.id);
+            });
+
+            // Botão Remover
+            newItem.querySelector('.remove-despesa-btn').addEventListener('click', () => {
+                container.removeChild(newItem);
+                calcularTudoFinanceiro(); // Recalcula e salva tudo
+            });
+
+            container.appendChild(newItem);
+        }
+
+        // NOVO: Função para marcar despesa como paga
+        async function marcarDespesaComoPaga(id) {
+             const mesId = getMesId();
+             const docRef = db.collection("financas").doc(mesId);
+
+             try {
+                 const docSnap = await docRef.get();
+                 if (docSnap.exists) {
+                     const dados = docSnap.data();
+                     const outrasDespesas = dados.outrasDespesas || [];
+
+                     // Encontra e atualiza o item
+                     const despesasAtualizadas = outrasDespesas.map(d => {
+                         if (d.id === id) {
+                             return { ...d, paga: true }; // Marca como paga
+                         }
+                         return d;
+                     });
+
+                     // Salva a lista atualizada
+                     await docRef.set({ outrasDespesas: despesasAtualizadas }, { merge: true });
+                     console.log(`Despesa ${id} marcada como paga.`);
+
+                     // Recarrega a UI da seção financeira
+                     carregarDadosFinanceiro();
+
+                 } else {
+                     console.error("Documento do mês não encontrado para pagar despesa.");
+                 }
+             } catch (error) {
+                 console.error("Erro ao marcar despesa como paga:", error);
+             }
+        }
+
+
+        // ATUALIZADO: Calcula e Salva TUDO (Totais, Listas Renda/Despesa Extra, Datas de Vencimento Fixas)
         async function calcularTudoFinanceiro() {
             let totalReceitas = 0;
             let totalDespesasFixas = 0; // Nome alterado para clareza
-            
+            let saldoDevedor = 0; // NOVO
+
             let dadosParaSalvar = {
                 outrasRendas: [],
                 outrasDespesas: []
@@ -1167,66 +1499,115 @@
             document.querySelectorAll('#page-financeiro .receita-input').forEach(input => {
                 const valor = parseFloat(input.value) || 0;
                 totalReceitas += valor;
-                if (input.id) dadosParaSalvar[input.id] = valor; 
-            });
-            
-            // Soma Rendas Extras (lendo dos itens "fixos")
-            document.querySelectorAll('#outrasRendasContainer .fixed-item').forEach(item => {
-                const descricao = item.dataset.descricao;
-                const valor = parseFloat(item.dataset.valor) || 0;
-                totalReceitas += valor;
-                dadosParaSalvar.outrasRendas.push({ descricao, valor });
+                if (input.id) dadosParaSalvar[input.id] = valor;
             });
 
-            // Soma Despesas Fixas
+            // Soma Rendas Extras (lendo dos itens da UI)
+            document.querySelectorAll('#outrasRendasContainer .fixed-item').forEach(item => {
+                const id = item.dataset.id;
+                const descricao = item.querySelector('.descricao')?.textContent || '';
+                const valorStr = item.querySelector('.item-valor')?.textContent || 'R$ 0,00';
+                const valor = parseFloat(valorStr.replace('R$', '').replace('.', '').replace(',', '.')) || 0;
+
+                totalReceitas += valor;
+                // Certifica que o ID existe antes de adicionar
+                if(id) {
+                     dadosParaSalvar.outrasRendas.push({ id, descricao, valor });
+                } else {
+                     console.warn("Item de renda sem ID encontrado:", item);
+                     dadosParaSalvar.outrasRendas.push({ descricao, valor });
+                }
+            });
+
+            // Soma Despesas Fixas (Valor E Data)
             document.querySelectorAll('#page-financeiro .despesa-input').forEach(input => {
                 const valor = parseFloat(input.value) || 0;
                 totalDespesasFixas += valor;
                 if (input.id) dadosParaSalvar[input.id] = valor;
+
+                // Encontra o input de data correspondente e salva
+                const vencimentoInputId = 'vencimento' + input.id.charAt(0).toUpperCase() + input.id.slice(1); // Ex: escola -> vencimentoEscola
+                const vencimentoInput = document.getElementById(vencimentoInputId);
+                if (vencimentoInput) {
+                     dadosParaSalvar[vencimentoInputId] = vencimentoInput.value;
+                }
             });
-            
-            // Soma Despesas Extras (lendo dos itens "fixos")
+
+            // Soma Despesas Extras (lendo dos itens da UI) e calcula Saldo Devedor
             document.querySelectorAll('#outrasDespesasContainer .fixed-item').forEach(item => {
-                const descricao = item.dataset.descricao;
-                const valor = parseFloat(item.dataset.valor) || 0;
-                totalDespesasFixas += valor;
-                dadosParaSalvar.outrasDespesas.push({ descricao, valor });
+                const id = item.dataset.id;
+                const descricao = item.querySelector('.descricao')?.textContent || '';
+                const valorStr = item.querySelector('.item-valor')?.textContent || 'R$ 0,00';
+                const valor = parseFloat(valorStr.replace('R$', '').replace('.', '').replace(',', '.')) || 0;
+                const vencimentoSpan = item.querySelector('.vencimento');
+                let vencimento = '';
+                if (vencimentoSpan) {
+                     const partesData = vencimentoSpan.textContent.replace('Vence: ', '').split('/');
+                     if (partesData.length === 3) {
+                          vencimento = `${partesData[2]}-${partesData[1]}-${partesData[0]}`; // AAAA-MM-DD
+                     }
+                }
+                const paga = item.querySelector('.item-status')?.classList.contains('status-pago') || false; // Verifica se está pago pela classe
+
+                totalDespesasFixas += valor; // Soma ao total de despesas fixas + extras
+
+                // Adiciona ao saldo devedor APENAS se não estiver paga
+                if (!paga) {
+                    saldoDevedor += valor;
+                }
+
+                if(id){
+                    dadosParaSalvar.outrasDespesas.push({ id, descricao, valor, vencimento, paga });
+                } else {
+                     console.warn("Item de despesa sem ID encontrado:", item);
+                     dadosParaSalvar.outrasDespesas.push({ descricao, valor, vencimento, paga });
+                }
             });
 
             // Atualiza o Resumo da página
             document.getElementById('totalReceitasFinanceiro').innerText = formatCurrency(totalReceitas);
             document.getElementById('totalDespesasFinanceiro').innerText = formatCurrency(totalDespesasFixas);
+            document.getElementById('saldoDevedorValor').innerText = formatCurrency(saldoDevedor); // NOVO
 
             // Salva no Firebase
             const mesId = getMesId();
             try {
                 dadosParaSalvar.totalReceitas = totalReceitas;
                 dadosParaSalvar.totalDespesasFixas = totalDespesasFixas; // Nome atualizado
-                
+
                 // Salva o valor específico do cartão de crédito para o gráfico histórico
                 const valorCartao = parseFloat(document.getElementById('cartaoCredito')?.value) || 0;
                 dadosParaSalvar.cartaoCredito = valorCartao;
-                
+                // Salva também a data de vencimento do cartão
+                const vencimentoCartao = document.getElementById('vencimentoCartaoCredito')?.value || '';
+                dadosParaSalvar.vencimentoCartaoCredito = vencimentoCartao;
+
+
+                // Ordena as listas antes de salvar
+                dadosParaSalvar.outrasDespesas.sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
+
                 await db.collection("financas").doc(mesId).set(dadosParaSalvar, { merge: true });
                 console.log("Dados financeiros salvos!", mesId);
-                
-                // Atualiza o gráfico principal
-                carregarDadosPrincipal(); 
-                
+
+                // Atualiza o gráfico principal (pode ser otimizado para não recarregar sempre)
+                // Se a página principal estiver ativa, atualiza
+                if (document.getElementById('page-principal').classList.contains('active')) {
+                     carregarDadosPrincipal();
+                }
+
             } catch (error) {
                 console.error("Erro ao salvar dados financeiros:", error);
             }
         }
 
-        // ATUALIZADO: Carrega dados E listas "fixas"
+        // ATUALIZADO: Carrega dados, listas Renda/Despesa Extra E Datas Vencimento Fixas
         async function carregarDadosFinanceiro() {
             const mesId = getMesId();
             const docRef = db.collection("financas").doc(mesId);
 
-            // Limpa os campos fixos
-            document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
+            // Limpa os campos fixos (valor E data)
+            document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input, #page-financeiro .vencimento-input').forEach(input => {
                 input.value = '';
-                // Não remove ouvintes aqui, eles são adicionados uma vez no initFinanceiro
             });
             // Limpa containers dinâmicos
             document.getElementById('outrasRendasContainer').innerHTML = '';
@@ -1234,406 +1615,578 @@
 
             try {
                 const docSnap = await docRef.get();
-                if (docSnap.exists) { 
+                if (docSnap.exists) {
                     const dados = docSnap.data();
-                    // Preenche os campos fixos
-                    document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
+                    // Preenche os campos fixos (valor E data)
+                    document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input, #page-financeiro .vencimento-input').forEach(input => { // Inclui vencimento
                         if (input.id && dados[input.id] !== undefined) {
                             input.value = dados[input.id];
                         }
                     });
-                    
+
+                    // Ordena antes de exibir
                     if (dados.outrasRendas && Array.isArray(dados.outrasRendas)) {
-                        dados.outrasRendas.forEach(item => criarItemRendaUI(item));
+                         // Garante que todos os itens tenham ID ao carregar (para compatibilidade)
+                         const rendasComId = dados.outrasRendas.map(r => ({ ...r, id: r.id || Date.now().toString() + Math.floor(Math.random() * 1000) })); // CORRIGIDO
+                        rendasComId.forEach(item => criarItemRendaUI(item));
                     }
-                    
+
                     if (dados.outrasDespesas && Array.isArray(dados.outrasDespesas)) {
-                        dados.outrasDespesas.forEach(item => criarItemDespesaUI(item));
+                         // Garante ID e ordena por data de vencimento
+                         const despesasComId = dados.outrasDespesas.map(d => ({ ...d, id: d.id || Date.now().toString() + Math.floor(Math.random() * 1000) })); // CORRIGIDO
+                         despesasComId.sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
+                        despesasComId.forEach(item => criarItemDespesaUI(item));
                     }
                 }
-                // Adiciona ouvintes aos inputs fixos APENAS se ainda não tiverem sido adicionados
-                // (Isso evita adicionar múltiplos ouvintes ao trocar de mês)
-                 if(!document.getElementById('salarioPaulo').hasAttribute('data-listener-added')) {
-                     document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
-                        input.addEventListener('input', calcularTudoFinanceiro);
-                        input.setAttribute('data-listener-added', 'true'); // Marca que o ouvinte foi adicionado
-                    });
-                 }
-                
-                calcularTudoFinanceiro(); // Calcula ao carregar
-                
+                 // Calcula totais e saldo devedor após carregar e renderizar
+                 calcularTudoFinanceiro();
+
             } catch (error) {
                 console.error("Erro ao carregar dados financeiros:", error);
             }
         }
-        
+
+
         // --- Lógica da Página Compras (compras.html) ---
-        
+
         function initCompras() {
             carregarDadosCompras();
-            
-            // ATUALIZADO: Captura o submit do formulário
-            document.getElementById('formAddItemCompra').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const descricaoInput = document.getElementById('itemCompraDescricao');
-                const valorInput = document.getElementById('itemCompraValor');
-                
-                const descricao = descricaoInput.value;
-                const valor = parseFloat(valorInput.value) || 0;
 
-                if (!descricao || valor <= 0) {
-                    alert('Preencha a descrição e um valor válido.');
-                    return;
-                }
-                
-                criarItemCompraUI({ descricao, valor }); // Adiciona na UI
-                // calcularAlimentacao(); // Salva totais - Removido, chamado por salvarListaCompras
-                salvarListaCompras(); // Salva a lista
-                
-                descricaoInput.value = '';
-                valorInput.value = '';
-            });
-            
-             // Garante que o ouvinte só seja adicionado uma vez
-             const inputVA = document.getElementById('valorTotalVA');
-             if(!inputVA.hasAttribute('data-listener-added')) {
-                inputVA.addEventListener('input', calcularAlimentacao);
+            // Adiciona ouvinte de submit UMA VEZ
+            const formCompra = document.getElementById('formAddItemCompra');
+            if (!formCompra.hasAttribute('data-listener-added')) {
+                formCompra.addEventListener('submit', handleAddCompra);
+                formCompra.setAttribute('data-listener-added', 'true');
+            }
+
+            // Garante que o ouvinte do VA só seja adicionado uma vez
+            const inputVA = document.getElementById('valorTotalVA');
+            if(!inputVA.hasAttribute('data-listener-added')) {
+                inputVA.addEventListener('input', calcularAlimentacao); // Calcula e salva VA/Total
                 inputVA.setAttribute('data-listener-added', 'true');
-             }
+            }
         }
-        
-        // ATUALIZADO: Cria o item de Compra na UI (agora é <li>)
-        function criarItemCompraUI(item = { descricao: '', valor: 0 }) {
+
+         // NOVO: Handler para adicionar Item de Compra
+         function handleAddCompra(e) {
+             e.preventDefault();
+             const descricaoInput = document.getElementById('itemCompraDescricao');
+             const qtdInput = document.getElementById('itemCompraQtd'); // NOVO
+
+             const descricao = descricaoInput.value.trim();
+             const quantidade = parseInt(qtdInput.value) || 1; // Pega quantidade, padrão 1
+
+             if (!descricao || quantidade <= 0) {
+                 alert('Preencha o nome do item e uma quantidade válida.');
+                 return;
+             }
+
+             // Cria o item SEM PREÇO inicial
+             const novoItem = {
+                 id: Date.now().toString(), // ID único
+                 descricao,
+                 quantidade,
+                 preco: 0 // Preço começa zerado
+             };
+
+             criarItemCompraUI(novoItem); // Adiciona na UI
+             salvarListaCompras(); // Salva a lista (total será recalculado)
+
+             descricaoInput.value = '';
+             qtdInput.value = '1'; // Reseta quantidade
+         }
+
+        // ALTERADO: Cria o item de Compra na UI (com Qtd e Input de Preço)
+        function criarItemCompraUI(item = { id: '', descricao: '', quantidade: 1, preco: 0 }) {
             const container = document.getElementById('listaComprasContainer');
-            const newItem = document.createElement('li'); // Mudei para <li>
+            const newItem = document.createElement('li');
+            newItem.dataset.id = item.id; // Guarda o ID
+
             newItem.innerHTML = `
-                <span><strong>${item.descricao}</strong> - ${formatCurrency(item.valor)}</span>
-                <button class="remove-btn-li">X</button>
+                <span>(${item.quantidade}x) ${item.descricao}</span>
+                <div class="compra-details">
+                     <label for="preco-${item.id}">Preço:</label>
+                    <input type="number" id="preco-${item.id}" value="${item.preco > 0 ? item.preco.toFixed(2) : ''}" placeholder="R$ 0,00" step="0.01" min="0">
+                    <button class="remove-btn-li remove-compra-btn">X</button>
+                </div>
             `;
-            
-            // Adiciona dados ao elemento
-            newItem.dataset.descricao = item.descricao;
-            newItem.dataset.valor = item.valor;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                container.removeChild(newItem);
-                // calcularAlimentacao(); // Recalcula e salva o total - Removido, chamado por salvarListaCompras
-                salvarListaCompras(); // Salva a lista atualizada
+
+            // Ouvinte para o INPUT de PREÇO
+            const precoInput = newItem.querySelector(`#preco-${item.id}`);
+            precoInput.addEventListener('change', () => {
+                const novoPreco = parseFloat(precoInput.value) || 0;
+                // Atualiza o preço no Firebase (e recalcula o total)
+                atualizarPrecoESalvarCompra(item.id, novoPreco);
             });
+
+            // Ouvinte para o Botão REMOVER
+            newItem.querySelector('.remove-compra-btn').addEventListener('click', () => {
+                container.removeChild(newItem);
+                salvarListaCompras(); // Salva a lista atualizada (sem o item)
+            });
+
             container.appendChild(newItem);
         }
-        
-        // ATUALIZADO: Salva a lista de compras E recalcula/salva o total
-        async function salvarListaCompras() {
+
+         // NOVO: Atualiza o preço de um item específico E salva a lista toda
+         async function atualizarPrecoESalvarCompra(id, novoPreco) { // <-- CORREÇÃO: Removido espaço do nome
+             const mesId = getMesId();
+             const docRef = db.collection("financas").doc(mesId);
+             try {
+                 const docSnap = await docRef.get();
+                 let listaCompras = [];
+                 if (docSnap.exists && docSnap.data().listaCompras) {
+                     listaCompras = docSnap.data().listaCompras;
+                 }
+
+                 // Atualiza o preço do item na lista
+                 const listaAtualizada = listaCompras.map(item => {
+                     // Garante que o item tenha ID, para compatibilidade
+                     const itemId = item.id; // <-- CORRIGIDO: Confia no ID carregado
+                     if (itemId === id) {
+                         return { ...item, preco: novoPreco }; // Atualiza o preço
+                     }
+                     return item; // Retorna o item como está
+                 });
+
+                 // Salva a lista completa (salvarListaCompras faz isso e recalcula total)
+                 salvarListaCompras(listaAtualizada);
+
+             } catch (error) {
+                 console.error("Erro ao atualizar preço do item:", error);
+             }
+         }
+
+
+        // ALTERADO: Salva a lista de compras (lendo da UI) E recalcula/salva o total
+        async function salvarListaCompras(listaParaSalvar = null) {
             const mesId = getMesId();
-            let listaCompras = [];
-            let totalCompras = 0; // Recalcula o total aqui
-            
-            document.querySelectorAll('#listaComprasContainer li').forEach(item => {
-                const valorItem = parseFloat(item.dataset.valor) || 0;
-                listaCompras.push({
-                    descricao: item.dataset.descricao,
-                    valor: valorItem
-                });
-                totalCompras += valorItem; // Soma ao total
-            });
-            
-             // Atualiza o total na UI
+            let listaComprasFinal = [];
+            let totalCompras = 0;
+
+            if (listaParaSalvar) {
+                 // Usa a lista passada como argumento (quando atualiza o preço)
+                 listaComprasFinal = listaParaSalvar;
+                 // Recalcula o total com base na lista atualizada
+                 listaComprasFinal.forEach(item => {
+                      totalCompras += (item.quantidade || 1) * (item.preco || 0);
+                 });
+            } else {
+                // Lê da UI (quando adiciona ou remove)
+                 document.querySelectorAll('#listaComprasContainer li').forEach(li => {
+                    const id = li.dataset.id;
+                    const descSpan = li.querySelector('span'); // Pega o span principal
+                    let descricao = '';
+                    let quantidade = 1; // Default
+                    if (descSpan) {
+                         const match = descSpan.textContent.match(/\((\d+)x\)\s*(.*)/); // Extrai qtd e desc
+                         if (match) {
+                              quantidade = parseInt(match[1]) || 1;
+                              descricao = match[2].trim();
+                         } else {
+                              descricao = descSpan.textContent.trim(); // Se não tiver (Qtdx)
+                         }
+                    }
+                    const precoInput = li.querySelector(`input[type="number"]`);
+                    const preco = precoInput ? (parseFloat(precoInput.value) || 0) : 0;
+
+                    if (id && descricao) {
+                         listaComprasFinal.push({ id, descricao, quantidade, preco });
+                         totalCompras += quantidade * preco;
+                    }
+                 });
+            }
+
+
+            // Atualiza o total na UI
             document.getElementById('totalCompras').innerText = formatCurrency(totalCompras);
             const valorVA = parseFloat(document.getElementById('valorTotalVA').value) || 0;
-            document.getElementById('saldoVA').innerText = formatCurrency(valorVA - totalCompras);
-            
+            const saldoVA = valorVA - totalCompras;
+            document.getElementById('saldoVA').innerText = formatCurrency(saldoVA);
+            // Atualiza cor do saldo VA
+             const saldoVAEl = document.getElementById('saldoVA');
+             if (saldoVA >= 0) {
+                 saldoVAEl.classList.remove('negative');
+                 saldoVAEl.classList.add('positive');
+                 saldoVAEl.parentElement.style.color = '#28a745';
+             } else {
+                 saldoVAEl.classList.remove('positive');
+                 saldoVAEl.classList.add('negative');
+                 saldoVAEl.parentElement.style.color = '#dc3545';
+             }
+
+
             try {
-                await db.collection("financas").doc(mesId).set({ 
-                    listaCompras: listaCompras,
+                await db.collection("financas").doc(mesId).set({
+                    listaCompras: listaComprasFinal,
                     totalCompras: totalCompras, // Salva o total recalculado
                     valorTotalVA: valorVA // Salva o valor do VA junto
                  }, { merge: true });
                 console.log("Lista e total de compras salvos!", mesId);
-                carregarDadosPrincipal(); // Atualiza gráfico
+                // Atualiza gráfico principal se necessário
+                if (document.getElementById('page-principal').classList.contains('active')) {
+                     carregarDadosPrincipal();
+                }
             } catch (error) {
                 console.error("Erro ao salvar lista de compras:", error);
             }
         }
-        
-        // ATUALIZADO: Calcula o total E salva os totais (apenas quando o VA muda)
+
+
+        // ALTERADO: Calcula o saldo do VA e salva APENAS o VA e o Total no Firebase
         async function calcularAlimentacao() {
-             let totalCompras = 0;
-             document.querySelectorAll('#listaComprasContainer li').forEach(item => {
-                totalCompras += parseFloat(item.dataset.valor) || 0;
-            });
-            const valorVA = parseFloat(document.getElementById('valorTotalVA').value) || 0;
-            const saldoVA = valorVA - totalCompras;
+              let totalCompras = 0;
+              // Recalcula o total baseado nos itens JÁ na UI
+              document.querySelectorAll('#listaComprasContainer li').forEach(li => {
+                  const qtdMatch = li.querySelector('span')?.textContent.match(/\((\d+)x\)/);
+                  const quantidade = qtdMatch ? parseInt(qtdMatch[1]) : 1;
+                  const precoInput = li.querySelector(`input[type="number"]`);
+                  const preco = precoInput ? (parseFloat(precoInput.value) || 0) : 0;
+                  totalCompras += quantidade * preco;
+              });
 
-            // Atualiza o resumo
-            document.getElementById('totalCompras').innerText = formatCurrency(totalCompras);
-            document.getElementById('saldoVA').innerText = formatCurrency(saldoVA);
+             const valorVA = parseFloat(document.getElementById('valorTotalVA').value) || 0;
+             const saldoVA = valorVA - totalCompras;
 
-            // Salva no Firebase APENAS o valor do VA e o total (a lista é salva separadamente)
-            const mesId = getMesId();
-            try {
-                await db.collection("financas").doc(mesId).set({
-                    totalCompras: totalCompras, // Garante que o total está certo
-                    valorTotalVA: valorVA
-                }, { merge: true });
-                console.log("Dados de compras (VA/Total) salvos!", mesId);
-                
-                carregarDadosPrincipal(); // Atualiza gráfico
-                
-            } catch (error) {
-                console.error("Erro ao salvar dados de compras:", error);
-            }
+             // Atualiza o resumo
+             document.getElementById('totalCompras').innerText = formatCurrency(totalCompras);
+             document.getElementById('saldoVA').innerText = formatCurrency(saldoVA);
+             // Atualiza cor do saldo VA
+             const saldoVAEl = document.getElementById('saldoVA');
+             if (saldoVA >= 0) {
+                 saldoVAEl.classList.remove('negative');
+                 saldoVAEl.classList.add('positive');
+                 saldoVAEl.parentElement.style.color = '#28a745';
+             } else {
+                 saldoVAEl.classList.remove('positive');
+                 saldoVAEl.classList.add('negative');
+                 saldoVAEl.parentElement.style.color = '#dc3545';
+             }
+
+             // Salva no Firebase APENAS o valor do VA e o total (a lista é salva separadamente)
+             const mesId = getMesId();
+             try {
+                 await db.collection("financas").doc(mesId).set({
+                     totalCompras: totalCompras, // Garante que o total está certo
+                     valorTotalVA: valorVA
+                 }, { merge: true });
+                 console.log("Dados de compras (VA/Total) salvos!", mesId);
+
+                 // Atualiza gráfico principal se necessário
+                 if (document.getElementById('page-principal').classList.contains('active')) {
+                      carregarDadosPrincipal();
+                 }
+
+             } catch (error) {
+                 console.error("Erro ao salvar dados de compras (VA/Total):", error);
+             }
         }
-        
-        // ATUALIZADO: Carrega dados E a lista
+
+
+        // ATUALIZADO: Carrega dados E a lista de compras (com quantidade e preço)
         async function carregarDadosCompras() {
             const mesId = getMesId();
             const docRef = db.collection("financas").doc(mesId);
 
-            // Limpa o campo
+            // Limpa o campo VA e garante listener
             const inputVA = document.getElementById('valorTotalVA');
             inputVA.value = '';
-            // Garante que o ouvinte só seja adicionado uma vez
             if(!inputVA.hasAttribute('data-listener-added')) {
-                inputVA.addEventListener('input', calcularAlimentacao);
-                inputVA.setAttribute('data-listener-added', 'true');
+                 inputVA.addEventListener('input', calcularAlimentacao);
+                 inputVA.setAttribute('data-listener-added', 'true');
             }
 
 
             // Limpa a lista de compras
             document.getElementById('listaComprasContainer').innerHTML = '';
-            
+
             try {
                 const docSnap = await docRef.get();
-                if (docSnap.exists) { 
+                if (docSnap.exists) {
                     const dados = docSnap.data();
                     if(dados.valorTotalVA !== undefined) {
                         inputVA.value = dados.valorTotalVA; // Usa o inputVA diretamente
                     }
-                    
+
                     if (dados.listaCompras && Array.isArray(dados.listaCompras)) {
-                        dados.listaCompras.forEach(item => criarItemCompraUI(item));
+                         // Garante que todos os itens tenham ID
+                         const comprasComId = dados.listaCompras.map(c => ({
+                              ...c,
+                              id: c.id || Date.now().toString() + Math.floor(Math.random() * 1000), // CORRIGIDO
+                              quantidade: c.quantidade || 1, // Garante quantidade
+                              preco: c.preco || 0 // Garante preco
+                         }));
+                        comprasComId.forEach(item => criarItemCompraUI(item));
                     }
                 }
-                
-                calcularAlimentacao(); // Calcula os totais
-                
+
+                calcularAlimentacao(); // Calcula os totais após carregar
+
             } catch (error) {
                 console.error("Erro ao carregar dados de compras:", error);
             }
         }
 
+
         // --- Lógica da Página Carro (carro.html) ---
-        
+
         function initCarro() {
-            carregarDadosCarro(); 
-            
-            // ATUALIZADO: Captura o submit de Abastecimento
-            document.getElementById('formAbastecimento').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const item = {
-                    data: document.getElementById('gasData').value,
-                    kmAtual: parseFloat(document.getElementById('gasKmAtual').value) || 0,
-                    litros: parseFloat(document.getElementById('gasLitros').value) || 0,
-                    valorTotal: parseFloat(document.getElementById('gasValorTotal').value) || 0
-                };
-                
-                if (!item.data || item.kmAtual <= 0 || item.litros <= 0 || item.valorTotal <= 0) {
-                    alert('Preencha todos os campos de abastecimento com valores válidos.');
-                    return;
-                }
-                
-                salvarListaAbastecimento(item); // Salva no Firebase (já chama carregarDadosCarro)
-                document.getElementById('formAbastecimento').reset();
-            });
-            
-            // ATUALIZADO: Captura o submit de Manutenção
-            document.getElementById('formManutencao').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const item = {
-                    data: document.getElementById('manutencaoData').value,
-                    descricao: document.getElementById('manutencaoDescricao').value,
-                    km: document.getElementById('manutencaoKm').value,
-                    valor: parseFloat(document.getElementById('manutencaoValor').value) || 0 // NOVO
-                };
-                
-                if (!item.data || !item.descricao) {
-                    alert('Preencha pelo menos a data e a descrição da manutenção.');
-                    return;
-                }
-                
-                // Não precisa chamar criarItemManutencaoUI aqui, pois salvarListaManutencao recarrega
-                salvarListaManutencao(item); // Salva no Firebase
-                document.getElementById('formManutencao').reset();
-            });
+            carregarDadosCarro();
+
+             // Adiciona listeners aos forms UMA VEZ
+            const formAbast = document.getElementById('formAbastecimento');
+            if (!formAbast.hasAttribute('data-listener-added')) {
+                 formAbast.addEventListener('submit', handleAddAbastecimento);
+                 formAbast.setAttribute('data-listener-added', 'true');
+            }
+
+            const formManut = document.getElementById('formManutencao');
+            if (!formManut.hasAttribute('data-listener-added')) {
+                 formManut.addEventListener('submit', handleAddManutencao);
+                 formManut.setAttribute('data-listener-added', 'true');
+            }
         }
-        
-        // ATUALIZADO: Cria item de Manutenção na UI
+
+        // NOVO: Handler para Abastecimento
+        function handleAddAbastecimento(e) {
+             e.preventDefault();
+             const item = {
+                 id: Date.now().toString(), // ID único
+                 data: document.getElementById('gasData').value,
+                 kmAtual: parseFloat(document.getElementById('gasKmAtual').value) || 0,
+                 litros: parseFloat(document.getElementById('gasLitros').value) || 0,
+                 valorTotal: parseFloat(document.getElementById('gasValorTotal').value) || 0
+             };
+
+             if (!item.data || item.kmAtual <= 0 || item.litros <= 0 || item.valorTotal <= 0) {
+                 alert('Preencha todos os campos de abastecimento com valores válidos.');
+                 return;
+             }
+
+             salvarListaAbastecimento(item); // Salva no Firebase (já chama carregarDadosCarro)
+             document.getElementById('formAbastecimento').reset();
+        }
+
+        // NOVO: Handler para Manutenção
+        function handleAddManutencao(e) {
+             e.preventDefault();
+             const item = {
+                 id: Date.now().toString(), // ID único
+                 data: document.getElementById('manutencaoData').value,
+                 descricao: document.getElementById('manutencaoDescricao').value.trim(),
+                 km: document.getElementById('manutencaoKm').value, // Pode ser vazio
+                 valor: parseFloat(document.getElementById('manutencaoValor').value) || 0
+             };
+
+             if (!item.data || !item.descricao) {
+                 alert('Preencha pelo menos a data e a descrição da manutenção.');
+                 return;
+             }
+
+             salvarListaManutencao(item); // Salva no Firebase (já chama carregarDadosCarro)
+             document.getElementById('formManutencao').reset();
+        }
+
+        // ATUALIZADO: Cria item de Manutenção na UI (com ID)
         function criarItemManutencaoUI(item) {
             const lista = document.getElementById('listaManutencao');
             const newItem = document.createElement('li');
+            newItem.dataset.id = item.id; // Guarda ID
+
             let alertaKm = item.km ? `(Alerta p/ ${item.km} KM)` : '';
             let valorInfo = item.valor > 0 ? ` - ${formatCurrency(item.valor)}` : ''; // NOVO
-            
+
             newItem.innerHTML = `
                 <span><strong>${formatDate(item.data)}</strong> - ${item.descricao} ${alertaKm}${valorInfo}</span>
-                <button class="remove-btn-li">X</button>
+                <button class="remove-btn-li remove-manut-btn">X</button>
             `;
-            
-            // Adiciona dados para facilitar salvar/remover
-            newItem.dataset.data = item.data;
-            newItem.dataset.descricao = item.descricao;
-            newItem.dataset.km = item.km || '';
-            newItem.dataset.valor = item.valor || 0;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
+
+            newItem.querySelector('.remove-manut-btn').addEventListener('click', () => {
                 lista.removeChild(newItem);
-                salvarListaManutencao(); // Salva a lista atualizada
+                salvarListaManutencao(); // Salva a lista atualizada (sem item novo)
             });
-            
+
             lista.appendChild(newItem);
         }
-        
+
         // ATUALIZADO: Salva a lista de Manutenção E o total
-        async function salvarListaManutencao(novoItem = null) { // Aceita novo item
+        async function salvarListaManutencao(novoItem = null) {
             const mesId = getMesId();
             const itens = [];
-            let totalManutencao = 0; 
-            
+            let totalManutencao = 0;
+
             // Lê da UI
             document.querySelectorAll('#listaManutencao li').forEach(li => {
-               const item = {
-                   data: li.dataset.data,
-                   descricao: li.dataset.descricao,
-                   km: li.dataset.km,
-                   valor: parseFloat(li.dataset.valor) || 0
-               };
-               // Evita adicionar o novo item duas vezes se ele já estiver na UI
-               if(!novoItem || item.data !== novoItem.data || item.descricao !== novoItem.descricao) {
-                  itens.push(item);
-                  totalManutencao += item.valor; 
-               }
+                const id = li.dataset.id;
+                const dataSpan = li.querySelector('strong');
+                // Extrai data do strong (formato DD/MM/AAAA) e converte para AAAA-MM-DD
+                let dataOriginal = '';
+                if(dataSpan) {
+                     const partes = dataSpan.textContent.split('/');
+                     if(partes.length === 3) {
+                          dataOriginal = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                     }
+                }
+                // Extrai descrição, KM e valor
+                const descCompleta = li.querySelector('span')?.textContent || '';
+                const descMatch = descCompleta.match(/ - (.*?)( \(Alerta|\s- R\$|$)/);
+                const descricao = descMatch ? descMatch[1].trim() : '';
+                const kmMatch = descCompleta.match(/\(Alerta p\/ (\d+) KM\)/);
+                const km = kmMatch ? kmMatch[1] : '';
+                const valorMatch = descCompleta.match(/- R\$\s*([\d.,]+)/);
+                const valor = valorMatch ? parseFloat(valorMatch[1].replace('.', '').replace(',', '.')) : 0;
+
+                 // Inclui item na lista se tiver ID e dados válidos
+                if (id && dataOriginal && descricao) {
+                     // Adiciona o item à lista apenas se NÃO for o novo item sendo adicionado
+                     // OU se não houver um novo item (caso de remoção)
+                     if (!novoItem || id !== novoItem.id) {
+                          itens.push({ id, data: dataOriginal, descricao, km, valor });
+                          totalManutencao += valor;
+                     }
+                }
             });
-            
+
+
             // Adiciona novo item se houver
-             if(novoItem) { 
-                itens.push(novoItem);
-                totalManutencao += novoItem.valor;
-            }
-            
-             // Reordena por data 
+             if(novoItem) {
+                 itens.push(novoItem);
+                 totalManutencao += novoItem.valor;
+             }
+
+             // Reordena por data
             itens.sort((a, b) => new Date(a.data) - new Date(b.data));
-            
+
             try {
-                await db.collection("financas").doc(mesId).set({ 
+                await db.collection("financas").doc(mesId).set({
                     listaManutencao: itens,
-                    totalManutencao: totalManutencao 
+                    totalManutencao: totalManutencao
                 }, { merge: true });
                 console.log("Lista de manutenção salva!", mesId);
-                carregarDadosCarro(); // Recarrega para mostrar ordenado
-                carregarDadosPrincipal(); // Atualiza o resumo
+                // Apenas recarrega a lista se um novo item foi adicionado (para mostrar ordenado)
+                if(novoItem) carregarDadosCarro();
+                 // Atualiza o resumo principal sempre
+                if (document.getElementById('page-principal').classList.contains('active')) {
+                     carregarDadosPrincipal();
+                }
             } catch (error) {
                 console.error("Erro ao salvar lista de manutenção:", error);
             }
         }
-        
-        // ATUALIZADO: Cria item de Abastecimento na UI
+
+
+        // ATUALIZADO: Cria item de Abastecimento na UI (com ID e cálculo de consumo)
         function criarItemAbastecimentoUI(item, consumo = 0) {
             const lista = document.getElementById('listaAbastecimento');
             const newItem = document.createElement('li');
+            newItem.dataset.id = item.id; // Guarda ID
+
             let consumoInfo = '';
              if (consumo > 0) {
-                consumoInfo = `(<span style="color: ${consumo >= 10 ? '#28a745' : '#ffc107'};">${consumo.toFixed(2)} KM/L</span>)`; // Cor condicional
+                 consumoInfo = `(<span style="color: ${consumo >= 10 ? '#28a745' : '#ffc107'};">${consumo.toFixed(2)} KM/L</span>)`; // Cor condicional
             } else if (consumo === 0 && ultimoKmAnterior > 0) { // Só mostra se tiver KM anterior
-                 consumoInfo = '(Primeiro registro do mês)'; // Mantido
+                  consumoInfo = '(Primeiro registro do mês)';
             } else if (consumo === 0 && ultimoKmAnterior === 0) {
-                 consumoInfo = '(Referência anterior não encontrada)';
+                  consumoInfo = '(Referência anterior não encontrada)';
             } else { // consumo < 0 indica erro de KM
-                 consumoInfo = '<span style="color: #dc3545;">(KM inválido!)</span>';
+                   consumoInfo = '<span style="color: #dc3545;">(KM inválido!)</span>';
             }
-            
+
+
             newItem.innerHTML = `
                 <span><strong>${formatDate(item.data)}</strong> - ${formatCurrency(item.valorTotal)} / ${item.litros}L - ${item.kmAtual} KM ${consumoInfo}</span>
-                <button class="remove-btn-li">X</button>
+                <button class="remove-btn-li remove-abast-btn">X</button>
             `;
-            
-            // Adiciona dados para facilitar
-            newItem.dataset.data = item.data;
-            newItem.dataset.kmAtual = item.kmAtual;
-            newItem.dataset.litros = item.litros;
-            newItem.dataset.valorTotal = item.valorTotal;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
+
+            newItem.querySelector('.remove-abast-btn').addEventListener('click', () => {
                 lista.removeChild(newItem);
                 salvarListaAbastecimento(); // Salva a lista atualizada (sem o item novo)
             });
-            
+
             // Adiciona no INÍCIO da lista (mais recente primeiro)
             lista.prepend(newItem);
         }
-        
+
+
         // ATUALIZADO: Salva a lista de Abastecimento E o total
         async function salvarListaAbastecimento(novoItem = null) {
             const mesId = getMesId();
             const itens = [];
             let totalGasolina = 0;
-            
-            // Lê todos os itens da UI (exceto o novo, se houver)
-            document.querySelectorAll('#listaAbastecimento li').forEach(li => {
-                // Lê do final para o começo da lista visual (prepend)
-                const item = {
-                   data: li.dataset.data,
-                   kmAtual: parseFloat(li.dataset.kmAtual),
-                   litros: parseFloat(li.dataset.litros),
-                   valorTotal: parseFloat(li.dataset.valorTotal)
-                };
-                 // Verifica se o item já existe (evita duplicar ao salvar)
-                if (!novoItem || (item.data !== novoItem.data || item.kmAtual !== novoItem.kmAtual)) {
-                   itens.push(item);
-                   totalGasolina += item.valorTotal;
-                }
+
+            // Lê todos os itens da UI (do último adicionado para o primeiro)
+            const listItems = Array.from(document.querySelectorAll('#listaAbastecimento li')).reverse(); // Inverte a ordem da UI
+
+            listItems.forEach(li => {
+                 const id = li.dataset.id;
+                 const dataSpan = li.querySelector('strong');
+                 let dataOriginal = '';
+                 if(dataSpan) {
+                      const partes = dataSpan.textContent.split('/');
+                      if(partes.length === 3) dataOriginal = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                 }
+                 const spanText = li.querySelector('span')?.textContent || '';
+                 const valorMatch = spanText.match(/- R\$\s*([\d.,]+)/);
+                 const valorTotal = valorMatch ? parseFloat(valorMatch[1].replace('.', '').replace(',', '.')) : 0;
+                 const litrosMatch = spanText.match(/\/ (\d+[\.,]?\d*)L/);
+                 const litros = litrosMatch ? parseFloat(litrosMatch[1].replace(',', '.')) : 0;
+                 const kmMatch = spanText.match(/- (\d+) KM/);
+                 const kmAtual = kmMatch ? parseInt(kmMatch[1]) : 0;
+
+                 if (id && dataOriginal && kmAtual > 0) {
+                     // Adiciona o item se não for o item novo (ou se não houver item novo)
+                      if (!novoItem || id !== novoItem.id) {
+                           itens.push({ id, data: dataOriginal, kmAtual, litros, valorTotal });
+                           totalGasolina += valorTotal;
+                      }
+                 }
             });
-            
+
+
             // Adiciona o novo item (se houver)
             if (novoItem) {
                 itens.push(novoItem);
                 totalGasolina += novoItem.valorTotal;
             }
-            
-            // Reordena por data e KM (importante para o cálculo do consumo)
+
+            // Reordena por data e KM (importante para o cálculo do consumo no load)
             itens.sort((a, b) => {
                 if (a.data === b.data) return a.kmAtual - b.kmAtual;
                 return new Date(a.data) - new Date(b.data);
             });
-            
+
             try {
-                await db.collection("financas").doc(mesId).set({ 
+                await db.collection("financas").doc(mesId).set({
                     listaAbastecimento: itens,
-                    totalGasolina: totalGasolina 
+                    totalGasolina: totalGasolina
                 }, { merge: true });
                 console.log("Lista de abastecimento salva!", mesId);
-                
-                // Recarrega os dados do carro para mostrar o consumo correto
-                carregarDadosCarro();
-                carregarDadosPrincipal(); // Atualiza o resumo
-                
+
+                // Recarrega os dados do carro para mostrar o consumo correto e ordenado
+                 carregarDadosCarro();
+                 // Atualiza o resumo principal
+                 if (document.getElementById('page-principal').classList.contains('active')) {
+                      carregarDadosPrincipal();
+                 }
+
             } catch (error) {
                 console.error("Erro ao salvar lista de abastecimento:", error);
             }
         }
-        
+
+
         let ultimoKmAnterior = 0; // Variável global para guardar o último KM do mês anterior
-        
+
         // ATUALIZADO: Carrega a lista de Manutenção e Gasolina
         async function carregarDadosCarro() {
             const mesId = getMesId();
             const docRef = db.collection("financas").doc(mesId);
-            
+
             document.getElementById('listaManutencao').innerHTML = ''; // Limpa a lista
             document.getElementById('listaAbastecimento').innerHTML = ''; // Limpa a lista
-            
+
             ultimoKmAnterior = 0; // Reseta a variável global
-            
+
             try {
                 // Busca KM do mês anterior PRIMEIRO e FORA do IF principal
                 const mesAnteriorId = obterMesAnteriorId(mesId);
@@ -1641,36 +2194,45 @@
                 if (docAnteriorSnap.exists) {
                     const dadosAnteriores = docAnteriorSnap.data();
                     if (dadosAnteriores.listaAbastecimento && dadosAnteriores.listaAbastecimento.length > 0) {
-                        const ultimoAbastecimentoAnterior = [...dadosAnteriores.listaAbastecimento].sort((a, b) => { // Cria cópia para não alterar original
-                            if (a.data === b.data) return a.kmAtual - b.kmAtual;
-                            return new Date(a.data) - new Date(b.data);
-                        }).pop();
-                        ultimoKmAnterior = ultimoAbastecimentoAnterior.kmAtual;
-                        console.log(`Último KM do mês anterior (${mesAnteriorId}): ${ultimoKmAnterior}`);
+                        // Ordena para garantir que pegamos o último KM real do mês anterior
+                        const ultimoAbastecimentoAnterior = [...dadosAnteriores.listaAbastecimento].sort((a, b) => {
+                             if (a.data === b.data) return a.kmAtual - b.kmAtual;
+                             return new Date(a.data) - new Date(b.data);
+                        }).pop(); // Pega o último
+                        if (ultimoAbastecimentoAnterior) {
+                             ultimoKmAnterior = ultimoAbastecimentoAnterior.kmAtual;
+                             console.log(`Último KM do mês anterior (${mesAnteriorId}): ${ultimoKmAnterior}`);
+                        }
                     }
                 }
 
                 const docSnap = await docRef.get();
                 if (docSnap.exists) {
                     const dados = docSnap.data();
-                    
+
                     // Carrega Manutenção (ordenado por data)
                     if (dados.listaManutencao && Array.isArray(dados.listaManutencao)) {
-                        const listaManutencaoOrd = [...dados.listaManutencao].sort((a,b) => new Date(a.data) - new Date(b.data)); // Cria cópia
+                         // Garante ID e ordena
+                        const listaManutencaoOrd = dados.listaManutencao
+                           .map(m => ({...m, id: m.id || Date.now().toString() + Math.floor(Math.random() * 1000)})) // CORRIGIDO
+                           .sort((a,b) => new Date(a.data) - new Date(b.data));
                         listaManutencaoOrd.forEach(item => criarItemManutencaoUI(item));
                     }
-                    
+
                     // Carrega Abastecimento e calcula consumo
                     if (dados.listaAbastecimento && Array.isArray(dados.listaAbastecimento)) {
-                        const listaAbastecimentoOrd = [...dados.listaAbastecimento].sort((a, b) => { // Cria cópia
+                         // Garante ID e ordena
+                        const listaAbastecimentoOrd = dados.listaAbastecimento
+                           .map(a => ({...a, id: a.id || Date.now().toString() + Math.floor(Math.random() * 1000)})) // CORRIGIDO
+                           .sort((a, b) => {
                             if (a.data === b.data) return a.kmAtual - b.kmAtual;
                             return new Date(a.data) - new Date(b.data);
                         });
-                        
+
                         for (let i = 0; i < listaAbastecimentoOrd.length; i++) {
                             const item = listaAbastecimentoOrd[i];
                             let consumo = 0;
-                            let kmAnteriorReal = 0; 
+                            let kmAnteriorReal = 0;
 
                             if (i === 0) {
                                 kmAnteriorReal = ultimoKmAnterior; // Usa o KM buscado anteriormente
@@ -1678,7 +2240,7 @@
                                 kmAnteriorReal = listaAbastecimentoOrd[i-1].kmAtual;
                             }
 
-                            if (kmAnteriorReal > 0 && item.kmAtual > kmAnteriorReal) { 
+                            if (kmAnteriorReal > 0 && item.kmAtual > kmAnteriorReal) {
                                 const kmRodados = item.kmAtual - kmAnteriorReal;
                                 if (item.litros > 0) {
                                     consumo = kmRodados / item.litros;
@@ -1686,163 +2248,213 @@
                             } else if (kmAnteriorReal > 0 && item.kmAtual <= kmAnteriorReal) {
                                 consumo = -1; // Sinaliza erro de KM
                             }
-                            
+                             // Cria o item na UI, passando o consumo calculado
                             criarItemAbastecimentoUI(item, consumo);
                         }
                     }
                 } else {
-                     console.log(`Nenhum documento encontrado para ${mesId}.`);
-                     // Mesmo sem dados do mês atual, mostra o primeiro item com base no mês anterior (se houver)
-                     // Isso pode ser ajustado conforme a preferência
+                      console.log(`Nenhum documento encontrado para ${mesId}.`);
+                      // Mesmo sem dados do mês atual, pode haver lógica futura aqui
                 }
             } catch (error) {
                 console.error("Erro ao carregar listas do carro:", error);
             }
         }
-        
+
+
         // --- Lógica da Página Agenda (agenda.html) ---
-        
+
         function initAgenda() {
-            carregarDadosAgenda(); 
-            
-            // ADICIONAR EVENTO DE LAZER
-            document.getElementById('formLazer').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const item = {
-                    data: document.getElementById('eventoData').value,
-                    horario: document.getElementById('eventoHorario').value, // NOVO
-                    descricao: document.getElementById('eventoDescricao').value
-                };
-                if (!item.data || !item.descricao) {
-                    alert('Preencha pelo menos a data e a descrição.');
-                    return;
-                }
-                criarItemLazerUI(item);
-                document.getElementById('formLazer').reset();
-                salvarListasAgenda(); 
-            });
-            
-            // ADICIONAR TAREFA DE CASA
-            document.getElementById('formTarefa').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const item = {
-                    data: document.getElementById('tarefaData').value,
-                    horario: document.getElementById('tarefaHorario').value, // NOVO
-                    descricao: document.getElementById('tarefaDescricao').value
-                };
-                if (!item.data || !item.descricao) {
-                    alert('Preencha pelo menos a data e a descrição.');
-                    return;
-                }
-                criarItemTarefaUI(item);
-                document.getElementById('formTarefa').reset();
-                salvarListasAgenda(); 
-            });
+            carregarDadosAgenda();
+
+             // Adiciona listeners aos forms UMA VEZ
+            const formLazer = document.getElementById('formLazer');
+            if (!formLazer.hasAttribute('data-listener-added')) {
+                 formLazer.addEventListener('submit', handleAddLazer);
+                 formLazer.setAttribute('data-listener-added', 'true');
+            }
+
+            const formTarefa = document.getElementById('formTarefa');
+            if (!formTarefa.hasAttribute('data-listener-added')) {
+                 formTarefa.addEventListener('submit', handleAddTarefa);
+                 formTarefa.setAttribute('data-listener-added', 'true');
+            }
         }
-        
-        // ATUALIZADO: Cria item de Lazer na UI (com horário)
+
+        // NOVO: Handler Lazer
+        function handleAddLazer(e) {
+             e.preventDefault();
+             const item = {
+                 id: Date.now().toString(),
+                 data: document.getElementById('eventoData').value,
+                 horario: document.getElementById('eventoHorario').value, // Pode ser vazio
+                 descricao: document.getElementById('eventoDescricao').value.trim()
+             };
+             if (!item.data || !item.descricao) {
+                 alert('Preencha pelo menos a data e a descrição do evento.');
+                 return;
+             }
+             // Não precisa chamar criarItemLazerUI aqui
+             salvarListasAgenda(item, null); // Salva no Firebase (já recarrega)
+             document.getElementById('formLazer').reset();
+        }
+
+        // NOVO: Handler Tarefa
+        function handleAddTarefa(e) {
+             e.preventDefault();
+             const item = {
+                 id: Date.now().toString(),
+                 data: document.getElementById('tarefaData').value,
+                 horario: document.getElementById('tarefaHorario').value, // Pode ser vazio
+                 descricao: document.getElementById('tarefaDescricao').value.trim()
+             };
+             if (!item.data || !item.descricao) {
+                 alert('Preencha pelo menos a data e a descrição da tarefa.');
+                 return;
+             }
+             // Não precisa chamar criarItemTarefaUI aqui
+             salvarListasAgenda(null, item); // Salva no Firebase (já recarrega)
+             document.getElementById('formTarefa').reset();
+        }
+
+        // ATUALIZADO: Cria item de Lazer na UI (com horário e ID)
         function criarItemLazerUI(item) {
             const lista = document.getElementById('listaEventos');
             const newItem = document.createElement('li');
+            newItem.dataset.id = item.id; // Guarda ID
             let horarioInfo = item.horario ? `às ${item.horario}` : ''; // NOVO
-            
+
             newItem.innerHTML = `
                 <span><strong>${formatDate(item.data)}</strong> ${horarioInfo} - ${item.descricao}</span>
-                <button class="remove-btn-li">X</button>
+                <button class="remove-btn-li remove-lazer-btn">X</button>
             `;
-            
-            // Adiciona dados
-            newItem.dataset.data = item.data;
-            newItem.dataset.horario = item.horario || '';
-            newItem.dataset.descricao = item.descricao;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
+
+            newItem.querySelector('.remove-lazer-btn').addEventListener('click', () => {
                 lista.removeChild(newItem);
                 salvarListasAgenda(); // Salva a lista atualizada
             });
-            
+
             lista.appendChild(newItem);
         }
-        
-        // ATUALIZADO: Cria item de Tarefa na UI (com horário)
+
+        // ATUALIZADO: Cria item de Tarefa na UI (com horário e ID)
         function criarItemTarefaUI(item) {
             const lista = document.getElementById('listaTarefas');
             const newItem = document.createElement('li');
+            newItem.dataset.id = item.id; // Guarda ID
             let horarioInfo = item.horario ? `às ${item.horario}` : ''; // NOVO
-            
+
             newItem.innerHTML = `
                 <span><strong>${formatDate(item.data)}</strong> ${horarioInfo} - ${item.descricao}</span>
-                <button class="remove-btn-li">X</button>
+                <button class="remove-btn-li remove-tarefa-btn">X</button>
             `;
-            
-            // Adiciona dados
-            newItem.dataset.data = item.data;
-            newItem.dataset.horario = item.horario || '';
-            newItem.dataset.descricao = item.descricao;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
+
+            newItem.querySelector('.remove-tarefa-btn').addEventListener('click', () => {
                 lista.removeChild(newItem);
                 salvarListasAgenda(); // Salva a lista atualizada
             });
-            
+
             lista.appendChild(newItem);
         }
-        
-        // ATUALIZADO: Salva AMBAS as listas da Agenda (com horário)
-        async function salvarListasAgenda() {
+
+        // ATUALIZADO: Salva AMBAS as listas da Agenda (lendo da UI)
+        async function salvarListasAgenda(novoLazer = null, novaTarefa = null) {
             const mesId = getMesId();
             let listaEventos = [];
             let listaTarefas = [];
-            
+
+            // Lê eventos da UI
             document.querySelectorAll('#listaEventos li').forEach(li => {
-                listaEventos.push({ 
-                    data: li.dataset.data, 
-                    horario: li.dataset.horario,
-                    descricao: li.dataset.descricao 
-                });
+                 const id = li.dataset.id;
+                 const dataSpan = li.querySelector('strong');
+                 let dataOriginal = '';
+                 if (dataSpan) {
+                     const partes = dataSpan.textContent.split('/');
+                     if (partes.length === 3) dataOriginal = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                 }
+                 const spanText = li.querySelector('span')?.textContent || '';
+                 const horarioMatch = spanText.match(/às (\d{2}:\d{2})/);
+                 const horario = horarioMatch ? horarioMatch[1] : '';
+                 const descMatch = spanText.match(/ - (.*)$/);
+                 const descricao = descMatch ? descMatch[1].trim() : '';
+
+                 if (id && dataOriginal && descricao) {
+                      // Adiciona se não for o item novo ou se não houver item novo
+                      if (!novoLazer || id !== novoLazer.id) {
+                           listaEventos.push({ id, data: dataOriginal, horario, descricao });
+                      }
+                 }
             });
-            
-            document.querySelectorAll('#listaTarefas li').forEach(li => {
-                listaTarefas.push({ 
-                    data: li.dataset.data, 
-                    horario: li.dataset.horario,
-                    descricao: li.dataset.descricao 
-                });
-            });
-             // Reordena por data e hora
-            listaEventos.sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
-            listaTarefas.sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
-            
+
+            // Lê tarefas da UI
+             document.querySelectorAll('#listaTarefas li').forEach(li => {
+                 const id = li.dataset.id;
+                 const dataSpan = li.querySelector('strong');
+                 let dataOriginal = '';
+                 if (dataSpan) {
+                     const partes = dataSpan.textContent.split('/');
+                     if (partes.length === 3) dataOriginal = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                 }
+                 const spanText = li.querySelector('span')?.textContent || '';
+                 const horarioMatch = spanText.match(/às (\d{2}:\d{2})/);
+                 const horario = horarioMatch ? horarioMatch[1] : '';
+                 const descMatch = spanText.match(/ - (.*)$/);
+                 const descricao = descMatch ? descMatch[1].trim() : '';
+
+                  if (id && dataOriginal && descricao) {
+                       // Adiciona se não for o item novo ou se não houver item novo
+                       if (!novaTarefa || id !== novaTarefa.id) {
+                            listaTarefas.push({ id, data: dataOriginal, horario, descricao });
+                       }
+                  }
+             });
+
+
+             // Adiciona novos itens se houver
+             if(novoLazer) listaEventos.push(novoLazer);
+             if(novaTarefa) listaTarefas.push(novaTarefa);
+
+              // Reordena por data e hora
+             listaEventos.sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
+             listaTarefas.sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
+
             try {
-                await db.collection("financas").doc(mesId).set({ 
+                await db.collection("financas").doc(mesId).set({
                     listaEventos: listaEventos,
                     listaTarefas: listaTarefas
                 }, { merge: true });
                 console.log("Listas da agenda salvas!", mesId);
+                // Recarrega se um novo item foi adicionado
+                if(novoLazer || novaTarefa) carregarDadosAgenda();
             } catch (error) {
                 console.error("Erro ao salvar listas da agenda:", error);
             }
         }
-        
-        // ATUALIZADO: Carrega AMBAS as listas da Agenda (com horário)
+
+
+        // ATUALIZADO: Carrega AMBAS as listas da Agenda (ordenadas)
         async function carregarDadosAgenda() {
             const mesId = getMesId();
             const docRef = db.collection("financas").doc(mesId);
-            
+
             document.getElementById('listaEventos').innerHTML = ''; // Limpa a lista
             document.getElementById('listaTarefas').innerHTML = ''; // Limpa a lista
-            
+
             try {
                 const docSnap = await docRef.get();
                 if (docSnap.exists) {
                     const dados = docSnap.data();
-                     // Ordena antes de exibir
+                    // Ordena antes de exibir
                     if (dados.listaEventos && Array.isArray(dados.listaEventos)) {
-                        const listaEventosOrd = [...dados.listaEventos].sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00'))); // Cria cópia
+                         const listaEventosOrd = dados.listaEventos
+                           .map(e => ({...e, id: e.id || Date.now().toString() + Math.floor(Math.random() * 1000)})) // CORRIGIDO
+                           .sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
                         listaEventosOrd.forEach(item => criarItemLazerUI(item));
                     }
                     if (dados.listaTarefas && Array.isArray(dados.listaTarefas)) {
-                        const listaTarefasOrd = [...dados.listaTarefas].sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00'))); // Cria cópia
+                         const listaTarefasOrd = dados.listaTarefas
+                           .map(t => ({...t, id: t.id || Date.now().toString() + Math.floor(Math.random() * 1000)})) // CORRIGIDO
+                           .sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
                         listaTarefasOrd.forEach(item => criarItemTarefaUI(item));
                     }
                 }
