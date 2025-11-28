@@ -2,2468 +2,1249 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- NOVO: Meta tag viewport essencial para responsividade -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Ícones -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Importa uma fonte moderna */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Poppins:wght@300;400;500;600;700&display=swap');
 
-        /* Configurações Globais */
+        :root {
+            /* --- Dark Mode (Padrão) --- */
+            --bg-body: #050505;
+            --sidebar-bg: rgba(10, 10, 10, 0.95);
+            --content-bg: rgba(20, 20, 20, 0.4);
+            --card-bg: rgba(30, 30, 30, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #00d2d3;
+            --accent-hover: rgba(0, 210, 211, 0.15);
+            --danger: #ff6b6b;
+            --input-bg: rgba(0, 0, 0, 0.5);
+            --glass-blur: 25px;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --nav-active-bg: var(--accent-color);
+            --nav-active-text: #000;
+        }
+
+        /* --- Light Mode --- */
+        body.light-mode {
+            --bg-body: #ffffff;
+            --sidebar-bg: #f8f9fa;
+            --content-bg: rgba(255, 255, 255, 0.1);
+            --card-bg: rgba(255, 255, 255, 0.75); 
+            --border-color: rgba(0, 0, 0, 0.1);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-color: #15803d; /* Verde Escuro */
+            --accent-hover: rgba(21, 128, 61, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            --nav-active-bg: linear-gradient(135deg, #15803d, #166534);
+            --nav-active-text: #ffffff;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #081c15 100%);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            background-attachment: fixed;
-            color: #e0e0e0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
             margin: 0;
-            padding: 10px; /* Reduzido para mobile */
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Animação do Fundo */
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 10px auto; /* Margem reduzida */
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 15px; /* Menos arredondado */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            padding: 0;
+            height: 100vh;
             overflow: hidden;
+            display: flex;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        header {
-            text-align: center;
-            padding: 25px 15px; /* Padding reduzido */
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
+        /* --- LAYOUT --- */
+        .app-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 1.8em; /* Tamanho reduzido para mobile */
-            font-weight: 700;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 25px 15px;
+            backdrop-filter: blur(var(--glass-blur));
+            z-index: 20;
+            transition: all 0.3s ease;
         }
 
-        /* Menu de Navegação */
-        nav {
-            background: rgba(0, 0, 0, 0.1);
-            padding: 10px 5px; /* Padding reduzido */
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            /* Permite scroll horizontal se não couber */
-            white-space: nowrap;
-            overflow-x: auto;
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-left: 5px;
         }
+
+        .custom-logo-svg {
+            width: 48px;
+            height: 48px;
+            filter: drop-shadow(0 0 5px rgba(var(--accent-color), 0.4));
+        }
+
+        .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
+        .logo-title { font-family: 'Playfair Display', serif; font-size: 1.25em; font-weight: 600; font-style: italic; color: var(--accent-color); letter-spacing: 0.5px; }
+        .logo-subtitle { font-family: 'Poppins', sans-serif; font-size: 0.85em; font-weight: 300; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 2px; }
+
+        nav { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
 
         nav a {
-            display: inline-block;
             text-decoration: none;
-            color: #d8f3dc;
+            color: var(--text-secondary);
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 0.9em;
             font-weight: 500;
-            padding: 10px 12px; /* Padding reduzido */
-            margin: 0 3px; /* Margem reduzida */
-            border-radius: 8px; /* Menos arredondado */
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: transparent;
-            box-shadow: none;
-            font-size: 0.9em; /* Fonte menor no menu */
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
         }
 
         nav a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            transform: translateY(-2px);
+            background: var(--accent-hover);
+            color: var(--accent-color);
+            transform: translateX(3px);
         }
+        
+        nav a.special-link { color: var(--accent-color); }
+        nav a.special-link:hover { color: var(--accent-color); filter: brightness(1.2); }
 
         nav a.active {
-            background: #52b788;
-            color: #081c15;
+            background: var(--nav-active-bg);
+            color: var(--nav-active-text) !important;
             font-weight: 700;
-            box-shadow: 0 0 10px rgba(82, 183, 136, 0.4); /* Glow reduzido */
-            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* --- Seletor de Mês --- */
-        .month-selector-bar {
-            background: transparent;
-            padding: 15px 15px; /* Padding reduzido */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .sidebar-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-sidebar {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8em;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: 0.3s;
+        }
+        .btn-sidebar:hover { border-color: var(--accent-color); color: var(--accent-color); background: var(--accent-hover); }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            background: radial-gradient(circle at top right, rgba(0, 210, 211, 0.05), transparent 40%);
+        }
+
+        .top-bar {
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px; /* Gap reduzido */
+            padding: 0 30px;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
         }
 
-        .month-selector-bar label {
-            font-weight: 500;
-            font-size: 1em; /* Tamanho reduzido */
-            color: #d8f3dc;
+        .page-title { font-size: 1.4em; font-weight: 600; color: var(--text-primary); letter-spacing: -0.5px; }
+
+        .live-clock {
+            font-size: 0.85em; font-weight: 600; color: var(--accent-color); margin-right: 20px; background: var(--accent-hover); padding: 6px 12px; border-radius: 20px;
+            display: flex; align-items: center; gap: 6px; border: 1px solid var(--border-color);
         }
 
-        #seletorMes {
-            font-family: 'Roboto', sans-serif;
-            font-size: 1em; /* Tamanho reduzido */
-            padding: 8px; /* Padding reduzido */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px; /* Menos arredondado */
-            color: #ffffff;
-            background: rgba(0, 0, 0, 0.3);
-            box-shadow: none;
-            /* Estilo para o indicador de data no modo escuro */
-            color-scheme: dark;
-        }
-        #seletorMes::-webkit-calendar-picker-indicator {
-             filter: invert(0.8); /* Inverte a cor do ícone */
-        }
+        .controls { display: flex; align-items: center; gap: 15px; }
 
-        /* --- Fim do CSS Seletor --- */
+        input[type="month"] { background: var(--input-bg); border: 1px solid var(--accent-color); color: var(--text-primary); padding: 8px 12px; border-radius: 8px; font-family: 'Poppins', sans-serif; cursor: pointer; font-size: 0.9em; }
 
-        /* Estilo das Seções */
-        section {
-            padding: 20px 15px; /* Padding reduzido */
-        }
+        .theme-toggle-btn { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary); width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+        .theme-toggle-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
-        .page-section { display: none; }
+        .scroll-area { flex-grow: 1; overflow-y: auto; padding: 30px; scroll-behavior: smooth; }
+        .scroll-area::-webkit-scrollbar { width: 5px; }
+        .scroll-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+        .page-section { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); max-width: 1200px; margin: 0 auto; }
         .page-section.active { display: block; }
 
-        h2 {
-            font-size: 1.5em; /* Tamanho reduzido */
-            color: #ffffff;
-            margin-top: 0;
-            padding-bottom: 10px; /* Padding reduzido */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Linha mais fina */
-            font-weight: 700;
-        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        h3 {
-            color: #b7e4c7;
-            font-weight: 500;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 6px; /* Padding reduzido */
-            font-size: 1.2em; /* Tamanho reduzido */
-            margin-top: 20px; /* Espaçamento antes do h3 */
-            margin-bottom: 15px;
-        }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
 
-        /* Estilo dos Grupos de Input */
-        .input-group {
-            display: flex;
-             /* NOVO: Quebra a linha em telas pequenas */
-            flex-direction: column;
-            align-items: stretch; /* Alinha inputs stretch */
-            margin-bottom: 15px; /* Margem reduzida */
-            padding: 8px 0; /* Padding reduzido */
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            position: relative;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s;
         }
-        /* NOVO: Container para valor e data */
-        .input-value-date-container {
-             display: flex;
-             flex-direction: column; /* Coluna no mobile */
-             gap: 10px;
-             width: 100%;
-             margin-top: 5px;
-        }
-         .input-value-date-container > div {
-             flex-grow: 1;
-         }
+        .card:hover { transform: translateY(-2px); border-color: var(--accent-color); }
 
+        .card h3 { font-size: 0.8em; color: var(--text-secondary); margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .card .value { font-size: 2.2em; font-weight: 700; color: var(--text-primary); }
+        .card.income .value { color: #00b894; }
+        .card.expense .value { color: #ff7675; }
+        .card.balance .value { color: var(--accent-color); }
 
-        /* Itens dinâmicos (outras rendas, despesas) */
-        .fixed-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px; /* Margem reduzida */
-            padding: 12px; /* Padding reduzido */
-            background: rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px; /* Menos arredondado */
-            flex-wrap: wrap; /* Permite quebra */
-            gap: 10px; /* Espaço entre os elementos se quebrar */
-        }
-        .fixed-item .item-info {
-            flex-grow: 1; /* Ocupa espaço disponível */
-            min-width: 150px; /* Largura mínima antes de quebrar */
-        }
-        .fixed-item .item-info span {
-             display: block; /* Quebra linha entre descrição e data */
-             font-size: 0.9em; /* Tamanho reduzido */
-        }
-        .fixed-item .item-info .descricao {
-             font-weight: 500;
-             color: #d8f3dc;
-        }
-        .fixed-item .item-info .vencimento {
-             color: #a0aec0; /* Cinza claro */
-             font-size: 0.8em;
-        }
-        .fixed-item .item-valor {
-            font-weight: bold;
-            text-align: right;
-            min-width: 80px; /* Garante espaço para o valor */
-        }
-        .fixed-item .item-status {
-             font-size: 0.8em;
-             font-weight: bold;
-             text-align: right;
-             margin-top: 2px;
-             display: block; /* Garante que fique abaixo do valor */
-        }
-        .fixed-item .item-actions {
-            display: flex;
-            gap: 8px; /* Espaço entre botões */
-        }
+        .charts-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .chart-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; height: 350px; box-shadow: var(--shadow); position: relative; }
 
-        .input-group label {
-            font-weight: 500;
-            font-size: 1em; /* Tamanho reduzido */
-            color: #d8f3dc;
-            margin-bottom: 5px; /* Espaço entre label e input */
-        }
-        /* NOVO: Label menor para Vencimento */
-         .input-value-date-container label {
-             font-size: 0.8em;
-             color: #b7e4c7;
-             display: block;
-             margin-bottom: 3px;
-         }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .input-wrapper { display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .input-wrapper i.icon-left { position: absolute; left: 12px; top: 44px; color: var(--text-secondary); width: 18px; height: 18px; pointer-events: none; }
+        .input-wrapper.has-icon input { padding-left: 40px; }
 
-        input[type="number"],
-        input[type="text"],
-        input[type="date"],
-        input[type="time"] {
-            padding: 10px 12px; /* Padding reduzido */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px; /* Menos arredondado */
-            font-size: 1em; /* Tamanho reduzido */
-            text-align: left; /* Alinha à esquerda no mobile */
-            width: 100%; /* Ocupa toda a largura */
-            box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.3);
-            color: #ffffff;
-            box-shadow: none;
-            transition: all 0.2s ease-in-out;
-             margin-top: 0px; /* Removido margin-top para alinhar com label novo */
-             color-scheme: dark; /* Garante estilo escuro para date/time */
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator,
-        input[type="time"]::-webkit-calendar-picker-indicator {
-             filter: invert(0.8); /* Inverte a cor do ícone */
-        }
+        label { font-size: 0.85em; color: var(--text-secondary); font-weight: 500; display: flex; align-items: center; gap: 6px; }
 
+        input, select, textarea { 
+            background: var(--input-bg); 
+            /* Borda alterada para a cor de destaque (var(--accent-color)) */
+            border: 1px solid var(--accent-color); 
+            border-radius: 8px; 
+            padding: 12px 15px; 
+            color: var(--text-primary); 
+            font-family: 'Poppins', sans-serif; 
+            transition: all 0.3s; 
+            width: 100%; 
+            font-size: 0.95em; 
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px var(--accent-hover); }
 
-        input:focus {
-            outline: none;
-            background: rgba(0, 0, 0, 0.5);
-            border-color: #52b788;
-            box-shadow: 0 0 8px rgba(82, 183, 136, 0.2); /* Glow menor */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-color), rgba(0, 210, 211, 0.6));
+            color: #000; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px var(--accent-hover);
         }
+        body.light-mode .btn-primary { color: #fff; background: var(--nav-active-bg); }
+        .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        
+        .btn-outline { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; transition: 0.3s; }
+        .btn-outline:hover { background: var(--accent-hover); }
+        .btn-small { padding: 6px 12px; font-size: 0.85em; }
+        
+        .btn-danger { background: rgba(255, 107, 107, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
 
-        /* Ajuste para inputs em formulários dinâmicos */
-         form.add-item-form {
-            display: flex;
-            flex-wrap: wrap; /* Permite quebrar linha */
-            gap: 10px;
-            margin-bottom: 15px; /* Margem reduzida */
-            align-items: flex-end; /* Alinha itens na base */
-        }
-        form.add-item-form .form-group {
-             flex-grow: 1; /* Permite que os inputs cresçam */
-             min-width: 120px; /* Largura mínima antes de quebrar */
-        }
-        form.add-item-form label {
-             display: block; /* Label em cima */
-             font-size: 0.8em;
-             margin-bottom: 3px;
-             color: #b7e4c7;
-        }
+        .modern-list { list-style: none; padding: 0; margin-top: 20px; }
+        .modern-list li { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; transition: all 0.2s; }
+        .modern-list li:hover { transform: translateX(5px); border-color: var(--accent-color); background: var(--accent-hover); }
+        .list-info strong { display: block; color: var(--text-primary); font-size: 1em; }
+        .list-info small { color: var(--text-secondary); font-size: 0.85em; }
 
-        form.add-item-form input[type="text"],
-        form.add-item-form input[type="number"],
-        form.add-item-form input[type="date"],
-        form.add-item-form input[type="time"] {
-            width: 100%; /* Largura total dentro do form-group */
-            text-align: left; /* Alinha à esquerda */
-            margin-top: 0; /* Remove margem superior */
-            padding: 8px 10px; /* Padding menor */
-        }
-        form.add-item-form button {
-            margin-top: 5px; /* Espaço */
-            padding: 10px 15px; /* Padding reduzido */
-            /* align-self: flex-end; /* Alinha botão à direita - removido para alinhar com inputs */
-            height: 40px; /* Altura igual aos inputs */
-            margin-bottom: 0; /* Alinha com a base dos inputs */
-        }
+        .delete-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+        .delete-btn:hover { color: var(--danger); border-color: var(--danger); background: rgba(255, 107, 107, 0.1); }
 
-        /* Resumo Financeiro */
-        .summary {
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            padding: 20px; /* Padding reduzido */
-            border-radius: 12px; /* Menos arredondado */
-            margin-bottom: 15px; /* Margem reduzida */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+        h2 { color: var(--text-primary); font-size: 1.5em; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+        h3 { color: var(--text-primary); margin-bottom: 15px; font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
 
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.1em; /* Tamanho reduzido */
-            margin-bottom: 10px; /* Margem reduzida */
-            font-weight: 700;
-            color: #f0f0f0;
-            flex-wrap: wrap; /* Quebra linha se necessário */
-        }
+        /* --- Modais --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; backdrop-filter: blur(5px); justify-content: center; align-items: center; }
+        .modal.open { display: flex; }
+        .modal-content { background: var(--sidebar-bg); border: 1px solid var(--accent-color); padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; box-shadow: 0 0 40px rgba(0,0,0,0.5); position: relative; }
+        
+        .icon-selector { display: flex; gap: 10px; margin: 15px 0; justify-content: center; flex-wrap: wrap; height: 150px; overflow-y: auto; }
+        .icon-option { width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); transition: 0.2s; flex-shrink: 0; }
+        .icon-option:hover, .icon-option.selected { background: var(--accent-color); color: var(--bg-body); border-color: var(--accent-color); transform: scale(1.1); }
 
-        .summary-item .receita-valor { color: #28a745 !important; }
-        .summary-item .despesa-valor { color: #dc3545 !important; }
-
-        .summary-item.saldo-final {
-            font-size: 1.3em; /* Tamanho reduzido */
-            color: #ffffff;
-            padding-top: 10px; /* Padding reduzido */
-            border-top: 1px solid rgba(255, 255, 255, 0.1); /* Linha mais fina */
-        }
-
-        /* NOVO: Estilo para Saldo Devedor */
-        .summary-devedor {
-            background: rgba(220, 53, 69, 0.1); /* Fundo vermelho leve */
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            color: #f8d7da; /* Texto vermelho claro */
-        }
-        .summary-devedor .summary-item.saldo-final {
-            color: #f8d7da; /* Texto vermelho claro */
-            border-top: 1px solid rgba(220, 53, 69, 0.3);
-            font-size: 1.3em;
-        }
-        .summary-devedor .summary-item span:last-child {
-            color: #e6a2a9; /* Valor em tom de vermelho */
-        }
-
-
-        .positive { color: #28a745; }
-        .negative { color: #dc3545; }
-        /* NOVO: Estilo para Status */
-        .status-pendente { color: #ffc107; } /* Amarelo */
-        .status-pago { color: #28a745; text-decoration: line-through;} /* Verde com risco */
-        .status-atrasado { color: #dc3545; font-weight: bold; animation: blink 1.5s linear infinite;} /* Vermelho piscando */
-
-        @keyframes blink {
-            50% { opacity: 0.5; }
-        }
-
-
-        /* Botões */
-        button {
-            background: linear-gradient(145deg, #52b788, #40916c);
-            color: #081c15;
-            font-weight: 700;
-            border: none;
-            padding: 10px 18px; /* Padding reduzido */
-            border-radius: 8px; /* Menos arredondado */
-            cursor: pointer;
-            font-size: 0.9em; /* Tamanho reduzido */
-            transition: all 0.2s ease-in-out;
-            margin-top: 8px; /* Margem reduzida */
-            box-shadow: 0 3px 10px rgba(82, 183, 136, 0.2); /* Sombra menor */
-            text-shadow: none;
-        }
-
-        button:hover {
-            transform: translateY(-1px); /* Menos elevação */
-            box-shadow: 0 4px 15px rgba(82, 183, 136, 0.3); /* Sombra menor */
-        }
-
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 5px rgba(82, 183, 136, 0.2); /* Sombra menor */
-        }
-
-        /* Botão Remover Genérico (usado em Rendas/Despesas Extras) */
-        button.remove-btn {
-            background: linear-gradient(145deg, #e53935, #c62828);
-            color: white;
-            font-weight: 500;
-            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.2); /* Sombra menor */
-            font-size: 0.8em; /* Tamanho reduzido */
-            padding: 6px 10px; /* Padding reduzido */
-            margin-left: 8px; /* Margem reduzida */
-            margin-top: 0;
-            flex-shrink: 0; /* Impede que o botão encolha */
-        }
-        button.remove-btn:hover {
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); /* Sombra menor */
-        }
-        button.remove-btn:active {
-            box-shadow: 0 1px 5px rgba(220, 53, 69, 0.2); /* Sombra menor */
-        }
-
-        /* NOVO: Botão Pagar (Despesas) */
-        button.pay-btn {
-            background: linear-gradient(145deg, #007bff, #0056b3); /* Azul */
-            color: white;
-            font-size: 0.8em;
-            padding: 6px 10px;
-            margin-left: 8px;
-            margin-top: 0;
-            box-shadow: 0 3px 10px rgba(0, 123, 255, 0.2);
-            flex-shrink: 0;
-        }
-        button.pay-btn:hover {
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-        }
-        button.pay-btn:disabled {
-            background: #5a5a5a;
-            color: #9a9a9a;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Listas (Lazer, Tarefas, Manutenção, Gasolina, Compras) */
-        ul { list-style-type: none; padding-left: 0; }
-        ul li {
-            background: rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px; /* Padding reduzido */
-            border-radius: 8px; /* Menos arredondado */
-            margin-bottom: 8px; /* Margem reduzida */
-            border-left: none;
-            box-shadow: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #e0e0e0;
-            flex-wrap: wrap; /* Permite quebra */
-            gap: 10px; /* Espaço entre itens se quebrar */
-        }
-        /* Ajuste para span dentro de LI genérico */
-        ul li > span:first-of-type { /* Seleciona o primeiro span (descrição) */
-            flex-grow: 1; /* Ocupa espaço */
-            margin-right: 8px; /* Margem reduzida */
-            word-break: break-word; /* Quebra palavras longas */
-            font-size: 0.9em; /* Fonte menor nos itens */
-        }
-
-        ul li strong { /* Usado em Agenda, Manutenção, Gasolina */
-            color: #ffffff;
-            background-color: #2d6a4f;
-            padding: 4px 8px; /* Padding reduzido */
-            border-radius: 5px; /* Menos arredondado */
-            font-size: 0.8em; /* Tamanho reduzido */
-            margin-right: 5px; /* Margem reduzida */
-            display: inline-block; /* Garante padding */
-        }
-
-        /* NOVO: Input de Preço na Lista de Compras */
-        ul#listaComprasContainer li .compra-details {
-             display: flex;
-             align-items: center;
-             gap: 5px;
-             flex-wrap: wrap; /* Permite quebra */
-        }
-        ul#listaComprasContainer li .compra-details label {
-             font-size: 0.8em;
-             color: #b7e4c7;
-        }
-        ul#listaComprasContainer li .compra-details input[type="number"] {
-             width: 80px; /* Largura fixa menor */
-             padding: 5px 8px; /* Padding menor */
-             font-size: 0.9em;
-             text-align: right;
-             background: rgba(0, 0, 0, 0.4);
-        }
-
-        /* NOVO: Botão de remoção para listas <li> */
-        ul li .remove-btn-li {
-            background: linear-gradient(145deg, #e53935, #c62828);
-            color: white;
-            border: none;
+        .category-tag { display: inline-flex; align-items: center; background: var(--card-bg); padding: 6px 14px; border-radius: 20px; margin: 5px; font-size: 0.9em; border: 1px solid var(--border-color); color: var(--text-primary); }
+        
+        /* CORREÇÃO CRÍTICA DO BOTÃO DE EXCLUSÃO DA CATEGORIA */
+        .remove-wrapper { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            width: 30px; 
+            height: 30px; 
+            margin-left: 8px; 
+            cursor: pointer; 
             border-radius: 50%;
-            width: 22px; /* Tamanho reduzido */
-            height: 22px; /* Tamanho reduzido */
-            cursor: pointer;
-            font-size: 0.7em; /* Tamanho reduzido */
-            font-weight: 700;
-            line-height: 22px; /* Ajustado */
-            text-align: center;
-            padding: 0;
-            margin-left: 8px; /* Margem reduzida */
-            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2); /* Sombra menor */
-            transition: all 0.2s ease;
-            flex-shrink: 0; /* Impede que encolha */
+            transition: 0.2s;
+            background: rgba(255, 255, 255, 0.05); /* Área de clique visível */
         }
-        ul li .remove-btn-li:hover {
-            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3); /* Sombra menor */
-            transform: scale(1.1);
+        .remove-wrapper:hover { 
+            background: rgba(255, 107, 107, 0.2); 
         }
+        .remove-wrapper i { pointer-events: none; } /* O ícone não atrapalha o clique do wrapper */
+        .remove-wrapper:hover i { color: var(--danger); }
 
-        /* Gráfico */
-        .grafico-container {
-            max-width: 100%; /* Ocupa largura total no mobile */
-            margin: 20px auto; /* Margem reduzida */
-            padding: 15px; /* Padding reduzido */
-            border-radius: 12px; /* Menos arredondado */
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* CALENDÁRIO */
+        .calendar-container { background: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; text-align: center; }
+        .calendar-day-name { font-weight: 600; color: var(--text-secondary); font-size: 0.9em; margin-bottom: 10px; }
+        .calendar-day { 
+            height: 80px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; position: relative; transition: 0.2s; display: flex; flex-direction: column; align-items: flex-start; padding: 5px;
+            background: var(--input-bg);
         }
+        .calendar-day:hover { border-color: var(--accent-color); background: var(--accent-hover); }
+        .calendar-day.empty { background: transparent; border: none; cursor: default; }
+        .day-number { font-weight: bold; font-size: 0.9em; margin-bottom: 4px; }
+        .day-indicator { width: 6px; height: 6px; background-color: var(--accent-color); border-radius: 50%; display: inline-block; margin-right: 2px; }
 
-        /* --- Media Queries Adicionais --- */
-
-        /* Telas um pouco maiores (tablets pequenos, celulares grandes em paisagem) */
-        @media (min-width: 600px) {
-            body { padding: 20px; }
-            .container { margin: 20px auto; border-radius: 20px; }
-            header { padding: 30px 20px; }
-            header h1 { font-size: 2.2em; }
-            nav { padding: 15px; }
-            nav a { padding: 12px 18px; margin: 0 5px; font-size: 1em; }
-            .month-selector-bar { padding: 20px 30px; }
-            .month-selector-bar label { font-size: 1.1em; }
-            #seletorMes { font-size: 1.1em; padding: 10px; }
-            section { padding: 25px 30px; }
-            h2 { font-size: 1.7em; }
-            h3 { font-size: 1.3em; }
-
-            .input-group {
-                 flex-direction: row; /* Volta para linha */
-                 align-items: center; /* Centraliza verticalmente */
-                 gap: 15px; /* Espaço entre label e container valor/data */
-            }
-             .input-group label { margin-bottom: 0; width: auto; flex-basis: 200px; /* Largura fixa para label */ text-align: right; margin-right: 0;}
-             .input-value-date-container {
-                 flex-direction: row; /* Linha para valor e data */
-                 flex-grow: 1; /* Ocupa o resto */
-                 margin-top: 0;
-                 gap: 10px;
-             }
-             .input-value-date-container > div {
-                 flex-basis: 150px; /* Largura base para cada input */
-                 flex-grow: 1; /* Permite crescer se houver espaço */
-             }
-             .input-value-date-container input[type="number"],
-             .input-value-date-container input[type="date"] {
-                  width: 100%; /* Ocupa todo o espaço do div pai */
-                  text-align: right;
-             }
-
-             /* Ajusta especificamente os inputs de Renda Fixa que não tem data */
-             #salarioPaulo, #salarioDiullia, #inss {
-                 width: 200px; /* Largura original */
-                 text-align: right;
-                 margin-top: 0;
-             }
-
-
-            form.add-item-form {
-                 flex-direction: row; /* Volta para linha */
-                 flex-wrap: nowrap; /* Não quebra mais */
-                 align-items: flex-end;
-            }
-             /* Ajustes específicos para cada formulário */
-            #formOutraRenda input[type="text"],
-            #formOutraDespesa input[type="text"] { flex-grow: 1; }
-            #formOutraRenda input[type="number"],
-            #formOutraDespesa input[type="number"] { width: 140px; }
-            #formOutraDespesa input[type="date"] { width: 150px; } /* NOVO */
-
-            #formAddItemCompra .form-group:nth-child(1) { flex-grow: 1; } /* Item */
-            #formAddItemCompra .form-group:nth-child(2) { flex-basis: 100px; flex-grow: 0;} /* Qtd */
-
-            ul#listaComprasContainer li .compra-details input[type="number"] { width: 100px; } /* Input de preço maior */
-
-            .summary { padding: 25px; border-radius: 15px; }
-            .summary-item { font-size: 1.2em; }
-            .summary-item.saldo-final { font-size: 1.5em; }
-            button { padding: 12px 22px; font-size: 1em; }
-            button.remove-btn { padding: 8px 12px; font-size: 0.9em; }
-             button.pay-btn { padding: 8px 12px; font-size: 0.9em; } /* NOVO */
-            ul li { padding: 15px; border-radius: 10px; flex-wrap: nowrap; } /* Não quebra mais linha */
-             ul li > span:first-of-type { font-size: 1em; width: auto; margin-bottom: 0; }
-            ul li strong { font-size: 0.9em; }
-            ul li .remove-btn-li { width: 25px; height: 25px; font-size: 0.8em; line-height: 25px; }
-            .grafico-container { max-width: 600px; padding: 25px; border-radius: 15px; }
+        @media (max-width: 768px) {
+            .app-wrapper { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-between; align-items: center; padding: 10px 20px; position: fixed; bottom: 0; left: 0; border-right: none; border-top: 1px solid var(--border-color); order: 2; background: var(--sidebar-bg); }
+            .logo-container { margin-bottom: 0; }
+            .logo-text { display: none; }
+            .sidebar-footer { display: none; }
+            nav { flex-direction: row; justify-content: space-around; width: 100%; }
+            nav a { flex-direction: column; padding: 8px; font-size: 0.75em; gap: 5px; border-radius: 8px; border: none; }
+            .main-content { order: 1; margin-bottom: 70px; }
+            .charts-wrapper { grid-template-columns: 1fr; }
+            .calendar-day { height: 50px; }
         }
-
-        /* Telas de Desktop */
-         @media (min-width: 900px) {
-             /* Estilos originais podem ser reconfirmados aqui se necessário */
-              header h1 { font-size: 2.5em; }
-             /* ... outros ajustes finos para desktop ... */
-              .input-group label { flex-basis: 250px;} /* Label maior no desktop */
-              .input-value-date-container > div { flex-basis: 180px;}
-
-         }
-
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Meu Organizador Financeiro</h1>
-        </header>
 
-        <nav id="main-nav">
-            <a href="#principal" class="nav-link active">🏠 Principal</a>
-            <a href="#financeiro" class="nav-link">💰 Financeiro</a>
-            <a href="#compras" class="nav-link">🛒 Compras</a>
-            <a href="#carro" class="nav-link">🚗 Carro</a>
-            <a href="#agenda" class="nav-link">📅 Agenda</a>
+<div class="app-wrapper">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <svg class="custom-logo-svg" viewBox="0 0 40 40" fill="none" stroke="var(--accent-color)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 38c9.941 0 18-8.059 18-18S29.941 2 20 2 2 10.059 2 20s8.059 18 18 18z" stroke-opacity="0.2" />
+                <path d="M12 26v-4" />
+                <path d="M18 26v-8" />
+                <path d="M24 26v-12" />
+                <path d="M8 22l6-4 6 6 10-12" stroke-width="2" />
+                <text x="32" y="16" font-family="Poppins" font-weight="bold" font-size="14" fill="var(--accent-color)" stroke="none">$</text>
+            </svg>
+            <div class="logo-text">
+                <span class="logo-title">Controle</span>
+                <span class="logo-subtitle">Financeiro</span>
+            </div>
+        </div>
+        
+        <nav>
+            <a href="#principal" class="nav-link active"><i data-lucide="layout-dashboard"></i> <span>Dashboard</span></a>
+            <a href="#financeiro" class="nav-link"><i data-lucide="dollar-sign"></i> <span>Financeiro</span></a>
+            <a href="#compras" class="nav-link"><i data-lucide="shopping-cart"></i> <span>Mercado</span></a>
+            <a href="#carro" class="nav-link"><i data-lucide="car"></i> <span>Veículo</span></a>
+            <a href="#agenda" class="nav-link"><i data-lucide="calendar"></i> <span>Agenda</span></a>
+            <a href="#cofre" class="nav-link special-link"><i data-lucide="lock"></i> <span>Cofre</span></a>
         </nav>
 
-        <div class="month-selector-bar">
-            <label for="seletorMes">Selecionar Mês:</label>
-            <input type="month" id="seletorMes">
+        <div class="sidebar-footer">
+            <button class="btn-sidebar" onclick="exportarDadosGerais()"><i data-lucide="download"></i> Exportar Dados</button>
+            <button class="btn-sidebar" onclick="document.getElementById('inputImportarGeral').click()"><i data-lucide="upload"></i> Importar Dados</button>
+            <input type="file" id="inputImportarGeral" style="display: none;" accept=".json" onchange="importarDadosGerais(this)">
         </div>
+    </aside>
 
-        <!-- ================================== -->
-        <!-- PÁGINA 1: PRINCIPAL (da index.html) -->
-        <!-- ================================== -->
-        <div id="page-principal" class="page-section active">
-            <section>
-                <h2>📊 Resumo Geral do Mês</h2>
-                <div class="summary">
-                    <div class="summary-item">
-                        <span>Total de Receitas:</span>
-                        <span id="totalReceitasPrincipal" class="receita-valor">R$ 0,00</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Total de Despesas:</span>
-                        <span id="totalDespesasPrincipal" class="despesa-valor">R$ 0,00</span>
-                    </div>
-                    <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 15px 0;">
-                    <div class="summary-item saldo-final">
-                        <span>Saldo Final:</span>
-                        <span id="saldoFinalPrincipal" class="positive">R$ 0,00</span>
-                    </div>
+    <!-- ÁREA PRINCIPAL -->
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="page-title" id="pageTitleDisplay">Dashboard</div>
+            <div style="display: flex; align-items: center;">
+                <div class="live-clock" id="liveClock"><i data-lucide="clock" style="width:14px;"></i> --:--</div>
+                <div class="controls">
+                    <input type="month" id="seletorMes">
+                    <button class="theme-toggle-btn" id="themeToggle"><i data-lucide="sun"></i></button>
                 </div>
-            </section>
+            </div>
+        </header>
 
-            <section>
-                <h2>📈 Distribuição das Despesas</h2>
-                <!-- ATUALIZADO: ID e classe do container -->
-                <div id="graficoDespesasContainer" class="grafico-container">
-                    <canvas id="graficoDespesas"></canvas>
-                </div>
-            </section>
-
-            <!-- ============================================== -->
-            <!-- NOVO: Seção para Gráfico de Cartão de Crédito -->
-            <!-- ============================================== -->
-            <section>
-                <h2>💳 Evolução da Fatura do Cartão</h2>
-                <div id="graficoCartaoContainer" class="grafico-container">
-                    <canvas id="graficoCartaoLinha"></canvas>
-                </div>
-            </section>
-        </div>
-
-        <!-- ======================================= -->
-        <!-- PÁGINA 2: FINANCEIRO (da financeiro.html) -->
-        <!-- ======================================= -->
-        <div id="page-financeiro" class="page-section">
-            <section>
-                <h2>💰 Resumo Financeiro</h2>
-                <div class="summary">
-                    <div class="summary-item">
-                        <span>Total de Receitas:</span>
-                        <span id="totalReceitasFinanceiro" class="receita-valor">R$ 0,00</span>
+        <div class="scroll-area">
+            
+            <!-- PÁGINA: PRINCIPAL -->
+            <div id="page-principal" class="page-section active">
+                <div class="dashboard-grid">
+                    <div class="card income">
+                        <h3>Receitas</h3>
+                        <div class="value" id="totalReceitasPrincipal">R$ 0,00</div>
                     </div>
-                    <div class="summary-item">
-                        <span>Total Despesas (Fixas + Extras):</span>
-                        <span id="totalDespesasFinanceiro" class="despesa-valor">R$ 0,00</span>
+                    <div class="card expense">
+                        <h3>Despesas</h3>
+                        <div class="value" id="totalDespesasPrincipal">R$ 0,00</div>
                     </div>
-                </div>
-                <!-- NOVO: Saldo Devedor -->
-                 <h2 style="margin-top: 30px;">📉 Saldo Devedor (Contas Não Pagas)</h2>
-                 <div class="summary summary-devedor">
-                    <div class="summary-item saldo-final">
-                         <span>Valor Pendente:</span>
-                         <span id="saldoDevedorValor">R$ 0,00</span>
-                    </div>
-                 </div>
-            </section>
-
-            <section>
-                <h2>✨ Receitas (Entradas)</h2>
-                <div class="input-group">
-                    <label for="salarioPaulo">Salário (Paulo Eduardo):</label>
-                    <input type="number" id="salarioPaulo" class="receita-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="salarioDiullia">Salário (Diullia):</label>
-                    <input type="number" id="salarioDiullia" class="receita-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="inss">Benefício INSS:</label>
-                    <input type="number" id="inss" class="receita-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-
-                <h3>Outras Fontes de Renda</h3>
-                <form id="formOutraRenda" class="add-item-form">
-                    <div class="form-group">
-                        <label for="outraRendaDescricao">Descrição</label>
-                        <input type="text" id="outraRendaDescricao" placeholder="Ex: Freelance">
-                    </div>
-                    <div class="form-group">
-                         <label for="outraRendaValor">Valor</label>
-                        <input type="number" id="outraRendaValor" placeholder="R$ 0,00" min="0" step="0.01">
-                    </div>
-                    <button type="submit">+ Adicionar</button>
-                </form>
-                <div id="outrasRendasContainer"></div>
-            </section>
-
-            <section>
-                <h2>💸 Despesas Fixas (Saídas)</h2>
-                <!-- ALTERADO: Adicionado input de data para despesas fixas -->
-                <div class="input-group">
-                    <label for="escola">Escola Crianças:</label>
-                    <div class="input-value-date-container">
-                         <div><label for="escola">Valor</label><input type="number" id="escola" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
-                         <div><label for="vencimentoEscola">Vencimento</label><input type="date" id="vencimentoEscola" class="vencimento-input"></div>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="agua">Conta de Água:</label>
-                    <div class="input-value-date-container">
-                         <div><label for="agua">Valor</label><input type="number" id="agua" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
-                         <div><label for="vencimentoAgua">Vencimento</label><input type="date" id="vencimentoAgua" class="vencimento-input"></div>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="luz">Conta de Luz:</label>
-                     <div class="input-value-date-container">
-                         <div><label for="luz">Valor</label><input type="number" id="luz" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
-                         <div><label for="vencimentoLuz">Vencimento</label><input type="date" id="vencimentoLuz" class="vencimento-input"></div>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="internet">Internet:</label>
-                    <div class="input-value-date-container">
-                         <div><label for="internet">Valor</label><input type="number" id="internet" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
-                         <div><label for="vencimentoInternet">Vencimento</label><input type="date" id="vencimentoInternet" class="vencimento-input"></div>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="financiamentoCasa">Financiamento Casa:</label>
-                     <div class="input-value-date-container">
-                         <div><label for="financiamentoCasa">Valor</label><input type="number" id="financiamentoCasa" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
-                         <div><label for="vencimentoFinanciamentoCasa">Vencimento</label><input type="date" id="vencimentoFinanciamentoCasa" class="vencimento-input"></div>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="financiamentoCarro">Financiamento Carro:</label>
-                     <div class="input-value-date-container">
-                         <div><label for="financiamentoCarro">Valor</label><input type="number" id="financiamentoCarro" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
-                         <div><label for="vencimentoFinanciamentoCarro">Vencimento</label><input type="date" id="vencimentoFinanciamentoCarro" class="vencimento-input"></div>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="seguroCarro">Seguro Carro:</label>
-                    <div class="input-value-date-container">
-                         <div><label for="seguroCarro">Valor</label><input type="number" id="seguroCarro" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
-                         <div><label for="vencimentoSeguroCarro">Vencimento</label><input type="date" id="vencimentoSeguroCarro" class="vencimento-input"></div>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="cartaoCredito">Cartão de Crédito (Fatura):</label>
-                    <div class="input-value-date-container">
-                         <div><label for="cartaoCredito">Valor</label><input type="number" id="cartaoCredito" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01"></div>
-                         <div><label for="vencimentoCartaoCredito">Vencimento</label><input type="date" id="vencimentoCartaoCredito" class="vencimento-input"></div>
+                    <div class="card balance">
+                        <h3>Saldo Líquido</h3>
+                        <div class="value" id="saldoFinalPrincipal">R$ 0,00</div>
                     </div>
                 </div>
 
-                <h3>Outras Despesas (Contas a Pagar)</h3>
-                <!-- ALTERADO: Formulário de Outras Despesas com Data Vencimento -->
-                <form id="formOutraDespesa" class="add-item-form">
-                     <div class="form-group">
-                          <label for="outraDespesaDescricao">Descrição</label>
-                         <input type="text" id="outraDespesaDescricao" placeholder="Descrição (Ex: Presente)">
-                     </div>
-                     <div class="form-group">
-                          <label for="outraDespesaValor">Valor</label>
-                         <input type="number" id="outraDespesaValor" placeholder="R$ 0,00" min="0" step="0.01">
-                     </div>
-                     <div class="form-group">
-                          <label for="outraDespesaVencimento">Vencimento</label>
-                         <input type="date" id="outraDespesaVencimento">
-                     </div>
-                    <button type="submit">+ Adicionar</button>
-                </form>
-                <div id="outrasDespesasContainer">
-                    <!-- Itens serão adicionados aqui -->
-                </div>
-            </section>
-        </div>
-
-        <!-- =================================== -->
-        <!-- PÁGINA 3: COMPRAS (da compras.html) -->
-        <!-- =================================== -->
-        <div id="page-compras" class="page-section">
-            <section>
-                <h2>🛒 Alimentação (Supermercado)</h2>
-
-                <div class="input-group">
-                    <label for="valorTotalVA">Valor Recebido (VA):</label>
-                    <input type="number" id="valorTotalVA" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-
-                <div class="summary" style="background-color: transparent; margin-top: 20px;">
-                    <div class="summary-item">
-                        <span>Total de Compras:</span>
-                        <span id="totalCompras" class="despesa-valor">R$ 0,00</span>
+                <div class="charts-wrapper">
+                    <div class="chart-container">
+                        <h3 style="text-align: center;">Distribuição de Gastos</h3>
+                        <canvas id="graficoDespesas"></canvas>
                     </div>
-                    <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 15px 0;">
-                    <div class="summary-item saldo-final" style="color: #28a745;">
-                        <span>Saldo Restante do Vale:</span>
-                        <span id="saldoVA" class="positive">R$ 0,00</span>
+                    <div class="chart-container">
+                        <h3 style="text-align: center;">Fatura Cartão</h3>
+                        <canvas id="graficoCartaoBarras"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PÁGINA: FINANCEIRO -->
+            <div id="page-financeiro" class="page-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Financeiro</h2>
+                    <button class="btn-primary btn-small" id="btnGerenciarCategorias"><i data-lucide="settings"></i> Categorias</button>
+                </div>
+
+                <h3>Entradas</h3>
+                <div class="input-grid">
+                    <div class="input-wrapper has-icon">
+                        <label>Salário 1</label>
+                        <i data-lucide="dollar-sign" class="icon-left"></i>
+                        <input type="number" id="salario1" class="receita-input" placeholder="0,00">
+                    </div>
+                    <div class="input-wrapper has-icon">
+                        <label>Salário 2</label>
+                        <i data-lucide="wallet" class="icon-left"></i>
+                        <input type="number" id="salario2" class="receita-input" placeholder="0,00">
+                    </div>
+                    <div class="input-wrapper has-icon">
+                        <label>Renda Extra</label>
+                        <i data-lucide="plus-circle" class="icon-left"></i>
+                        <input type="number" id="rendaExtra" class="receita-input" placeholder="0,00">
                     </div>
                 </div>
 
-                <h3>Lista de Compras</h3>
-                 <!-- ALTERADO: Formulário de Compras pede Item e Quantidade -->
-                <form id="formAddItemCompra" class="add-item-form">
-                     <div class="form-group">
-                          <label for="itemCompraDescricao">Item</label>
-                         <input type="text" id="itemCompraDescricao" placeholder="Nome do Item (Ex: Arroz)">
-                     </div>
-                     <div class="form-group">
-                          <label for="itemCompraQtd">Quantidade</label>
-                         <input type="number" id="itemCompraQtd" value="1" min="1" step="1">
-                     </div>
-                    <button type="submit">+ Adicionar Item</button>
-                </form>
-                <ul id="listaComprasContainer">
-                    <!-- Itens da lista serão adicionados aqui -->
-                </ul>
-            </section>
-        </div>
+                <h3 style="color: var(--danger)">Despesas</h3>
+                <div id="containerDespesasFixas" class="input-grid"></div>
 
-        <!-- ================================= -->
-        <!-- PÁGINA 4: CARRO (da carro.html) -->
-        <!-- ================================= -->
-        <div id="page-carro" class="page-section">
-            <section>
-                <h2>🚗 Manutenção do Carro</h2>
-                <form id="formManutencao" class="add-item-form">
-                    <div class="form-group"><label>Data</label><input type="date" id="manutencaoData"></div>
-                    <div class="form-group" style="flex-grow: 2;"><label>Descrição</label><input type="text" id="manutencaoDescricao" placeholder="Ex: Troca de Óleo, Pneu"></div>
-                    <div class="form-group"><label>Próxima (KM)</label><input type="number" id="manutencaoKm" placeholder="KM"></div>
-                    <div class="form-group"><label>Valor (R$)</label><input type="number" id="manutencaoValor" placeholder="R$ 0,00" step="0.01"></div>
-                    <button type="submit">+ Registrar</button>
-                </form>
-                <ul id="listaManutencao" style="margin-top: 20px;"></ul>
-            </section>
+                <div class="input-wrapper has-icon" style="margin-top: 10px; max-width: 300px;">
+                    <label>Fatura Cartão</label>
+                    <i data-lucide="credit-card" class="icon-left"></i>
+                    <input type="number" id="cartaoCredito" class="despesa-input" placeholder="0,00" style="border-color: var(--danger);">
+                </div>
+            </div>
 
-            <section>
-                <h2>⛽️ Controle de Gasolina</h2>
-                <form id="formAbastecimento" class="add-item-form">
-                     <div class="form-group"><label>Data</label><input type="date" id="gasData"></div>
-                     <div class="form-group"><label>KM Atual</label><input type="number" id="gasKmAtual" placeholder="KM"></div>
-                     <div class="form-group"><label>Litros (L)</label><input type="number" id="gasLitros" placeholder="L" step="0.01"></div>
-                     <div class="form-group"><label>Valor Total (R$)</label><input type="number" id="gasValorTotal" placeholder="R$ 0,00" step="0.01"></div>
-                    <button type="submit">+ Registrar</button>
+            <!-- PÁGINA: MERCADO -->
+            <div id="page-compras" class="page-section">
+                <h2>Mercado & VA</h2>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Valor do Vale</h3>
+                        <input type="number" id="valorTotalVA" placeholder="R$ 0,00" style="background: transparent; border: none; font-size: 1.8em; color: var(--text-primary); font-weight: bold; width: 100%; padding: 0;">
+                    </div>
+                    <div class="card">
+                        <h3>Gasto Atual</h3>
+                        <div class="value" id="totalCompras" style="color: var(--danger)">R$ 0,00</div>
+                    </div>
+                    <div class="card">
+                        <h3>Saldo Restante</h3>
+                        <div class="value" id="saldoVA" style="color: var(--accent-color)">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <!-- Botão Adicionar Item -->
+                <form id="formAddItemCompra" style="display: flex; gap: 10px; margin-top: 30px; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <input type="text" id="itemCompraDescricao" placeholder="Nome do item (ex: Arroz)" style="flex: 2;">
+                    <input type="number" id="itemCompraValor" placeholder="Valor" step="0.01" style="flex: 1;">
+                    <button type="submit" class="btn-primary"><i data-lucide="plus"></i></button>
                 </form>
 
-                <h3 style="margin-top: 20px; color: #f0f0f0;">Histórico de Abastecimento</h3>
-                <ul id="listaAbastecimento" style="margin-top: 20px;"></ul>
-            </section>
-        </div>
+                <!-- Botão Limpar Lista -->
+                <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                    <button class="btn-danger btn-small" onclick="limparListaMercado()"><i data-lucide="trash-2" style="width: 14px; margin-right: 5px;"></i> Limpar Lista</button>
+                </div>
 
-        <!-- ================================== -->
-        <!-- PÁGINA 5: AGENDA (da agenda.html) -->
-        <!-- ================================== -->
-        <div id="page-agenda" class="page-section">
-            <section>
-                <h2>🏖️ Lazer e Agenda</h2>
-                <form id="formLazer" class="add-item-form">
-                     <div class="form-group"><label>Data</label><input type="date" id="eventoData"></div>
-                     <div class="form-group"><label>Horário</label><input type="time" id="eventoHorario"></div>
-                     <div class="form-group" style="flex-grow: 2;"><label>Descrição</label><input type="text" id="eventoDescricao" placeholder="Ex: Ir ao parque, Missa"></div>
-                    <button type="submit">+ Agendar</button>
-                </form>
-                <ul id="listaEventos" style="margin-top: 20px;"></ul>
-            </section>
+                <ul id="listaComprasContainer" class="modern-list"></ul>
+            </div>
 
-            <section>
-                <h2>🏠 Tarefas de Casa</h2>
-                <form id="formTarefa" class="add-item-form">
-                     <div class="form-group"><label>Data</label><input type="date" id="tarefaData"></div>
-                     <div class="form-group"><label>Horário</label><input type="time" id="tarefaHorario"></div>
-                     <div class="form-group" style="flex-grow: 2;"><label>Descrição</label><input type="text" id="tarefaDescricao" placeholder="Ex: Lavar banheiros"></div>
-                    <button type="submit">+ Agendar</button>
-                </form>
-                <ul id="listaTarefas" style="margin-top: 20px;"></ul>
-            </section>
+            <!-- PÁGINA: CARRO -->
+            <div id="page-carro" class="page-section">
+                <h2>Controle do Veículo</h2>
+                <div class="input-grid">
+                    <div class="card" style="padding: 20px;">
+                        <h3 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="fuel" style="width: 18px;"></i> Abastecer</h3>
+                        <form id="formAbastecimento" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                            <input type="date" id="gasData">
+                            <input type="number" id="gasKmAtual" placeholder="KM Atual">
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="gasLitros" placeholder="Litros">
+                                <input type="number" id="gasValorTotal" placeholder="Total R$">
+                            </div>
+                            <button type="submit" class="btn-primary" style="margin-top: 5px;">Registrar</button>
+                        </form>
+                    </div>
+                    
+                    <div class="card" style="padding: 20px;">
+                        <h3 style="display: flex; align-items: center; gap: 8px;"><i data-lucide="wrench" style="width: 18px;"></i> Manutenção</h3>
+                        <form id="formManutencao" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                            <input type="date" id="manutencaoData">
+                            <input type="text" id="manutencaoDescricao" placeholder="Descrição">
+                            <input type="number" id="manutencaoValor" placeholder="Valor R$">
+                            <button type="submit" class="btn-primary" style="margin-top: 5px;">Registrar</button>
+                        </form>
+                    </div>
+                </div>
+                <h3>Histórico</h3>
+                <ul id="listaAbastecimento" class="modern-list"></ul>
+            </div>
+
+            <!-- PÁGINA: AGENDA (Calendário Novo) -->
+            <div id="page-agenda" class="page-section">
+                <h2>Agenda & Calendário</h2>
+                
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <h3 id="calendarMonthYear">Mês/Ano</h3>
+                        <div>
+                            <button class="btn-outline btn-small" onclick="mudarMesCalendario(-1)"><i data-lucide="chevron-left"></i></button>
+                            <button class="btn-outline btn-small" onclick="mudarMesCalendario(1)"><i data-lucide="chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGridHeader">
+                        <div class="calendar-day-name">Dom</div><div class="calendar-day-name">Seg</div><div class="calendar-day-name">Ter</div>
+                        <div class="calendar-day-name">Qua</div><div class="calendar-day-name">Qui</div><div class="calendar-day-name">Sex</div>
+                        <div class="calendar-day-name">Sáb</div>
+                    </div>
+                    <div class="calendar-grid" id="calendarDays"></div>
+                </div>
+
+                <h3 style="margin-top: 20px;">Próximos Compromissos</h3>
+                <ul id="listaAgenda" class="modern-list"></ul>
+            </div>
+
+            <!-- PÁGINA: COFRE -->
+            <div id="page-cofre" class="page-section">
+                <h2>Cofre de Senhas</h2>
+                <!-- Bloqueado -->
+                <div id="vaultLockScreen" style="display:flex; flex-direction:column; align-items:center; height:60vh; justify-content:center;">
+                    <i data-lucide="lock" style="width:48px; height:48px; color:var(--accent-color); margin-bottom:15px;"></i>
+                    <h3 id="vaultTitle">Área Protegida</h3>
+                    <p id="vaultMsg" style="color:var(--text-secondary); margin-bottom:20px;">Digite a senha mestre.</p>
+                    <div style="display:flex; gap:10px;">
+                        <input type="password" id="vaultPassword" placeholder="Senha">
+                        <button class="btn-primary" id="btnUnlockVault">Entrar</button>
+                    </div>
+                    <p id="vaultError" style="color:var(--danger); display:none; margin-top:10px;">Senha incorreta!</p>
+                    
+                    <!-- Opção de Resetar Senha -->
+                    <a href="#" onclick="resetVault()" style="color:var(--text-secondary); font-size:0.8em; margin-top:20px; text-decoration:underline;">Esqueci a senha / Resetar</a>
+                </div>
+                
+                <!-- Desbloqueado -->
+                <div id="vaultContent" style="display:none; animation: slideUp 0.3s;">
+                    <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+                        <button class="btn-outline btn-small" onclick="lockVault()">Bloquear</button>
+                    </div>
+                    <div class="card" style="margin-bottom:20px;">
+                        <form id="formVaultAdd" style="display:flex; gap:10px;">
+                            <input type="text" id="vTitle" placeholder="Serviço" style="flex:1;">
+                            <input type="text" id="vUser" placeholder="Usuário" style="flex:1;">
+                            <input type="text" id="vPass" placeholder="Senha" style="flex:1;">
+                            <button type="submit" class="btn-primary">Salvar</button>
+                        </form>
+                    </div>
+                    <div id="vaultList"></div>
+                </div>
+            </div>
+
+        </div> 
+    </main>
+</div>
+
+<!-- MODAL CONFIRMAÇÃO (CUSTOMIZADO) -->
+<div id="modalConfirmacao" class="modal">
+    <div class="modal-content" style="text-align: center;">
+        <i data-lucide="alert-triangle" style="width: 48px; height: 48px; color: var(--danger); margin-bottom: 10px;"></i>
+        <h3 style="justify-content: center;">Tem certeza?</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">Essa ação não pode ser desfeita.</p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button id="btnConfirmarNao" class="btn-outline">Cancelar</button>
+            <button id="btnConfirmarSim" class="btn-danger">Excluir</button>
         </div>
     </div>
+</div>
 
-    <!-- ================================== -->
-    <!-- SCRIPTS JAVASCRIPT COMBINADOS      -->
-    <!-- ================================== -->
+<!-- MODAL CATEGORIAS -->
+<div id="modalCategorias" class="modal">
+    <div class="modal-content">
+        <h3 style="color: var(--accent-color)">Gerenciar Categorias</h3>
+        <div class="icon-selector">
+            <!-- Mais ícones adicionados -->
+            <div class="icon-option selected" data-icon="zap"><i data-lucide="zap"></i></div>
+            <div class="icon-option" data-icon="droplet"><i data-lucide="droplet"></i></div>
+            <div class="icon-option" data-icon="wifi"><i data-lucide="wifi"></i></div>
+            <div class="icon-option" data-icon="home"><i data-lucide="home"></i></div>
+            <div class="icon-option" data-icon="shield"><i data-lucide="shield"></i></div>
+            <div class="icon-option" data-icon="smartphone"><i data-lucide="smartphone"></i></div>
+            <div class="icon-option" data-icon="shopping-bag"><i data-lucide="shopping-bag"></i></div>
+            <div class="icon-option" data-icon="heart"><i data-lucide="heart"></i></div>
+            <div class="icon-option" data-icon="dumbbell"><i data-lucide="dumbbell"></i></div>
+            <div class="icon-option" data-icon="gamepad-2"><i data-lucide="gamepad-2"></i></div>
+            <div class="icon-option" data-icon="book"><i data-lucide="book"></i></div>
+            <div class="icon-option" data-icon="briefcase"><i data-lucide="briefcase"></i></div>
+            <div class="icon-option" data-icon="coffee"><i data-lucide="coffee"></i></div>
+            <div class="icon-option" data-icon="music"><i data-lucide="music"></i></div>
+            <div class="icon-option" data-icon="gift"><i data-lucide="gift"></i></div>
+            <div class="icon-option" data-icon="plane"><i data-lucide="plane"></i></div>
+            <div class="icon-option" data-icon="credit-card"><i data-lucide="credit-card"></i></div>
+            <div class="icon-option" data-icon="piggy-bank"><i data-lucide="piggy-bank"></i></div>
+        </div>
 
-    <!-- Scripts do Firebase (SDKs) -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="novaCategoriaInput" placeholder="Nome (ex: Academia)">
+            <button id="btnAddCategoria" class="btn-primary">Adicionar</button>
+        </div>
 
-    <!-- Script Principal (Lógica do App) -->
-    <script>
-        // Configuração do Firebase fornecida pelo usuário
-        const firebaseConfig = {
-          apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
-          authDomain: "finan1313.firebaseapp.com",
-          projectId: "finan1313",
-          storageBucket: "finan1313.appspot.com", // CORRIGIDO: Removido 'firebasestorage.'
-          messagingSenderId: "92060764433",
-          appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
-        };
+        <div id="containerTagsCategorias" style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 150px; overflow-y: auto; margin-bottom: 20px;"></div>
 
-        // Inicializa o Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // Conecta ao Firestore
+        <button id="btnFecharModal" class="btn-primary" style="width: 100%;">Fechar</button>
+    </div>
+</div>
 
-        console.log("Firebase conectado ao projeto:", firebaseConfig.projectId);
+<!-- MODAL EVENTO AGENDA -->
+<div id="modalEvento" class="modal">
+    <div class="modal-content">
+        <h3 style="color: var(--accent-color)">Evento / Tarefa</h3>
+        <input type="hidden" id="eventoId">
+        <label>Data</label>
+        <input type="date" id="eventoData" style="margin-bottom: 10px;">
+        <label>Hora</label>
+        <input type="time" id="eventoHora" style="margin-bottom: 10px;">
+        <label>Descrição</label>
+        <textarea id="eventoDesc" rows="3" style="margin-bottom: 15px; resize: none;"></textarea>
+        
+        <div style="display: flex; gap: 10px;">
+            <button id="btnSalvarEvento" class="btn-primary" style="flex: 1;">Salvar</button>
+            <button onclick="document.getElementById('modalEvento').classList.remove('open')" class="btn-outline">Cancelar</button>
+        </div>
+    </div>
+</div>
 
-        // --- NOVO: Configurações Padrão do Gráfico para Dark Mode ---
-        Chart.defaults.color = '#e0e0e0';
-        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-        // --- LÓGICA DE NAVEGAÇÃO ---
+<script>
+    lucide.createIcons();
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const pageSections = document.querySelectorAll('.page-section');
-            const seletorMes = document.getElementById('seletorMes');
+    // === CONFIGURAÇÃO FIREBASE ===
+    const firebaseConfig = {
+        apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
+        authDomain: "finan1313.firebaseapp.com",
+        projectId: "finan1313",
+        storageBucket: "finan1313.firebasestorage.app",
+        messagingSenderId: "92060764433",
+        appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-            // Define o valor padrão do seletor para o mês atual
-            const d = new Date();
-            const mesAtual = (d.getMonth() + 1).toString().padStart(2, '0');
-            const anoAtual = d.getFullYear();
-            seletorMes.value = `${anoAtual}-${mesAtual}`;
+    // Estado e Configuração
+    let categoriasFixas = [
+        {name: 'Escola', icon: 'graduation-cap'},
+        {name: 'Água', icon: 'droplet'},
+        {name: 'Luz', icon: 'zap'},
+        {name: 'Internet', icon: 'wifi'},
+        {name: 'Casa', icon: 'home'},
+        {name: 'Seguro', icon: 'shield'}
+    ];
+    let selectedIcon = 'zap';
+    let chartDoughnut = null, chartBar = null;
+    let confirmCallback = null; 
+    let agendaAtual = []; 
 
-            // Ouvinte para quando o mês mudar
-            seletorMes.addEventListener('change', () => {
-                console.log("Mês selecionado:", getMesId());
-                // Recarrega todos os dados de todas as páginas
-                recarregarTodosDados();
-            });
+    // Relógio
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('liveClock').innerHTML = `<i data-lucide="clock" style="width:14px;"></i> ${now.toLocaleTimeString()}`;
+        lucide.createIcons();
+    }, 1000);
 
-            function showPage(pageId) {
-                // Oculta todas as seções
-                pageSections.forEach(section => {
-                    section.classList.remove('active');
-                });
-
-                // Mostra a seção correta
-                const activePage = document.getElementById(`page-${pageId}`);
-                if (activePage) {
-                    activePage.classList.add('active');
-                }
-
-                // Atualiza a classe 'active' nos links
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.hash === `#${pageId}`) {
-                        link.classList.add('active');
-                    }
-                });
-
-                // Ação especial ao carregar a página principal
-                if (pageId === 'principal') {
-                    // Recarrega os dados do Firebase para atualizar o resumo
-                    carregarDadosPrincipal();
-                }
-            }
-
-            // Adiciona ouvintes de clique aos links de navegação
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault(); // Impede o pulo da página
-                    const pageId = link.hash.substring(1); // Pega "principal" de "#principal"
-                    showPage(pageId);
-                });
-            });
-
-            // Inicializa todas as lógicas de cada "página"
-            initPrincipal();
-            initFinanceiro();
-            initCompras();
-            initCarro();
-            initAgenda();
-
-            // Mostra a página principal por padrão
-            showPage('principal');
+    // Navegação e Tema
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.page-section');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            navLinks.forEach(n => n.classList.remove('active'));
+            link.classList.add('active');
+            sections.forEach(s => s.classList.remove('active'));
+            document.getElementById(`page-${targetId}`).classList.add('active');
+            document.getElementById('pageTitleDisplay').innerText = link.querySelector('span').innerText;
+            if(targetId === 'principal') carregarDashboard();
+            if(targetId === 'cofre') checkVaultStatus();
+            if(targetId === 'agenda') renderCalendar();
         });
+    });
 
-        // Função para recarregar tudo ao mudar o mês
-        function recarregarTodosDados() {
-            // Limpa containers dinâmicos
-            document.getElementById('outrasRendasContainer').innerHTML = '';
-            document.getElementById('outrasDespesasContainer').innerHTML = '';
-            document.getElementById('listaComprasContainer').innerHTML = '';
-            document.getElementById('listaManutencao').innerHTML = '';
-            document.getElementById('listaAbastecimento').innerHTML = ''; // NOVO: Limpa lista de gasolina
-            document.getElementById('listaEventos').innerHTML = '';
-            document.getElementById('listaTarefas').innerHTML = '';
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+        const isLight = document.body.classList.contains('light-mode');
+        document.getElementById('themeToggle').innerHTML = isLight ? `<i data-lucide="moon"></i>` : `<i data-lucide="sun"></i>`;
+        lucide.createIcons();
+        atualizarGraficos();
+    });
 
-            // Recarrega os dados de todas as seções
-            carregarDadosPrincipal();
-            carregarDadosFinanceiro();
-            carregarDadosCompras();
-            carregarDadosCarro();
-            carregarDadosAgenda();
+    // Mês
+    const seletorMes = document.getElementById('seletorMes');
+    const hoje = new Date();
+    seletorMes.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+    seletorMes.addEventListener('change', () => recarregarTudo());
+    function getMesId() { return seletorMes.value; }
+
+    // --- MODAL CONFIRMAÇÃO ---
+    function showConfirmModal(callback) {
+        confirmCallback = callback;
+        document.getElementById('modalConfirmacao').classList.add('open');
+    }
+    document.getElementById('btnConfirmarNao').addEventListener('click', () => {
+        document.getElementById('modalConfirmacao').classList.remove('open');
+        confirmCallback = null;
+    });
+    document.getElementById('btnConfirmarSim').addEventListener('click', () => {
+        if(confirmCallback) confirmCallback();
+        document.getElementById('modalConfirmacao').classList.remove('open');
+    });
+
+    // --- CATEGORIAS & MODAL ---
+    const modal = document.getElementById('modalCategorias');
+    document.getElementById('btnGerenciarCategorias').addEventListener('click', () => {
+        renderizarTagsCategorias();
+        modal.classList.add('open');
+    });
+    document.getElementById('btnFecharModal').addEventListener('click', async () => {
+        modal.classList.remove('open');
+        renderizarInputsFixos();
+        await db.collection('financas').doc(getMesId()).set({ categoriasConfig: categoriasFixas }, { merge: true });
+        carregarValoresInputs();
+    });
+
+    document.querySelectorAll('.icon-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            document.querySelectorAll('.icon-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            selectedIcon = opt.dataset.icon;
+        });
+    });
+
+    document.getElementById('btnAddCategoria').addEventListener('click', async () => {
+        const val = document.getElementById('novaCategoriaInput').value.trim();
+        if(val && !categoriasFixas.some(c => c.name === val)) {
+            categoriasFixas.push({ name: val, icon: selectedIcon });
+            document.getElementById('novaCategoriaInput').value = '';
+            renderizarTagsCategorias();
+            
+            // Save immediately
+            await db.collection('financas').doc(getMesId()).set({ categoriasConfig: categoriasFixas }, { merge: true });
+            
+            renderizarInputsFixos();
         }
-
-        // --- Funções Auxiliares Globais ---
-        function formatCurrency(value) {
-            // Garante que o valor é um número antes de formatar
-            const numberValue = parseFloat(value) || 0;
-            return numberValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        function formatDate(dateString) {
-            if (!dateString || !dateString.includes('-')) return ''; // Verifica se é uma string de data válida
-            const date = new Date(dateString + 'T00:00:00-03:00'); // Adiciona T00:00 para evitar problemas de fuso
-            if (isNaN(date)) return ''; // Retorna vazio se a data for inválida
-            return date.toLocaleDateString('pt-BR');
-        }
-
-
-        // Função para pegar o ID do mês selecionado
-        function getMesId() {
-            const seletor = document.getElementById('seletorMes');
-            if (seletor && seletor.value) {
-                return seletor.value; // Retorna "AAAA-MM"
-            }
-
-            // Fallback para o mês atual se algo der errado
-            const d = new Date();
-            const mes = (d.getMonth() + 1).toString().padStart(2, '0');
-            const ano = d.getFullYear();
-            return `${ano}-${mes}`;
-        }
-
-        // NOVO: Função auxiliar para obter o ID do mês anterior
-        function obterMesAnteriorId(mesId, mesesAtras = 1) {
-            const [ano, mes] = mesId.split('-').map(Number);
-            const data = new Date(ano, mes - 1, 1); // Mês no Date é 0-indexado
-            data.setMonth(data.getMonth() - mesesAtras);
-            const anoAnterior = data.getFullYear();
-            const mesAnterior = (data.getMonth() + 1).toString().padStart(2, '0');
-            return `${anoAnterior}-${mesAnterior}`;
-        }
-
-        // --- Lógica da Página Principal (index.html) ---
-
-        function initPrincipal() {
-            // Esta função é chamada no DOMContentLoaded
-            carregarDadosPrincipal();
-        }
-
-        // ATUALIZADO: Carrega todos os totais e histórico do cartão
-        async function carregarDadosPrincipal() {
-            const mesId = getMesId(); // Usa o mês selecionado
-            const docRef = db.collection("financas").doc(mesId);
-
-            try {
-                const docSnap = await docRef.get();
-                let totalReceitas = 0;
-                let totalDespesasFixas = 0; // Despesas da pág. Financeiro
-                let totalCompras = 0;
-                let totalGasolina = 0;
-                let totalManutencao = 0;
-
-                if (docSnap.exists) {
-                    const dados = docSnap.data();
-                    totalReceitas = dados.totalReceitas || 0;
-                    totalDespesasFixas = dados.totalDespesasFixas || 0;
-                    totalCompras = dados.totalCompras || 0;
-                    totalGasolina = dados.totalGasolina || 0;
-                    totalManutencao = dados.totalManutencao || 0;
-                } else {
-                    console.log(`Nenhum documento encontrado para ${mesId}, iniciando do zero.`);
-                }
-
-                const totalDespesasGeral = totalDespesasFixas + totalCompras + totalGasolina + totalManutencao;
-                const saldoFinal = totalReceitas - totalDespesasGeral;
-
-                // Atualiza o Resumo
-                document.getElementById('totalReceitasPrincipal').innerText = formatCurrency(totalReceitas);
-                document.getElementById('totalDespesasPrincipal').innerText = formatCurrency(totalDespesasGeral);
-                document.getElementById('saldoFinalPrincipal').innerText = formatCurrency(saldoFinal);
-
-                const saldoEl = document.getElementById('saldoFinalPrincipal');
-                if (saldoFinal >= 0) {
-                    saldoEl.classList.remove('negative');
-                    saldoEl.classList.add('positive');
-                } else {
-                    saldoEl.classList.remove('positive');
-                    saldoEl.classList.add('negative');
-                }
-
-                // ATUALIZADO: Gráfico agora exclui gasolina
-                gerarGraficoDespesas(totalDespesasFixas, totalCompras, totalManutencao);
-
-                // NOVO: Carrega e exibe o histórico do cartão
-                carregarEExibirHistoricoCartao();
-
-            } catch (error) {
-                console.error("Erro ao carregar dados principais:", error);
-            }
-        }
-
-        // ATUALIZADO: Gráfico de Rosca (Doughnut) com 3 categorias
-        function gerarGraficoDespesas(despesasFixas, compras, manutencao) {
-            const ctx = document.getElementById('graficoDespesas').getContext('2d');
-            if (window.myPieChart) {
-                window.myPieChart.destroy();
-            }
-            window.myPieChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Despesas Fixas', 'Compras', 'Manutenção'], // Gasolina removida
-                    datasets: [{
-                        data: [
-                            despesasFixas > 0 ? despesasFixas : 0,
-                            compras > 0 ? compras : 0,
-                            // gasolina > 0 ? gasolina : 0, // Removido
-                            manutencao > 0 ? manutencao : 0
-                        ],
-                        backgroundColor: [
-                            '#dc3545', // Vermelho (Fixas)
-                            '#ffc107', // Amarelo (Compras)
-                           // '#fd7e14', // Laranja (Gasolina) - Removido
-                            '#6f42c1'  // Roxo (Manutenção)
-                        ],
-                        borderColor: 'rgba(0, 0, 0, 0.2)', // Borda escura
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Permite ajustar altura/largura
-                    cutout: '60%',
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: '#e0e0e0'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Distribuição das Saídas (Exceto Gasolina)', // Título atualizado
-                            color: '#ffffff'
-                        }
-                    }
-                }
-            });
-        }
-
-        // =============================================== //
-        // NOVO: Funções para o Gráfico de Cartão de Crédito //
-        // =============================================== //
-
-        async function carregarEExibirHistoricoCartao() {
-            const mesIdAtual = getMesId();
-            const mesesParaBuscar = 6; // Quantos meses no histórico
-            const idsDosMeses = [];
-            const labelsGrafico = [];
-            const dadosGrafico = [];
-
-            // Monta a lista de IDs dos meses (do mais antigo para o atual)
-            for (let i = mesesParaBuscar - 1; i >= 0; i--) {
-                const mesId = obterMesAnteriorId(mesIdAtual, i);
-                idsDosMeses.push(mesId);
-                labelsGrafico.push(mesId); // Usa o ID como label inicial
-            }
-
-            console.log("Buscando histórico do cartão para:", idsDosMeses);
-
-            try {
-                // Busca os dados de todos os meses em paralelo
-                const promises = idsDosMeses.map(id => db.collection("financas").doc(id).get());
-                const snapshots = await Promise.all(promises);
-
-                // Processa os resultados
-                snapshots.forEach(docSnap => {
-                    let valorCartao = 0;
-                    if (docSnap.exists) {
-                        const dados = docSnap.data();
-                        // Busca o valor salvo como 'cartaoCredito'
-                        valorCartao = dados.cartaoCredito || 0;
-                    }
-                    dadosGrafico.push(valorCartao);
-                });
-
-                console.log("Dados do cartão:", dadosGrafico);
-                gerarGraficoCartao(labelsGrafico, dadosGrafico);
-
-            } catch (error) {
-                console.error("Erro ao carregar histórico do cartão:", error);
-                // Limpa o gráfico em caso de erro
-                gerarGraficoCartao([], []);
-            }
-        }
-
-        function gerarGraficoCartao(labels, data) {
-            const ctx = document.getElementById('graficoCartaoLinha').getContext('2d');
-            if (window.myLineChart) {
-                window.myLineChart.destroy();
-            }
-            window.myLineChart = new Chart(ctx, {
-                type: 'line', // Tipo Linha
-                data: {
-                    labels: labels, // Ex: ["2025-05", "2025-06", ...]
-                    datasets: [{
-                        label: 'Fatura Cartão (R$)',
-                        data: data,
-                        fill: true, // Preenche a área abaixo da linha
-                        borderColor: '#52b788', // Verde
-                        backgroundColor: 'rgba(82, 183, 136, 0.2)', // Verde transparente
-                        tension: 0.3, // Curva suave
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#52b788',
-                        pointHoverRadius: 7,
-                        pointRadius: 5,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Permite ajustar altura/largura
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                // Formata o eixo Y como moeda
-                                callback: function(value, index, values) {
-                                    return formatCurrency(value);
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }, // Oculta a legenda padrão
-                        title: {
-                            display: true,
-                            text: 'Gasto Mensal - Cartão de Crédito (Últimos 6 Meses)',
-                            color: '#ffffff'
-                        },
-                          tooltip: { // Formata o tooltip
-                             callbacks: {
-                                  label: function(context) {
-                                      let label = context.dataset.label || '';
-                                      if (label) {
-                                          label += ': ';
-                                      }
-                                      if (context.parsed.y !== null) {
-                                          label += formatCurrency(context.parsed.y);
-                                      }
-                                      return label;
-                                  }
-                              }
-                         }
-                    }
-                }
-            });
-        }
-
-        // --- Lógica da Página Financeiro (financeiro.html) ---
-
-        function initFinanceiro() {
-            carregarDadosFinanceiro();
-
-            // Adiciona ouvintes de submit AOS FORMULÁRIOS uma única vez
-            const formRenda = document.getElementById('formOutraRenda');
-            if (!formRenda.hasAttribute('data-listener-added')) {
-                 formRenda.addEventListener('submit', handleAddOutraRenda);
-                 formRenda.setAttribute('data-listener-added', 'true');
-            }
-
-            const formDespesa = document.getElementById('formOutraDespesa');
-            if (!formDespesa.hasAttribute('data-listener-added')) {
-                 formDespesa.addEventListener('submit', handleAddOutraDespesa);
-                 formDespesa.setAttribute('data-listener-added', 'true');
-            }
-
-            // Adiciona ouvintes aos inputs fixos (valor E data) APENAS uma vez
-             document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input, #page-financeiro .vencimento-input').forEach(input => { // Inclui .vencimento-input
-                 // Garante que o ouvinte só seja adicionado uma vez
-                 if(!input.hasAttribute('data-listener-added')) {
-                     input.addEventListener('input', calcularTudoFinanceiro);
-                     input.setAttribute('data-listener-added', 'true');
-                 }
-            });
-        }
-
-        // NOVO: Handler para adicionar Outra Renda
-        function handleAddOutraRenda(e) {
-             e.preventDefault();
-             const descricaoInput = document.getElementById('outraRendaDescricao');
-             const valorInput = document.getElementById('outraRendaValor');
-
-             const descricao = descricaoInput.value.trim();
-             const valor = parseFloat(valorInput.value) || 0;
-
-             if (!descricao || valor <= 0) {
-                 alert('Preencha a descrição e um valor válido para a renda.');
-                 return;
-             }
-
-             const novaRenda = { id: Date.now().toString(), descricao, valor }; // Adiciona ID
-             criarItemRendaUI(novaRenda); // Adiciona na UI
-             calcularTudoFinanceiro(); // Salva totais E a lista
-
-             // Limpa o formulário
-             descricaoInput.value = '';
-             valorInput.value = '';
-        }
-
-        // NOVO: Handler para adicionar Outra Despesa
-        function handleAddOutraDespesa(e) {
-             e.preventDefault();
-             const descricaoInput = document.getElementById('outraDespesaDescricao');
-             const valorInput = document.getElementById('outraDespesaValor');
-             const vencimentoInput = document.getElementById('outraDespesaVencimento'); // NOVO
-
-             const descricao = descricaoInput.value.trim();
-             const valor = parseFloat(valorInput.value) || 0;
-             const vencimento = vencimentoInput.value; // NOVO
-
-             if (!descricao || valor <= 0 || !vencimento) { // Verifica vencimento
-                 alert('Preencha descrição, valor e data de vencimento válidos.');
-                 return;
-             }
-
-             const novaDespesa = {
-                 id: Date.now().toString(), // ID único como string
-                 descricao,
-                 valor,
-                 vencimento,
-                 paga: false // Começa como não paga
-             };
-
-             criarItemDespesaUI(novaDespesa); // Adiciona na UI
-             calcularTudoFinanceiro(); // Salva totais E a lista
-
-             // Limpa o formulário
-             descricaoInput.value = '';
-             valorInput.value = '';
-             vencimentoInput.value = '';
-        }
-
-        // ATUALIZADO: Cria o item "fixo" de Renda na UI (com ID)
-        function criarItemRendaUI(item) {
-            const container = document.getElementById('outrasRendasContainer');
-            const newItem = document.createElement('div');
-            newItem.classList.add('fixed-item');
-            newItem.dataset.id = item.id; // Guarda o ID no elemento
-
-            newItem.innerHTML = `
-                 <div class="item-info">
-                      <span class="descricao">${item.descricao}</span>
-                 </div>
-                 <div class="item-valor receita-valor">${formatCurrency(item.valor)}</div>
-                 <div class="item-actions">
-                      <button class="remove-btn remove-renda-btn">Remover</button>
-                 </div>
-            `;
-
-            newItem.querySelector('.remove-renda-btn').addEventListener('click', () => {
-                container.removeChild(newItem);
-                calcularTudoFinanceiro(); // Recalcula e salva tudo
-            });
-            container.appendChild(newItem);
-        }
-
-        // ATUALIZADO: Cria o item "fixo" de Despesa na UI (com ID, Vencimento, Status, Pagar)
-        function criarItemDespesaUI(item) {
-            const container = document.getElementById('outrasDespesasContainer');
-            const newItem = document.createElement('div');
-            newItem.classList.add('fixed-item');
-            newItem.dataset.id = item.id; // Guarda o ID
-
-            // --- Lógica de Status ---
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0); // Zera hora para comparar só data
-            const vencimento = new Date(item.vencimento + 'T00:00:00-03:00'); // Fuso horário
-            let statusClasse = 'status-pendente';
-            let statusTexto = 'Pendente';
-            let desabilitarPagar = false;
-
-            if (item.paga) {
-                statusClasse = 'status-pago';
-                statusTexto = 'Pago';
-                desabilitarPagar = true;
-            } else if (vencimento < hoje) {
-                statusClasse = 'status-atrasado';
-                statusTexto = 'ATRASADO';
-            }
-            // --- Fim Lógica Status ---
-
-            newItem.innerHTML = `
-                <div class="item-info">
-                     <span class="descricao ${item.paga ? 'status-pago' : ''}">${item.descricao}</span>
-                     <span class="vencimento">Vence: ${formatDate(item.vencimento)}</span>
-                </div>
-                <div class="item-valor ${item.paga ? 'status-pago' : 'despesa-valor'}">
-                    ${formatCurrency(item.valor)}
-                    <span class="item-status ${statusClasse}">${statusTexto}</span>
-                </div>
-                <div class="item-actions">
-                     <button class="pay-btn" ${desabilitarPagar ? 'disabled' : ''}>${item.paga ? 'Pago' : 'Pagar'}</button>
-                     <button class="remove-btn remove-despesa-btn">Remover</button>
-                </div>
-            `;
-
-            // Botão Pagar
-            newItem.querySelector('.pay-btn').addEventListener('click', () => {
-                marcarDespesaComoPaga(item.id);
-            });
-
-            // Botão Remover
-            newItem.querySelector('.remove-despesa-btn').addEventListener('click', () => {
-                container.removeChild(newItem);
-                calcularTudoFinanceiro(); // Recalcula e salva tudo
-            });
-
-            container.appendChild(newItem);
-        }
-
-        // NOVO: Função para marcar despesa como paga
-        async function marcarDespesaComoPaga(id) {
-             const mesId = getMesId();
-             const docRef = db.collection("financas").doc(mesId);
-
-             try {
-                 const docSnap = await docRef.get();
-                 if (docSnap.exists) {
-                     const dados = docSnap.data();
-                     const outrasDespesas = dados.outrasDespesas || [];
-
-                     // Encontra e atualiza o item
-                     const despesasAtualizadas = outrasDespesas.map(d => {
-                         if (d.id === id) {
-                             return { ...d, paga: true }; // Marca como paga
-                         }
-                         return d;
-                     });
-
-                     // Salva a lista atualizada
-                     await docRef.set({ outrasDespesas: despesasAtualizadas }, { merge: true });
-                     console.log(`Despesa ${id} marcada como paga.`);
-
-                     // Recarrega a UI da seção financeira
-                     carregarDadosFinanceiro();
-
-                 } else {
-                     console.error("Documento do mês não encontrado para pagar despesa.");
-                 }
-             } catch (error) {
-                 console.error("Erro ao marcar despesa como paga:", error);
-             }
-        }
-
-
-        // ATUALIZADO: Calcula e Salva TUDO (Totais, Listas Renda/Despesa Extra, Datas de Vencimento Fixas)
-        async function calcularTudoFinanceiro() {
-            let totalReceitas = 0;
-            let totalDespesasFixas = 0; // Nome alterado para clareza
-            let saldoDevedor = 0; // NOVO
-
-            let dadosParaSalvar = {
-                outrasRendas: [],
-                outrasDespesas: []
-            };
-
-            // Soma Receitas Fixas
-            document.querySelectorAll('#page-financeiro .receita-input').forEach(input => {
-                const valor = parseFloat(input.value) || 0;
-                totalReceitas += valor;
-                if (input.id) dadosParaSalvar[input.id] = valor;
-            });
-
-            // Soma Rendas Extras (lendo dos itens da UI)
-            document.querySelectorAll('#outrasRendasContainer .fixed-item').forEach(item => {
-                const id = item.dataset.id;
-                const descricao = item.querySelector('.descricao')?.textContent || '';
-                const valorStr = item.querySelector('.item-valor')?.textContent || 'R$ 0,00';
-                const valor = parseFloat(valorStr.replace('R$', '').replace('.', '').replace(',', '.')) || 0;
-
-                totalReceitas += valor;
-                // Certifica que o ID existe antes de adicionar
-                if(id) {
-                     dadosParaSalvar.outrasRendas.push({ id, descricao, valor });
-                } else {
-                     console.warn("Item de renda sem ID encontrado:", item);
-                     dadosParaSalvar.outrasRendas.push({ descricao, valor });
-                }
-            });
-
-            // Soma Despesas Fixas (Valor E Data)
-            document.querySelectorAll('#page-financeiro .despesa-input').forEach(input => {
-                const valor = parseFloat(input.value) || 0;
-                totalDespesasFixas += valor;
-                if (input.id) dadosParaSalvar[input.id] = valor;
-
-                // Encontra o input de data correspondente e salva
-                const vencimentoInputId = 'vencimento' + input.id.charAt(0).toUpperCase() + input.id.slice(1); // Ex: escola -> vencimentoEscola
-                const vencimentoInput = document.getElementById(vencimentoInputId);
-                if (vencimentoInput) {
-                     dadosParaSalvar[vencimentoInputId] = vencimentoInput.value;
-                }
-            });
-
-            // Soma Despesas Extras (lendo dos itens da UI) e calcula Saldo Devedor
-            document.querySelectorAll('#outrasDespesasContainer .fixed-item').forEach(item => {
-                const id = item.dataset.id;
-                const descricao = item.querySelector('.descricao')?.textContent || '';
-                const valorStr = item.querySelector('.item-valor')?.textContent || 'R$ 0,00';
-                const valor = parseFloat(valorStr.replace('R$', '').replace('.', '').replace(',', '.')) || 0;
-                const vencimentoSpan = item.querySelector('.vencimento');
-                let vencimento = '';
-                if (vencimentoSpan) {
-                     const partesData = vencimentoSpan.textContent.replace('Vence: ', '').split('/');
-                     if (partesData.length === 3) {
-                          vencimento = `${partesData[2]}-${partesData[1]}-${partesData[0]}`; // AAAA-MM-DD
-                     }
-                }
-                const paga = item.querySelector('.item-status')?.classList.contains('status-pago') || false; // Verifica se está pago pela classe
-
-                totalDespesasFixas += valor; // Soma ao total de despesas fixas + extras
-
-                // Adiciona ao saldo devedor APENAS se não estiver paga
-                if (!paga) {
-                    saldoDevedor += valor;
-                }
-
-                if(id){
-                    dadosParaSalvar.outrasDespesas.push({ id, descricao, valor, vencimento, paga });
-                } else {
-                     console.warn("Item de despesa sem ID encontrado:", item);
-                     dadosParaSalvar.outrasDespesas.push({ descricao, valor, vencimento, paga });
-                }
-            });
-
-            // Atualiza o Resumo da página
-            document.getElementById('totalReceitasFinanceiro').innerText = formatCurrency(totalReceitas);
-            document.getElementById('totalDespesasFinanceiro').innerText = formatCurrency(totalDespesasFixas);
-            document.getElementById('saldoDevedorValor').innerText = formatCurrency(saldoDevedor); // NOVO
-
-            // Salva no Firebase
-            const mesId = getMesId();
-            try {
-                dadosParaSalvar.totalReceitas = totalReceitas;
-                dadosParaSalvar.totalDespesasFixas = totalDespesasFixas; // Nome atualizado
-
-                // Salva o valor específico do cartão de crédito para o gráfico histórico
-                const valorCartao = parseFloat(document.getElementById('cartaoCredito')?.value) || 0;
-                dadosParaSalvar.cartaoCredito = valorCartao;
-                // Salva também a data de vencimento do cartão
-                const vencimentoCartao = document.getElementById('vencimentoCartaoCredito')?.value || '';
-                dadosParaSalvar.vencimentoCartaoCredito = vencimentoCartao;
-
-
-                // Ordena as listas antes de salvar
-                dadosParaSalvar.outrasDespesas.sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
-
-                await db.collection("financas").doc(mesId).set(dadosParaSalvar, { merge: true });
-                console.log("Dados financeiros salvos!", mesId);
-
-                // Atualiza o gráfico principal (pode ser otimizado para não recarregar sempre)
-                // Se a página principal estiver ativa, atualiza
-                if (document.getElementById('page-principal').classList.contains('active')) {
-                     carregarDadosPrincipal();
-                }
-
-            } catch (error) {
-                console.error("Erro ao salvar dados financeiros:", error);
-            }
-        }
-
-        // ATUALIZADO: Carrega dados, listas Renda/Despesa Extra E Datas Vencimento Fixas
-        async function carregarDadosFinanceiro() {
-            const mesId = getMesId();
-            const docRef = db.collection("financas").doc(mesId);
-
-            // Limpa os campos fixos (valor E data)
-            document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input, #page-financeiro .vencimento-input').forEach(input => {
-                input.value = '';
-            });
-            // Limpa containers dinâmicos
-            document.getElementById('outrasRendasContainer').innerHTML = '';
-            document.getElementById('outrasDespesasContainer').innerHTML = '';
-
-            try {
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    const dados = docSnap.data();
-                    // Preenche os campos fixos (valor E data)
-                    document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input, #page-financeiro .vencimento-input').forEach(input => { // Inclui vencimento
-                        if (input.id && dados[input.id] !== undefined) {
-                            input.value = dados[input.id];
-                        }
+    });
+
+    // CORREÇÃO CRÍTICA: LIXEIRA CATEGORIAS
+    function renderizarTagsCategorias() {
+        const container = document.getElementById('containerTagsCategorias');
+        container.innerHTML = '';
+        categoriasFixas.forEach((cat, index) => {
+            const div = document.createElement('div');
+            div.className = 'category-tag';
+            div.innerHTML = `<i data-lucide="${cat.icon || 'circle'}" style="width:14px; margin-right:5px; color:var(--text-secondary)"></i> ${cat.name}`;
+            
+            // Criar um wrapper para o botão de exclusão
+            const btnRemove = document.createElement('span');
+            btnRemove.className = 'remove-wrapper';
+            btnRemove.innerHTML = `<i data-lucide="trash-2" style="width:16px; height:16px; color:var(--text-secondary)"></i>`;
+            
+            btnRemove.onclick = () => {
+                showConfirmModal(async () => {
+                    // 1. Remove da lista local
+                    const removedCat = categoriasFixas.splice(index, 1)[0];
+                    renderizarTagsCategorias();
+                    
+                    // 2. Calcula o ID do campo no banco de dados para deletar o valor
+                    const idSafe = 'fix_' + removedCat.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    
+                    // 3. Atualiza Firebase: Salva nova lista E deleta o campo de valor
+                    await db.collection('financas').doc(getMesId()).update({
+                        categoriasConfig: categoriasFixas,
+                        [idSafe]: firebase.firestore.FieldValue.delete()
                     });
 
-                    // Ordena antes de exibir
-                    if (dados.outrasRendas && Array.isArray(dados.outrasRendas)) {
-                         // Garante que todos os itens tenham ID ao carregar (para compatibilidade)
-                         const rendasComId = dados.outrasRendas.map(r => ({ ...r, id: r.id || Date.now().toString() + Math.floor(Math.random() * 1000) })); // CORRIGIDO
-                        rendasComId.forEach(item => criarItemRendaUI(item));
-                    }
+                    // 4. Atualiza UI
+                    renderizarInputsFixos();
+                    recarregarTudo(); // Recarrega para garantir que totais batam
+                });
+            };
+            
+            div.appendChild(btnRemove);
+            container.appendChild(div);
+        });
+        lucide.createIcons();
+    }
 
-                    if (dados.outrasDespesas && Array.isArray(dados.outrasDespesas)) {
-                         // Garante ID e ordena por data de vencimento
-                         const despesasComId = dados.outrasDespesas.map(d => ({ ...d, id: d.id || Date.now().toString() + Math.floor(Math.random() * 1000) })); // CORRIGIDO
-                         despesasComId.sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
-                        despesasComId.forEach(item => criarItemDespesaUI(item));
-                    }
-                }
-                 // Calcula totais e saldo devedor após carregar e renderizar
-                 calcularTudoFinanceiro();
-
-            } catch (error) {
-                console.error("Erro ao carregar dados financeiros:", error);
-            }
-        }
-
-
-        // --- Lógica da Página Compras (compras.html) ---
-
-        function initCompras() {
-            carregarDadosCompras();
-
-            // Adiciona ouvinte de submit UMA VEZ
-            const formCompra = document.getElementById('formAddItemCompra');
-            if (!formCompra.hasAttribute('data-listener-added')) {
-                formCompra.addEventListener('submit', handleAddCompra);
-                formCompra.setAttribute('data-listener-added', 'true');
-            }
-
-            // Garante que o ouvinte do VA só seja adicionado uma vez
-            const inputVA = document.getElementById('valorTotalVA');
-            if(!inputVA.hasAttribute('data-listener-added')) {
-                inputVA.addEventListener('input', calcularAlimentacao); // Calcula e salva VA/Total
-                inputVA.setAttribute('data-listener-added', 'true');
-            }
-        }
-
-         // NOVO: Handler para adicionar Item de Compra
-         function handleAddCompra(e) {
-             e.preventDefault();
-             const descricaoInput = document.getElementById('itemCompraDescricao');
-             const qtdInput = document.getElementById('itemCompraQtd'); // NOVO
-
-             const descricao = descricaoInput.value.trim();
-             const quantidade = parseInt(qtdInput.value) || 1; // Pega quantidade, padrão 1
-
-             if (!descricao || quantidade <= 0) {
-                 alert('Preencha o nome do item e uma quantidade válida.');
-                 return;
-             }
-
-             // Cria o item SEM PREÇO inicial
-             const novoItem = {
-                 id: Date.now().toString(), // ID único
-                 descricao,
-                 quantidade,
-                 preco: 0 // Preço começa zerado
-             };
-
-             criarItemCompraUI(novoItem); // Adiciona na UI
-             salvarListaCompras(); // Salva a lista (total será recalculado)
-
-             descricaoInput.value = '';
-             qtdInput.value = '1'; // Reseta quantidade
-         }
-
-        // ALTERADO: Cria o item de Compra na UI (com Qtd e Input de Preço)
-        function criarItemCompraUI(item = { id: '', descricao: '', quantidade: 1, preco: 0 }) {
-            const container = document.getElementById('listaComprasContainer');
-            const newItem = document.createElement('li');
-            newItem.dataset.id = item.id; // Guarda o ID
-
-            newItem.innerHTML = `
-                <span>(${item.quantidade}x) ${item.descricao}</span>
-                <div class="compra-details">
-                     <label for="preco-${item.id}">Preço:</label>
-                    <input type="number" id="preco-${item.id}" value="${item.preco > 0 ? item.preco.toFixed(2) : ''}" placeholder="R$ 0,00" step="0.01" min="0">
-                    <button class="remove-btn-li remove-compra-btn">X</button>
-                </div>
+    function renderizarInputsFixos() {
+        const container = document.getElementById('containerDespesasFixas');
+        container.innerHTML = '';
+        categoriasFixas.forEach(cat => {
+            if(!cat.name) return;
+            const safeName = cat.name;
+            const idSafe = 'fix_' + safeName.toLowerCase().replace(/[^a-z0-9]/g, '_'); 
+            const div = document.createElement('div');
+            div.className = 'input-wrapper has-icon';
+            div.innerHTML = `
+                <label>${safeName}</label>
+                <i data-lucide="${cat.icon || 'circle'}" class="icon-left"></i>
+                <input type="number" id="${idSafe}" data-cat="${safeName}" class="despesa-input" placeholder="0,00">
             `;
+            container.appendChild(div);
+        });
+        lucide.createIcons();
+        document.querySelectorAll('.despesa-input').forEach(input => {
+            input.addEventListener('input', calcularFinanceiro);
+        });
+    }
 
-            // Ouvinte para o INPUT de PREÇO
-            const precoInput = newItem.querySelector(`#preco-${item.id}`);
-            precoInput.addEventListener('change', () => {
-                const novoPreco = parseFloat(precoInput.value) || 0;
-                // Atualiza o preço no Firebase (e recalcula o total)
-                atualizarPrecoESalvarCompra(item.id, novoPreco);
-            });
+    // --- CALENDÁRIO & AGENDA ---
+    let currentDate = new Date();
+    
+    function mudarMesCalendario(offset) {
+        currentDate.setMonth(currentDate.getMonth() + offset);
+        renderCalendar();
+    }
 
-            // Ouvinte para o Botão REMOVER
-            newItem.querySelector('.remove-compra-btn').addEventListener('click', () => {
-                container.removeChild(newItem);
-                salvarListaCompras(); // Salva a lista atualizada (sem o item)
-            });
+    function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        document.getElementById('calendarMonthYear').innerText = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        
+        const container = document.getElementById('calendarDays');
+        container.innerHTML = '';
 
-            container.appendChild(newItem);
+        for(let i=0; i<firstDay; i++) {
+            container.innerHTML += `<div class="calendar-day empty"></div>`;
         }
 
-         // NOVO: Atualiza o preço de um item específico E salva a lista toda
-         async function atualizarPrecoESalvarCompra(id, novoPreco) { // <-- CORREÇÃO: Removido espaço do nome
-             const mesId = getMesId();
-             const docRef = db.collection("financas").doc(mesId);
-             try {
-                 const docSnap = await docRef.get();
-                 let listaCompras = [];
-                 if (docSnap.exists && docSnap.data().listaCompras) {
-                     listaCompras = docSnap.data().listaCompras;
-                 }
+        for(let day=1; day<=daysInMonth; day++) {
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            const eventsOnDay = agendaAtual.filter(e => e.agendaData === dateStr);
+            
+            let indicators = '';
+            eventsOnDay.forEach(() => {
+                indicators += `<div class="day-indicator"></div>`;
+            });
 
-                 // Atualiza o preço do item na lista
-                 const listaAtualizada = listaCompras.map(item => {
-                     // Garante que o item tenha ID, para compatibilidade
-                     const itemId = item.id; // <-- CORRIGIDO: Confia no ID carregado
-                     if (itemId === id) {
-                         return { ...item, preco: novoPreco }; // Atualiza o preço
-                     }
-                     return item; // Retorna o item como está
-                 });
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'calendar-day';
+            dayDiv.innerHTML = `<span class="day-number">${day}</span><div style="display:flex; flex-wrap:wrap;">${indicators}</div>`;
+            dayDiv.onclick = () => openEventoModal(dateStr);
+            container.appendChild(dayDiv);
+        }
+    }
 
-                 // Salva a lista completa (salvarListaCompras faz isso e recalcula total)
-                 salvarListaCompras(listaAtualizada);
+    function openEventoModal(dateStr, eventId = null) {
+        const modalEvt = document.getElementById('modalEvento');
+        document.getElementById('eventoData').value = dateStr;
+        document.getElementById('eventoId').value = '';
+        document.getElementById('eventoHora').value = '';
+        document.getElementById('eventoDesc').value = '';
 
-             } catch (error) {
-                 console.error("Erro ao atualizar preço do item:", error);
-             }
-         }
-
-
-        // ALTERADO: Salva a lista de compras (lendo da UI) E recalcula/salva o total
-        async function salvarListaCompras(listaParaSalvar = null) {
-            const mesId = getMesId();
-            let listaComprasFinal = [];
-            let totalCompras = 0;
-
-            if (listaParaSalvar) {
-                 // Usa a lista passada como argumento (quando atualiza o preço)
-                 listaComprasFinal = listaParaSalvar;
-                 // Recalcula o total com base na lista atualizada
-                 listaComprasFinal.forEach(item => {
-                      totalCompras += (item.quantidade || 1) * (item.preco || 0);
-                 });
-            } else {
-                // Lê da UI (quando adiciona ou remove)
-                 document.querySelectorAll('#listaComprasContainer li').forEach(li => {
-                    const id = li.dataset.id;
-                    const descSpan = li.querySelector('span'); // Pega o span principal
-                    let descricao = '';
-                    let quantidade = 1; // Default
-                    if (descSpan) {
-                         const match = descSpan.textContent.match(/\((\d+)x\)\s*(.*)/); // Extrai qtd e desc
-                         if (match) {
-                              quantidade = parseInt(match[1]) || 1;
-                              descricao = match[2].trim();
-                         } else {
-                              descricao = descSpan.textContent.trim(); // Se não tiver (Qtdx)
-                         }
-                    }
-                    const precoInput = li.querySelector(`input[type="number"]`);
-                    const preco = precoInput ? (parseFloat(precoInput.value) || 0) : 0;
-
-                    if (id && descricao) {
-                         listaComprasFinal.push({ id, descricao, quantidade, preco });
-                         totalCompras += quantidade * preco;
-                    }
-                 });
+        if(eventId) {
+            const evt = agendaAtual.find(e => e.id === eventId);
+            if(evt) {
+                document.getElementById('eventoId').value = evt.id;
+                document.getElementById('eventoData').value = evt.agendaData;
+                document.getElementById('eventoHora').value = evt.agendaHora;
+                document.getElementById('eventoDesc').value = evt.agendaDesc;
             }
+        }
+        
+        modalEvt.classList.add('open');
+    }
 
+    document.getElementById('btnSalvarEvento').addEventListener('click', async () => {
+        const id = document.getElementById('eventoId').value;
+        const dataEvt = document.getElementById('eventoData').value;
+        const hora = document.getElementById('eventoHora').value;
+        const desc = document.getElementById('eventoDesc').value;
 
-            // Atualiza o total na UI
-            document.getElementById('totalCompras').innerText = formatCurrency(totalCompras);
-            const valorVA = parseFloat(document.getElementById('valorTotalVA').value) || 0;
-            const saldoVA = valorVA - totalCompras;
-            document.getElementById('saldoVA').innerText = formatCurrency(saldoVA);
-            // Atualiza cor do saldo VA
-             const saldoVAEl = document.getElementById('saldoVA');
-             if (saldoVA >= 0) {
-                 saldoVAEl.classList.remove('negative');
-                 saldoVAEl.classList.add('positive');
-                 saldoVAEl.parentElement.style.color = '#28a745';
-             } else {
-                 saldoVAEl.classList.remove('positive');
-                 saldoVAEl.classList.add('negative');
-                 saldoVAEl.parentElement.style.color = '#dc3545';
-             }
+        if(!dataEvt || !desc) { alert('Preencha data e descrição'); return; }
 
+        const docRef = db.collection('financas').doc(getMesId());
+        const doc = await docRef.get();
+        let list = doc.exists ? (doc.data()['listaAgenda'] || []) : [];
 
+        const newItem = {
+            id: id ? parseInt(id) : Date.now(),
+            agendaData: dataEvt,
+            agendaHora: hora,
+            agendaDesc: desc
+        };
+
+        if(id) {
+            list = list.map(i => i.id == id ? newItem : i);
+        } else {
+            list.push(newItem);
+        }
+
+        await docRef.set({ listaAgenda: list }, { merge: true });
+        document.getElementById('modalEvento').classList.remove('open');
+        carregarListas(); 
+    });
+
+    // --- COFRE ---
+    let vaultData = [];
+    const VAULT_KEY = 'fintech_vault_data';
+    const VAULT_PASS_KEY = 'fintech_vault_master_pass';
+    let masterPass = localStorage.getItem(VAULT_PASS_KEY);
+
+    if(localStorage.getItem(VAULT_KEY)) { try { vaultData = JSON.parse(localStorage.getItem(VAULT_KEY)); } catch(e){} }
+
+    function checkVaultStatus() {
+        masterPass = localStorage.getItem(VAULT_PASS_KEY);
+        if (!masterPass) {
+            document.getElementById('vaultTitle').innerText = 'Configurar Senha Mestre';
+            document.getElementById('vaultMsg').innerText = 'Crie uma senha para proteger o cofre.';
+            document.getElementById('btnUnlockVault').innerText = 'Criar';
+        } else {
+            document.getElementById('vaultTitle').innerText = 'Área Protegida';
+            document.getElementById('vaultMsg').innerText = 'Digite a senha mestre.';
+            document.getElementById('btnUnlockVault').innerText = 'Entrar';
+        }
+    }
+
+    window.resetVault = function() {
+        showConfirmModal(() => {
+            localStorage.removeItem(VAULT_PASS_KEY);
+            masterPass = null;
+            alert('Senha resetada. Configure uma nova senha.');
+            checkVaultStatus();
+        });
+    };
+
+    document.getElementById('btnUnlockVault').addEventListener('click', () => {
+        const input = document.getElementById('vaultPassword').value;
+        if (!input) return;
+        if (!masterPass) {
+            localStorage.setItem(VAULT_PASS_KEY, input);
+            masterPass = input;
+            alert('Senha criada! Não a esqueça.');
+            unlockVault();
+        } else {
+            if (input === masterPass) unlockVault();
+            else document.getElementById('vaultError').style.display = 'block';
+        }
+    });
+
+    function unlockVault() {
+        document.getElementById('vaultLockScreen').style.display = 'none';
+        document.getElementById('vaultContent').style.display = 'block';
+        document.getElementById('vaultError').style.display = 'none';
+        document.getElementById('vaultPassword').value = '';
+        renderVaultList();
+    }
+    function lockVault() {
+        document.getElementById('vaultLockScreen').style.display = 'flex';
+        document.getElementById('vaultContent').style.display = 'none';
+    }
+
+    document.getElementById('formVaultAdd').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const t = document.getElementById('vTitle').value, u = document.getElementById('vUser').value, p = document.getElementById('vPass').value;
+        if(t && p) {
+            vaultData.push({ id: Date.now(), title: t, user: u, pass: p });
+            localStorage.setItem(VAULT_KEY, JSON.stringify(vaultData));
+            document.getElementById('formVaultAdd').reset();
+            renderVaultList();
+        }
+    });
+
+    function renderVaultList() {
+        const c = document.getElementById('vaultList'); c.innerHTML = '';
+        vaultData.forEach(i => {
+            const d = document.createElement('div'); d.className = 'vault-item';
+            d.style.cssText = "background:var(--input-bg); padding:15px; border-radius:10px; margin-top:10px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-color);";
+            d.innerHTML = `<div><strong style="color:var(--text-primary)">${i.title}</strong><br><small style="color:var(--text-secondary)">${i.user}</small></div>
+            <div style="text-align:right"><span style="filter:blur(5px); cursor:pointer; font-family:monospace; color:var(--accent-color);" onclick="this.style.filter='none'">${i.pass}</span> <i data-lucide="trash-2" style="color:var(--danger); cursor:pointer; margin-left:10px;" onclick="removeVaultItem(${i.id})"></i></div>`;
+            c.appendChild(d);
+        });
+        lucide.createIcons();
+    }
+    window.removeVaultItem = (id) => { 
+        showConfirmModal(() => { 
+            vaultData = vaultData.filter(i=>i.id!==id); 
+            localStorage.setItem(VAULT_KEY, JSON.stringify(vaultData)); 
+            renderVaultList(); 
+        });
+    };
+
+    // --- IMPORTAR/EXPORTAR ---
+    window.exportarDadosGerais = async function() {
+        const doc = await db.collection('financas').doc(getMesId()).get();
+        let data = {};
+        if(doc.exists) data = doc.data();
+        const fileName = `backup_financas_${getMesId()}.json`;
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = fileName;
+        a.click();
+    };
+
+    window.importarDadosGerais = function(input) {
+        const file = input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = async function(e) {
             try {
-                await db.collection("financas").doc(mesId).set({
-                    listaCompras: listaComprasFinal,
-                    totalCompras: totalCompras, // Salva o total recalculado
-                    valorTotalVA: valorVA // Salva o valor do VA junto
-                 }, { merge: true });
-                console.log("Lista e total de compras salvos!", mesId);
-                // Atualiza gráfico principal se necessário
-                if (document.getElementById('page-principal').classList.contains('active')) {
-                     carregarDadosPrincipal();
+                const json = JSON.parse(e.target.result);
+                if(confirm(`Restaurar dados para o mês ${getMesId()}?`)) {
+                    await db.collection('financas').doc(getMesId()).set(json);
+                    alert('Dados restaurados!');
+                    recarregarTudo();
                 }
-            } catch (error) {
-                console.error("Erro ao salvar lista de compras:", error);
+            } catch(err) { alert('Erro ao ler arquivo.'); }
+        };
+        reader.readAsText(file);
+    };
+
+    // --- LÓGICA GERAL ---
+    async function recarregarTudo() {
+        const doc = await db.collection('financas').doc(getMesId()).get();
+        if(doc.exists && doc.data().categoriasConfig) {
+            let loaded = doc.data().categoriasConfig;
+            categoriasFixas = loaded.map(c => typeof c === 'string' ? {name:c, icon:'circle'} : c);
+        }
+        renderizarInputsFixos();
+        carregarValoresInputs();
+        carregarDashboard();
+        carregarListas();
+    }
+
+    async function carregarValoresInputs() {
+        const doc = await db.collection('financas').doc(getMesId()).get();
+        if(doc.exists) {
+            const data = doc.data();
+            ['salario1', 'salario2', 'rendaExtra', 'cartaoCredito', 'valorTotalVA'].forEach(id => { if(data[id]) document.getElementById(id).value = data[id]; });
+            document.querySelectorAll('.despesa-input').forEach(input => { if(data[input.id]) input.value = data[input.id]; });
+        } else {
+            // Limpa se não houver dados
+            document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+        }
+    }
+
+    async function calcularFinanceiro() {
+        let rec = 0, desp = 0, data = {};
+        ['salario1', 'salario2', 'rendaExtra'].forEach(id => { 
+            const v = parseFloat(document.getElementById(id).value)||0; rec+=v; data[id]=v; 
+        });
+        document.querySelectorAll('.despesa-input').forEach(i => { 
+            const v = parseFloat(i.value)||0; 
+            if(i.id!=='cartaoCredito') desp+=v; 
+            data[i.id]=v; 
+        });
+        
+        data.totalReceitas = rec; 
+        data.totalDespesasFixas = desp;
+        await db.collection('financas').doc(getMesId()).set(data, {merge:true});
+        carregarDashboard();
+    }
+    document.querySelectorAll('.receita-input').forEach(i => i.addEventListener('input', calcularFinanceiro));
+    document.getElementById('cartaoCredito').addEventListener('input', calcularFinanceiro);
+
+    document.getElementById('valorTotalVA').addEventListener('input', async (e) => {
+        await db.collection('financas').doc(getMesId()).set({ valorTotalVA: parseFloat(e.target.value)||0 }, { merge: true });
+        carregarListas();
+    });
+
+    // Submissão de Formulários
+    const genericSubmit = async (e, arrayName, fields, keys) => {
+        e.preventDefault();
+        const item = { id: Date.now() }; // ID numérico único
+        let hasVal = false;
+        
+        fields.forEach((fid, i) => { 
+            const val = document.getElementById(fid).value; 
+            if(val) hasVal=true; 
+            item[keys[i]] = val; 
+            document.getElementById(fid).value = ''; 
+        });
+
+        if(hasVal) {
+            const docRef = db.collection('financas').doc(getMesId());
+            const doc = await docRef.get();
+            let list = doc.exists ? (doc.data()[arrayName] || []) : [];
+            list.push(item);
+            await docRef.set({ [arrayName]: list }, { merge: true });
+            carregarListas();
+            carregarDashboard();
+        }
+    };
+    
+    document.getElementById('formAddItemCompra').addEventListener('submit', (e) => genericSubmit(e, 'listaCompras', ['itemCompraDescricao', 'itemCompraValor'], ['desc', 'val']));
+    document.getElementById('formAbastecimento').addEventListener('submit', (e) => genericSubmit(e, 'listaAbastecimento', ['gasData', 'gasKmAtual', 'gasLitros', 'gasValorTotal'], ['gasData', 'gasKmAtual', 'gasLitros', 'gasValorTotal']));
+    document.getElementById('formManutencao').addEventListener('submit', (e) => genericSubmit(e, 'listaManutencao', ['manutencaoData', 'manutencaoDescricao', 'manutencaoValor'], ['manutencaoData', 'manutencaoDescricao', 'manutencaoValor']));
+    
+    // EXCLUSÃO FIXADA
+    window.removerItem = async function(arrayName, id) {
+        showConfirmModal(async () => {
+            const docRef = db.collection('financas').doc(getMesId());
+            const doc = await docRef.get();
+            if(doc.exists) {
+                let list = doc.data()[arrayName] || [];
+                // Filtra usando o ID. Como usamos Date.now(), é um número.
+                list = list.filter(i => i.id !== id);
+                await docRef.update({ [arrayName]: list });
+                carregarListas();
+                carregarDashboard();
             }
+        });
+    };
+
+    // ZERAR LISTA MERCADO
+    window.limparListaMercado = function() {
+        showConfirmModal(async () => {
+            const docRef = db.collection('financas').doc(getMesId());
+            await docRef.update({ listaCompras: [] });
+            carregarListas();
+            carregarDashboard();
+        });
+    };
+
+    async function carregarDashboard() {
+        const doc = await db.collection('financas').doc(getMesId()).get();
+        let r=0, d=0, f=0, m=0, c=0, cc=0;
+
+        if(doc.exists) {
+            const dt = doc.data();
+            r = dt.totalReceitas||0; f = dt.totalDespesasFixas||0; cc = dt.cartaoCredito||0;
+            if(dt.listaCompras) m = dt.listaCompras.reduce((a,b)=>a+(parseFloat(b.val)||0),0);
+            if(dt.listaAbastecimento) c += dt.listaAbastecimento.reduce((a,b)=>a+(parseFloat(b.gasValorTotal)||0),0);
+            if(dt.listaManutencao) c += dt.listaManutencao.reduce((a,b)=>a+(parseFloat(b.manutencaoValor)||0),0);
+            d = f + m + c + cc;
         }
 
+        document.getElementById('totalReceitasPrincipal').innerText = fmt(r);
+        document.getElementById('totalDespesasPrincipal').innerText = fmt(d);
+        document.getElementById('saldoFinalPrincipal').innerText = fmt(r-d);
+        renderCharts(f, m, c, cc);
+    }
 
-        // ALTERADO: Calcula o saldo do VA e salva APENAS o VA e o Total no Firebase
-        async function calcularAlimentacao() {
-              let totalCompras = 0;
-              // Recalcula o total baseado nos itens JÁ na UI
-              document.querySelectorAll('#listaComprasContainer li').forEach(li => {
-                  const qtdMatch = li.querySelector('span')?.textContent.match(/\((\d+)x\)/);
-                  const quantidade = qtdMatch ? parseInt(qtdMatch[1]) : 1;
-                  const precoInput = li.querySelector(`input[type="number"]`);
-                  const preco = precoInput ? (parseFloat(precoInput.value) || 0) : 0;
-                  totalCompras += quantidade * preco;
-              });
-
-             const valorVA = parseFloat(document.getElementById('valorTotalVA').value) || 0;
-             const saldoVA = valorVA - totalCompras;
-
-             // Atualiza o resumo
-             document.getElementById('totalCompras').innerText = formatCurrency(totalCompras);
-             document.getElementById('saldoVA').innerText = formatCurrency(saldoVA);
-             // Atualiza cor do saldo VA
-             const saldoVAEl = document.getElementById('saldoVA');
-             if (saldoVA >= 0) {
-                 saldoVAEl.classList.remove('negative');
-                 saldoVAEl.classList.add('positive');
-                 saldoVAEl.parentElement.style.color = '#28a745';
-             } else {
-                 saldoVAEl.classList.remove('positive');
-                 saldoVAEl.classList.add('negative');
-                 saldoVAEl.parentElement.style.color = '#dc3545';
-             }
-
-             // Salva no Firebase APENAS o valor do VA e o total (a lista é salva separadamente)
-             const mesId = getMesId();
-             try {
-                 await db.collection("financas").doc(mesId).set({
-                     totalCompras: totalCompras, // Garante que o total está certo
-                     valorTotalVA: valorVA
-                 }, { merge: true });
-                 console.log("Dados de compras (VA/Total) salvos!", mesId);
-
-                 // Atualiza gráfico principal se necessário
-                 if (document.getElementById('page-principal').classList.contains('active')) {
-                      carregarDadosPrincipal();
-                 }
-
-             } catch (error) {
-                 console.error("Erro ao salvar dados de compras (VA/Total):", error);
-             }
-        }
-
-
-        // ATUALIZADO: Carrega dados E a lista de compras (com quantidade e preço)
-        async function carregarDadosCompras() {
-            const mesId = getMesId();
-            const docRef = db.collection("financas").doc(mesId);
-
-            // Limpa o campo VA e garante listener
-            const inputVA = document.getElementById('valorTotalVA');
-            inputVA.value = '';
-            if(!inputVA.hasAttribute('data-listener-added')) {
-                 inputVA.addEventListener('input', calcularAlimentacao);
-                 inputVA.setAttribute('data-listener-added', 'true');
-            }
-
-
-            // Limpa a lista de compras
+    async function carregarListas() {
+        const doc = await db.collection('financas').doc(getMesId()).get();
+        if(!doc.exists) {
             document.getElementById('listaComprasContainer').innerHTML = '';
+            agendaAtual = [];
+            renderCalendar();
+            return;
+        }
+        const dt = doc.data();
+        
+        renderList('listaComprasContainer', dt.listaCompras, 'listaCompras');
+        renderList('listaAbastecimento', [...(dt.listaAbastecimento||[]), ...(dt.listaManutencao||[])], 'carro');
+        
+        agendaAtual = dt.listaAgenda || [];
+        renderList('listaAgenda', agendaAtual, 'listaAgenda');
+        
+        if(document.getElementById('page-agenda').classList.contains('active')) {
+            renderCalendar();
+        }
 
-            try {
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    const dados = docSnap.data();
-                    if(dados.valorTotalVA !== undefined) {
-                        inputVA.value = dados.valorTotalVA; // Usa o inputVA diretamente
-                    }
+        const totalM = (dt.listaCompras||[]).reduce((a,b)=>a+(parseFloat(b.val)||0),0);
+        document.getElementById('totalCompras').innerText = fmt(totalM);
+        const va = parseFloat(document.getElementById('valorTotalVA').value)||0;
+        document.getElementById('saldoVA').innerText = fmt(va - totalM);
+    }
 
-                    if (dados.listaCompras && Array.isArray(dados.listaCompras)) {
-                         // Garante que todos os itens tenham ID
-                         const comprasComId = dados.listaCompras.map(c => ({
-                              ...c,
-                              id: c.id || Date.now().toString() + Math.floor(Math.random() * 1000), // CORRIGIDO
-                              quantidade: c.quantidade || 1, // Garante quantidade
-                              preco: c.preco || 0 // Garante preco
-                         }));
-                        comprasComId.forEach(item => criarItemCompraUI(item));
-                    }
-                }
+    function renderList(target, list, type) {
+        const el = document.getElementById(target); el.innerHTML = '';
+        if(!list) return;
+        
+        if(type === 'listaAgenda') {
+            list.sort((a,b) => new Date(a.agendaData) - new Date(b.agendaData));
+        } else {
+            list.sort((a,b) => (b.id) - (a.id)); 
+        }
 
-                calcularAlimentacao(); // Calcula os totais após carregar
-
-            } catch (error) {
-                console.error("Erro ao carregar dados de compras:", error);
+        list.forEach(i => {
+            let txt = i.desc || (i.gasData ? `Gasolina ${i.gasLitros}L` : i.manutencaoDescricao);
+            let val = i.val || i.gasValorTotal || i.manutencaoValor || 0;
+            let arrName;
+            if (type === 'listaCompras') arrName = 'listaCompras';
+            else if (type === 'listaAgenda') arrName = 'listaAgenda';
+            else if (i.gasData) arrName = 'listaAbastecimento';
+            else arrName = 'listaManutencao';
+            
+            let html = '';
+            if(type === 'listaAgenda') {
+                const dateParts = i.agendaData.split('-');
+                const formattedDate = `${dateParts[2]}/${dateParts[1]}`;
+                html = `<li>
+                    <div class="list-info" style="cursor:pointer" onclick="openEventoModal('${i.agendaData}', ${i.id})">
+                        <strong>${formattedDate} - ${i.agendaHora}</strong>
+                        <small>${i.agendaDesc}</small>
+                    </div>
+                    <button class="delete-btn" onclick="removerItem('${arrName}', ${i.id})"><i data-lucide="trash-2"></i></button>
+                </li>`;
+            } else {
+                html = `<li>
+                    <div class="list-info"><strong>${txt}</strong></div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        ${val ? `<span>${fmt(val)}</span>` : ''}
+                        <button class="delete-btn" onclick="removerItem('${arrName}', ${i.id})"><i data-lucide="trash-2"></i></button>
+                    </div>
+                </li>`;
             }
-        }
-
-
-        // --- Lógica da Página Carro (carro.html) ---
-
-        function initCarro() {
-            carregarDadosCarro();
-
-             // Adiciona listeners aos forms UMA VEZ
-            const formAbast = document.getElementById('formAbastecimento');
-            if (!formAbast.hasAttribute('data-listener-added')) {
-                 formAbast.addEventListener('submit', handleAddAbastecimento);
-                 formAbast.setAttribute('data-listener-added', 'true');
-            }
-
-            const formManut = document.getElementById('formManutencao');
-            if (!formManut.hasAttribute('data-listener-added')) {
-                 formManut.addEventListener('submit', handleAddManutencao);
-                 formManut.setAttribute('data-listener-added', 'true');
-            }
-        }
-
-        // NOVO: Handler para Abastecimento
-        function handleAddAbastecimento(e) {
-             e.preventDefault();
-             const item = {
-                 id: Date.now().toString(), // ID único
-                 data: document.getElementById('gasData').value,
-                 kmAtual: parseFloat(document.getElementById('gasKmAtual').value) || 0,
-                 litros: parseFloat(document.getElementById('gasLitros').value) || 0,
-                 valorTotal: parseFloat(document.getElementById('gasValorTotal').value) || 0
-             };
-
-             if (!item.data || item.kmAtual <= 0 || item.litros <= 0 || item.valorTotal <= 0) {
-                 alert('Preencha todos os campos de abastecimento com valores válidos.');
-                 return;
-             }
-
-             salvarListaAbastecimento(item); // Salva no Firebase (já chama carregarDadosCarro)
-             document.getElementById('formAbastecimento').reset();
-        }
-
-        // NOVO: Handler para Manutenção
-        function handleAddManutencao(e) {
-             e.preventDefault();
-             const item = {
-                 id: Date.now().toString(), // ID único
-                 data: document.getElementById('manutencaoData').value,
-                 descricao: document.getElementById('manutencaoDescricao').value.trim(),
-                 km: document.getElementById('manutencaoKm').value, // Pode ser vazio
-                 valor: parseFloat(document.getElementById('manutencaoValor').value) || 0
-             };
-
-             if (!item.data || !item.descricao) {
-                 alert('Preencha pelo menos a data e a descrição da manutenção.');
-                 return;
-             }
-
-             salvarListaManutencao(item); // Salva no Firebase (já chama carregarDadosCarro)
-             document.getElementById('formManutencao').reset();
-        }
-
-        // ATUALIZADO: Cria item de Manutenção na UI (com ID)
-        function criarItemManutencaoUI(item) {
-            const lista = document.getElementById('listaManutencao');
-            const newItem = document.createElement('li');
-            newItem.dataset.id = item.id; // Guarda ID
-
-            let alertaKm = item.km ? `(Alerta p/ ${item.km} KM)` : '';
-            let valorInfo = item.valor > 0 ? ` - ${formatCurrency(item.valor)}` : ''; // NOVO
-
-            newItem.innerHTML = `
-                <span><strong>${formatDate(item.data)}</strong> - ${item.descricao} ${alertaKm}${valorInfo}</span>
-                <button class="remove-btn-li remove-manut-btn">X</button>
-            `;
-
-            newItem.querySelector('.remove-manut-btn').addEventListener('click', () => {
-                lista.removeChild(newItem);
-                salvarListaManutencao(); // Salva a lista atualizada (sem item novo)
-            });
-
-            lista.appendChild(newItem);
-        }
-
-        // ATUALIZADO: Salva a lista de Manutenção E o total
-        async function salvarListaManutencao(novoItem = null) {
-            const mesId = getMesId();
-            const itens = [];
-            let totalManutencao = 0;
-
-            // Lê da UI
-            document.querySelectorAll('#listaManutencao li').forEach(li => {
-                const id = li.dataset.id;
-                const dataSpan = li.querySelector('strong');
-                // Extrai data do strong (formato DD/MM/AAAA) e converte para AAAA-MM-DD
-                let dataOriginal = '';
-                if(dataSpan) {
-                     const partes = dataSpan.textContent.split('/');
-                     if(partes.length === 3) {
-                          dataOriginal = `${partes[2]}-${partes[1]}-${partes[0]}`;
-                     }
-                }
-                // Extrai descrição, KM e valor
-                const descCompleta = li.querySelector('span')?.textContent || '';
-                const descMatch = descCompleta.match(/ - (.*?)( \(Alerta|\s- R\$|$)/);
-                const descricao = descMatch ? descMatch[1].trim() : '';
-                const kmMatch = descCompleta.match(/\(Alerta p\/ (\d+) KM\)/);
-                const km = kmMatch ? kmMatch[1] : '';
-                const valorMatch = descCompleta.match(/- R\$\s*([\d.,]+)/);
-                const valor = valorMatch ? parseFloat(valorMatch[1].replace('.', '').replace(',', '.')) : 0;
-
-                 // Inclui item na lista se tiver ID e dados válidos
-                if (id && dataOriginal && descricao) {
-                     // Adiciona o item à lista apenas se NÃO for o novo item sendo adicionado
-                     // OU se não houver um novo item (caso de remoção)
-                     if (!novoItem || id !== novoItem.id) {
-                          itens.push({ id, data: dataOriginal, descricao, km, valor });
-                          totalManutencao += valor;
-                     }
-                }
-            });
-
-
-            // Adiciona novo item se houver
-             if(novoItem) {
-                 itens.push(novoItem);
-                 totalManutencao += novoItem.valor;
-             }
-
-             // Reordena por data
-            itens.sort((a, b) => new Date(a.data) - new Date(b.data));
-
-            try {
-                await db.collection("financas").doc(mesId).set({
-                    listaManutencao: itens,
-                    totalManutencao: totalManutencao
-                }, { merge: true });
-                console.log("Lista de manutenção salva!", mesId);
-                // Apenas recarrega a lista se um novo item foi adicionado (para mostrar ordenado)
-                if(novoItem) carregarDadosCarro();
-                 // Atualiza o resumo principal sempre
-                if (document.getElementById('page-principal').classList.contains('active')) {
-                     carregarDadosPrincipal();
-                }
-            } catch (error) {
-                console.error("Erro ao salvar lista de manutenção:", error);
-            }
-        }
-
-
-        // ATUALIZADO: Cria item de Abastecimento na UI (com ID e cálculo de consumo)
-        function criarItemAbastecimentoUI(item, consumo = 0) {
-            const lista = document.getElementById('listaAbastecimento');
-            const newItem = document.createElement('li');
-            newItem.dataset.id = item.id; // Guarda ID
-
-            let consumoInfo = '';
-             if (consumo > 0) {
-                 consumoInfo = `(<span style="color: ${consumo >= 10 ? '#28a745' : '#ffc107'};">${consumo.toFixed(2)} KM/L</span>)`; // Cor condicional
-            } else if (consumo === 0 && ultimoKmAnterior > 0) { // Só mostra se tiver KM anterior
-                  consumoInfo = '(Primeiro registro do mês)';
-            } else if (consumo === 0 && ultimoKmAnterior === 0) {
-                  consumoInfo = '(Referência anterior não encontrada)';
-            } else { // consumo < 0 indica erro de KM
-                   consumoInfo = '<span style="color: #dc3545;">(KM inválido!)</span>';
-            }
-
-
-            newItem.innerHTML = `
-                <span><strong>${formatDate(item.data)}</strong> - ${formatCurrency(item.valorTotal)} / ${item.litros}L - ${item.kmAtual} KM ${consumoInfo}</span>
-                <button class="remove-btn-li remove-abast-btn">X</button>
-            `;
-
-            newItem.querySelector('.remove-abast-btn').addEventListener('click', () => {
-                lista.removeChild(newItem);
-                salvarListaAbastecimento(); // Salva a lista atualizada (sem o item novo)
-            });
-
-            // Adiciona no INÍCIO da lista (mais recente primeiro)
-            lista.prepend(newItem);
-        }
-
-
-        // ATUALIZADO: Salva a lista de Abastecimento E o total
-        async function salvarListaAbastecimento(novoItem = null) {
-            const mesId = getMesId();
-            const itens = [];
-            let totalGasolina = 0;
-
-            // Lê todos os itens da UI (do último adicionado para o primeiro)
-            const listItems = Array.from(document.querySelectorAll('#listaAbastecimento li')).reverse(); // Inverte a ordem da UI
-
-            listItems.forEach(li => {
-                 const id = li.dataset.id;
-                 const dataSpan = li.querySelector('strong');
-                 let dataOriginal = '';
-                 if(dataSpan) {
-                      const partes = dataSpan.textContent.split('/');
-                      if(partes.length === 3) dataOriginal = `${partes[2]}-${partes[1]}-${partes[0]}`;
-                 }
-                 const spanText = li.querySelector('span')?.textContent || '';
-                 const valorMatch = spanText.match(/- R\$\s*([\d.,]+)/);
-                 const valorTotal = valorMatch ? parseFloat(valorMatch[1].replace('.', '').replace(',', '.')) : 0;
-                 const litrosMatch = spanText.match(/\/ (\d+[\.,]?\d*)L/);
-                 const litros = litrosMatch ? parseFloat(litrosMatch[1].replace(',', '.')) : 0;
-                 const kmMatch = spanText.match(/- (\d+) KM/);
-                 const kmAtual = kmMatch ? parseInt(kmMatch[1]) : 0;
-
-                 if (id && dataOriginal && kmAtual > 0) {
-                     // Adiciona o item se não for o item novo (ou se não houver item novo)
-                      if (!novoItem || id !== novoItem.id) {
-                           itens.push({ id, data: dataOriginal, kmAtual, litros, valorTotal });
-                           totalGasolina += valorTotal;
-                      }
-                 }
-            });
-
-
-            // Adiciona o novo item (se houver)
-            if (novoItem) {
-                itens.push(novoItem);
-                totalGasolina += novoItem.valorTotal;
-            }
-
-            // Reordena por data e KM (importante para o cálculo do consumo no load)
-            itens.sort((a, b) => {
-                if (a.data === b.data) return a.kmAtual - b.kmAtual;
-                return new Date(a.data) - new Date(b.data);
-            });
-
-            try {
-                await db.collection("financas").doc(mesId).set({
-                    listaAbastecimento: itens,
-                    totalGasolina: totalGasolina
-                }, { merge: true });
-                console.log("Lista de abastecimento salva!", mesId);
-
-                // Recarrega os dados do carro para mostrar o consumo correto e ordenado
-                 carregarDadosCarro();
-                 // Atualiza o resumo principal
-                 if (document.getElementById('page-principal').classList.contains('active')) {
-                      carregarDadosPrincipal();
-                 }
-
-            } catch (error) {
-                console.error("Erro ao salvar lista de abastecimento:", error);
-            }
-        }
-
-
-        let ultimoKmAnterior = 0; // Variável global para guardar o último KM do mês anterior
-
-        // ATUALIZADO: Carrega a lista de Manutenção e Gasolina
-        async function carregarDadosCarro() {
-            const mesId = getMesId();
-            const docRef = db.collection("financas").doc(mesId);
-
-            document.getElementById('listaManutencao').innerHTML = ''; // Limpa a lista
-            document.getElementById('listaAbastecimento').innerHTML = ''; // Limpa a lista
-
-            ultimoKmAnterior = 0; // Reseta a variável global
-
-            try {
-                // Busca KM do mês anterior PRIMEIRO e FORA do IF principal
-                const mesAnteriorId = obterMesAnteriorId(mesId);
-                const docAnteriorSnap = await db.collection("financas").doc(mesAnteriorId).get();
-                if (docAnteriorSnap.exists) {
-                    const dadosAnteriores = docAnteriorSnap.data();
-                    if (dadosAnteriores.listaAbastecimento && dadosAnteriores.listaAbastecimento.length > 0) {
-                        // Ordena para garantir que pegamos o último KM real do mês anterior
-                        const ultimoAbastecimentoAnterior = [...dadosAnteriores.listaAbastecimento].sort((a, b) => {
-                             if (a.data === b.data) return a.kmAtual - b.kmAtual;
-                             return new Date(a.data) - new Date(b.data);
-                        }).pop(); // Pega o último
-                        if (ultimoAbastecimentoAnterior) {
-                             ultimoKmAnterior = ultimoAbastecimentoAnterior.kmAtual;
-                             console.log(`Último KM do mês anterior (${mesAnteriorId}): ${ultimoKmAnterior}`);
-                        }
-                    }
-                }
-
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    const dados = docSnap.data();
-
-                    // Carrega Manutenção (ordenado por data)
-                    if (dados.listaManutencao && Array.isArray(dados.listaManutencao)) {
-                         // Garante ID e ordena
-                        const listaManutencaoOrd = dados.listaManutencao
-                           .map(m => ({...m, id: m.id || Date.now().toString() + Math.floor(Math.random() * 1000)})) // CORRIGIDO
-                           .sort((a,b) => new Date(a.data) - new Date(b.data));
-                        listaManutencaoOrd.forEach(item => criarItemManutencaoUI(item));
-                    }
-
-                    // Carrega Abastecimento e calcula consumo
-                    if (dados.listaAbastecimento && Array.isArray(dados.listaAbastecimento)) {
-                         // Garante ID e ordena
-                        const listaAbastecimentoOrd = dados.listaAbastecimento
-                           .map(a => ({...a, id: a.id || Date.now().toString() + Math.floor(Math.random() * 1000)})) // CORRIGIDO
-                           .sort((a, b) => {
-                            if (a.data === b.data) return a.kmAtual - b.kmAtual;
-                            return new Date(a.data) - new Date(b.data);
-                        });
-
-                        for (let i = 0; i < listaAbastecimentoOrd.length; i++) {
-                            const item = listaAbastecimentoOrd[i];
-                            let consumo = 0;
-                            let kmAnteriorReal = 0;
-
-                            if (i === 0) {
-                                kmAnteriorReal = ultimoKmAnterior; // Usa o KM buscado anteriormente
-                            } else {
-                                kmAnteriorReal = listaAbastecimentoOrd[i-1].kmAtual;
-                            }
-
-                            if (kmAnteriorReal > 0 && item.kmAtual > kmAnteriorReal) {
-                                const kmRodados = item.kmAtual - kmAnteriorReal;
-                                if (item.litros > 0) {
-                                    consumo = kmRodados / item.litros;
-                                }
-                            } else if (kmAnteriorReal > 0 && item.kmAtual <= kmAnteriorReal) {
-                                consumo = -1; // Sinaliza erro de KM
-                            }
-                             // Cria o item na UI, passando o consumo calculado
-                            criarItemAbastecimentoUI(item, consumo);
-                        }
-                    }
-                } else {
-                      console.log(`Nenhum documento encontrado para ${mesId}.`);
-                      // Mesmo sem dados do mês atual, pode haver lógica futura aqui
-                }
-            } catch (error) {
-                console.error("Erro ao carregar listas do carro:", error);
-            }
-        }
-
-
-        // --- Lógica da Página Agenda (agenda.html) ---
-
-        function initAgenda() {
-            carregarDadosAgenda();
-
-             // Adiciona listeners aos forms UMA VEZ
-            const formLazer = document.getElementById('formLazer');
-            if (!formLazer.hasAttribute('data-listener-added')) {
-                 formLazer.addEventListener('submit', handleAddLazer);
-                 formLazer.setAttribute('data-listener-added', 'true');
-            }
-
-            const formTarefa = document.getElementById('formTarefa');
-            if (!formTarefa.hasAttribute('data-listener-added')) {
-                 formTarefa.addEventListener('submit', handleAddTarefa);
-                 formTarefa.setAttribute('data-listener-added', 'true');
-            }
-        }
-
-        // NOVO: Handler Lazer
-        function handleAddLazer(e) {
-             e.preventDefault();
-             const item = {
-                 id: Date.now().toString(),
-                 data: document.getElementById('eventoData').value,
-                 horario: document.getElementById('eventoHorario').value, // Pode ser vazio
-                 descricao: document.getElementById('eventoDescricao').value.trim()
-             };
-             if (!item.data || !item.descricao) {
-                 alert('Preencha pelo menos a data e a descrição do evento.');
-                 return;
-             }
-             // Não precisa chamar criarItemLazerUI aqui
-             salvarListasAgenda(item, null); // Salva no Firebase (já recarrega)
-             document.getElementById('formLazer').reset();
-        }
-
-        // NOVO: Handler Tarefa
-        function handleAddTarefa(e) {
-             e.preventDefault();
-             const item = {
-                 id: Date.now().toString(),
-                 data: document.getElementById('tarefaData').value,
-                 horario: document.getElementById('tarefaHorario').value, // Pode ser vazio
-                 descricao: document.getElementById('tarefaDescricao').value.trim()
-             };
-             if (!item.data || !item.descricao) {
-                 alert('Preencha pelo menos a data e a descrição da tarefa.');
-                 return;
-             }
-             // Não precisa chamar criarItemTarefaUI aqui
-             salvarListasAgenda(null, item); // Salva no Firebase (já recarrega)
-             document.getElementById('formTarefa').reset();
-        }
-
-        // ATUALIZADO: Cria item de Lazer na UI (com horário e ID)
-        function criarItemLazerUI(item) {
-            const lista = document.getElementById('listaEventos');
-            const newItem = document.createElement('li');
-            newItem.dataset.id = item.id; // Guarda ID
-            let horarioInfo = item.horario ? `às ${item.horario}` : ''; // NOVO
-
-            newItem.innerHTML = `
-                <span><strong>${formatDate(item.data)}</strong> ${horarioInfo} - ${item.descricao}</span>
-                <button class="remove-btn-li remove-lazer-btn">X</button>
-            `;
-
-            newItem.querySelector('.remove-lazer-btn').addEventListener('click', () => {
-                lista.removeChild(newItem);
-                salvarListasAgenda(); // Salva a lista atualizada
-            });
-
-            lista.appendChild(newItem);
-        }
-
-        // ATUALIZADO: Cria item de Tarefa na UI (com horário e ID)
-        function criarItemTarefaUI(item) {
-            const lista = document.getElementById('listaTarefas');
-            const newItem = document.createElement('li');
-            newItem.dataset.id = item.id; // Guarda ID
-            let horarioInfo = item.horario ? `às ${item.horario}` : ''; // NOVO
-
-            newItem.innerHTML = `
-                <span><strong>${formatDate(item.data)}</strong> ${horarioInfo} - ${item.descricao}</span>
-                <button class="remove-btn-li remove-tarefa-btn">X</button>
-            `;
-
-            newItem.querySelector('.remove-tarefa-btn').addEventListener('click', () => {
-                lista.removeChild(newItem);
-                salvarListasAgenda(); // Salva a lista atualizada
-            });
-
-            lista.appendChild(newItem);
-        }
-
-        // ATUALIZADO: Salva AMBAS as listas da Agenda (lendo da UI)
-        async function salvarListasAgenda(novoLazer = null, novaTarefa = null) {
-            const mesId = getMesId();
-            let listaEventos = [];
-            let listaTarefas = [];
-
-            // Lê eventos da UI
-            document.querySelectorAll('#listaEventos li').forEach(li => {
-                 const id = li.dataset.id;
-                 const dataSpan = li.querySelector('strong');
-                 let dataOriginal = '';
-                 if (dataSpan) {
-                     const partes = dataSpan.textContent.split('/');
-                     if (partes.length === 3) dataOriginal = `${partes[2]}-${partes[1]}-${partes[0]}`;
-                 }
-                 const spanText = li.querySelector('span')?.textContent || '';
-                 const horarioMatch = spanText.match(/às (\d{2}:\d{2})/);
-                 const horario = horarioMatch ? horarioMatch[1] : '';
-                 const descMatch = spanText.match(/ - (.*)$/);
-                 const descricao = descMatch ? descMatch[1].trim() : '';
-
-                 if (id && dataOriginal && descricao) {
-                      // Adiciona se não for o item novo ou se não houver item novo
-                      if (!novoLazer || id !== novoLazer.id) {
-                           listaEventos.push({ id, data: dataOriginal, horario, descricao });
-                      }
-                 }
-            });
-
-            // Lê tarefas da UI
-             document.querySelectorAll('#listaTarefas li').forEach(li => {
-                 const id = li.dataset.id;
-                 const dataSpan = li.querySelector('strong');
-                 let dataOriginal = '';
-                 if (dataSpan) {
-                     const partes = dataSpan.textContent.split('/');
-                     if (partes.length === 3) dataOriginal = `${partes[2]}-${partes[1]}-${partes[0]}`;
-                 }
-                 const spanText = li.querySelector('span')?.textContent || '';
-                 const horarioMatch = spanText.match(/às (\d{2}:\d{2})/);
-                 const horario = horarioMatch ? horarioMatch[1] : '';
-                 const descMatch = spanText.match(/ - (.*)$/);
-                 const descricao = descMatch ? descMatch[1].trim() : '';
-
-                  if (id && dataOriginal && descricao) {
-                       // Adiciona se não for o item novo ou se não houver item novo
-                       if (!novaTarefa || id !== novaTarefa.id) {
-                            listaTarefas.push({ id, data: dataOriginal, horario, descricao });
-                       }
-                  }
-             });
-
-
-             // Adiciona novos itens se houver
-             if(novoLazer) listaEventos.push(novoLazer);
-             if(novaTarefa) listaTarefas.push(novaTarefa);
-
-              // Reordena por data e hora
-             listaEventos.sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
-             listaTarefas.sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
-
-            try {
-                await db.collection("financas").doc(mesId).set({
-                    listaEventos: listaEventos,
-                    listaTarefas: listaTarefas
-                }, { merge: true });
-                console.log("Listas da agenda salvas!", mesId);
-                // Recarrega se um novo item foi adicionado
-                if(novoLazer || novaTarefa) carregarDadosAgenda();
-            } catch (error) {
-                console.error("Erro ao salvar listas da agenda:", error);
-            }
-        }
-
-
-        // ATUALIZADO: Carrega AMBAS as listas da Agenda (ordenadas)
-        async function carregarDadosAgenda() {
-            const mesId = getMesId();
-            const docRef = db.collection("financas").doc(mesId);
-
-            document.getElementById('listaEventos').innerHTML = ''; // Limpa a lista
-            document.getElementById('listaTarefas').innerHTML = ''; // Limpa a lista
-
-            try {
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    const dados = docSnap.data();
-                    // Ordena antes de exibir
-                    if (dados.listaEventos && Array.isArray(dados.listaEventos)) {
-                         const listaEventosOrd = dados.listaEventos
-                           .map(e => ({...e, id: e.id || Date.now().toString() + Math.floor(Math.random() * 1000)})) // CORRIGIDO
-                           .sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
-                        listaEventosOrd.forEach(item => criarItemLazerUI(item));
-                    }
-                    if (dados.listaTarefas && Array.isArray(dados.listaTarefas)) {
-                         const listaTarefasOrd = dados.listaTarefas
-                           .map(t => ({...t, id: t.id || Date.now().toString() + Math.floor(Math.random() * 1000)})) // CORRIGIDO
-                           .sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
-                        listaTarefasOrd.forEach(item => criarItemTarefaUI(item));
-                    }
-                }
-            } catch (error) {
-                console.error("Erro ao carregar listas da agenda:", error);
-            }
-        }
-
-    </script>
+            el.innerHTML += html;
+        });
+        lucide.createIcons();
+    }
+
+    function renderCharts(f, m, c, cc) {
+        const ctx1 = document.getElementById('graficoDespesas').getContext('2d');
+        const ctx2 = document.getElementById('graficoCartaoBarras').getContext('2d');
+        const isLight = document.body.classList.contains('light-mode');
+        const colors = isLight ? ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'] : ['#ff6b6b', '#feca57', '#54a0ff', '#00d2d3'];
+        const txt = isLight ? '#333' : '#ccc';
+
+        if(chartDoughnut) chartDoughnut.destroy();
+        chartDoughnut = new Chart(ctx1, {
+            type: 'doughnut',
+            data: { labels: ['Fixas', 'Mercado', 'Veículo', 'Cartão'], datasets: [{ data: [f, m, c, cc], backgroundColor: colors, borderWidth: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: txt } } }, cutout: '70%' }
+        });
+
+        if(chartBar) chartBar.destroy();
+        chartBar = new Chart(ctx2, {
+            type: 'bar',
+            data: { labels: ['Fatura Atual', 'Limite Ideal'], datasets: [{ label: 'R$', data: [cc, 3000], backgroundColor: [colors[3], 'rgba(128,128,128,0.3)'], borderRadius: 5 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { color: txt }, grid: { color: isLight?'#ddd':'#333'} }, x: { ticks: { color: txt }, grid: { display: false } } }, plugins: { legend: { display: false } } }
+        });
+    }
+    
+    function atualizarGraficos() { carregarDashboard(); }
+    function fmt(v) { return parseFloat(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+    document.addEventListener('DOMContentLoaded', () => { renderizarInputsFixos(); recarregarTudo(); });
+</script>
 </body>
 </html>
-
