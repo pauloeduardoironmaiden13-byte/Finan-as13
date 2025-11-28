@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- ADAPTAÇÃO MOBILE: Zoom bloqueado e escala fixa para App Inventor -->
+    <!-- ADAPTAÇÃO MOBILE: Zoom bloqueado e escala fixa -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Controle Financeiro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,7 +14,7 @@
         :root {
             /* --- Dark Mode (Padrão) --- */
             --bg-body: #050505;
-            --sidebar-bg: rgba(10, 10, 10, 0.98); /* Mais opaco para mobile */
+            --sidebar-bg: rgba(10, 10, 10, 0.98);
             --content-bg: rgba(20, 20, 20, 0.4);
             --card-bg: rgba(30, 30, 30, 0.6);
             --border-color: rgba(255, 255, 255, 0.1);
@@ -50,7 +50,6 @@
         * { 
             box-sizing: border-box; 
             outline: none; 
-            /* Remove highlight azul de toque no Android */
             -webkit-tap-highlight-color: transparent; 
         }
 
@@ -65,7 +64,6 @@
             overflow: hidden;
             display: flex;
             transition: background-color 0.4s ease, color 0.4s ease;
-            /* Impede seleção de texto para sensação de App Nativo */
             user-select: none;
             -webkit-user-select: none;
         }
@@ -200,8 +198,8 @@
             overflow-y: auto; 
             padding: 20px; 
             scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
-            padding-bottom: 100px; /* Espaço extra para o menu inferior no mobile */
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 100px;
         }
         .scroll-area::-webkit-scrollbar { width: 5px; }
         .scroll-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
@@ -250,8 +248,8 @@
             font-family: 'Poppins', sans-serif; 
             transition: all 0.3s; 
             width: 100%; 
-            font-size: 16px; /* Tamanho 16px evita zoom automático ao focar no iOS */
-            user-select: text; /* Permite selecionar texto dentro de inputs */
+            font-size: 16px;
+            user-select: text;
             -webkit-user-select: text;
         }
         input:focus, select:focus, textarea:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px var(--accent-hover); }
@@ -310,6 +308,32 @@
         .remove-wrapper i { pointer-events: none; }
         .remove-wrapper:hover i { color: var(--danger); }
 
+        /* TOAST NOTIFICATION */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent-color);
+            color: var(--bg-body);
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
         /* CALENDÁRIO */
         .calendar-container { background: var(--card-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border-color); }
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -324,10 +348,8 @@
         .day-number { font-weight: bold; font-size: 0.9em; margin-bottom: 4px; }
         .day-indicator { width: 6px; height: 6px; background-color: var(--accent-color); border-radius: 50%; display: inline-block; margin-right: 2px; }
 
-        /* MOBILE OPTIMIZATIONS (MIT INVENTOR) */
         @media (max-width: 768px) {
             .app-wrapper { flex-direction: column; }
-            /* Sidebar fixado no fundo, estilo app */
             .sidebar { 
                 width: 100%; 
                 height: 70px; 
@@ -344,10 +366,21 @@
                 background: var(--sidebar-bg);
                 z-index: 1000;
             }
-            .logo-container { display: none; } /* Remove logo para economizar espaço */
+            .logo-container { display: none; }
             .logo-text { display: none; }
-            .sidebar-footer { display: none; } /* Remove botões de backup no mobile */
+            .sidebar-footer { display: none; } /* Botões de backup escondidos no mobile */
             
+            /* Botão de Limpar no Mobile adicionado manualmente na barra */
+            .sidebar-mobile-action {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: var(--danger);
+                font-size: 0.65em;
+                cursor: pointer;
+            }
+
             nav { 
                 flex-direction: row; 
                 justify-content: space-evenly; 
@@ -358,11 +391,11 @@
             nav a { 
                 flex-direction: column; 
                 padding: 5px; 
-                font-size: 0.65em; /* Fonte menor para caber */
+                font-size: 0.65em; 
                 gap: 4px; 
                 border-radius: 8px; 
                 border: none; 
-                flex: 1; /* Distribui espaço igualmente */
+                flex: 1; 
                 justify-content: center;
                 text-align: center;
                 height: 100%;
@@ -376,7 +409,7 @@
             .dashboard-grid { grid-template-columns: 1fr; }
             .charts-wrapper { grid-template-columns: 1fr; }
             .calendar-day { height: 50px; }
-            .input-grid { grid-template-columns: 1fr; } /* Inputs ocupam largura total */
+            .input-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -411,6 +444,7 @@
         </nav>
 
         <div class="sidebar-footer">
+            <button class="btn-sidebar" onclick="zerarDadosMes()" style="border-color: var(--danger); color: var(--danger); margin-bottom: 10px;"><i data-lucide="trash-2"></i> Limpar Dados do Mês</button>
             <button class="btn-sidebar" onclick="exportarDadosGerais()"><i data-lucide="download"></i> Exportar Dados</button>
             <button class="btn-sidebar" onclick="document.getElementById('inputImportarGeral').click()"><i data-lucide="upload"></i> Importar Dados</button>
             <input type="file" id="inputImportarGeral" style="display: none;" accept=".json" onchange="importarDadosGerais(this)">
@@ -426,6 +460,7 @@
                 <div class="controls">
                     <input type="month" id="seletorMes">
                     <button class="theme-toggle-btn" id="themeToggle"><i data-lucide="sun"></i></button>
+                    <!-- Botão Limpar Visível Apenas no Mobile (via lógica futura se necessário, por enquanto no desktop fica na sidebar) -->
                 </div>
             </div>
         </header>
@@ -485,6 +520,10 @@
                         <i data-lucide="plus-circle" class="icon-left"></i>
                         <input type="number" id="rendaExtra" class="receita-input" placeholder="0,00">
                     </div>
+                </div>
+                
+                <div style="margin-bottom: 30px;">
+                    <button class="btn-primary" onclick="salvarEntradas()"><i data-lucide="save"></i> Salvar Entradas</button>
                 </div>
 
                 <h3 style="color: var(--danger)">Despesas</h3>
@@ -623,6 +662,9 @@
         </div> 
     </main>
 </div>
+
+<!-- TOAST -->
+<div id="toast" class="toast">Salvo com sucesso!</div>
 
 <!-- MODAL CONFIRMAÇÃO (CUSTOMIZADO) -->
 <div id="modalConfirmacao" class="modal">
@@ -778,6 +820,14 @@
         if(confirmCallback) confirmCallback();
         document.getElementById('modalConfirmacao').classList.remove('open');
     });
+
+    // --- TOAST NOTIFICATION ---
+    function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.innerText = msg;
+        t.className = "toast show";
+        setTimeout(function(){ t.className = t.className.replace("show", ""); }, 3000);
+    }
 
     // --- CATEGORIAS & MODAL ---
     const modal = document.getElementById('modalCategorias');
@@ -971,16 +1021,17 @@
     let vaultData = [];
     const VAULT_KEY = 'fintech_vault_data';
     const VAULT_PASS_KEY = 'fintech_vault_master_pass';
-    let masterPass = localStorage.getItem(VAULT_PASS_KEY);
-
+    
+    // Check initial load
     if(localStorage.getItem(VAULT_KEY)) { try { vaultData = JSON.parse(localStorage.getItem(VAULT_KEY)); } catch(e){} }
 
     function checkVaultStatus() {
-        masterPass = localStorage.getItem(VAULT_PASS_KEY);
+        const masterPass = localStorage.getItem(VAULT_PASS_KEY);
         if (!masterPass) {
             document.getElementById('vaultTitle').innerText = 'Configurar Senha Mestre';
             document.getElementById('vaultMsg').innerText = 'Crie uma senha para proteger o cofre.';
             document.getElementById('btnUnlockVault').innerText = 'Criar';
+            document.getElementById('vaultError').style.display = 'none';
         } else {
             document.getElementById('vaultTitle').innerText = 'Área Protegida';
             document.getElementById('vaultMsg').innerText = 'Digite a senha mestre.';
@@ -988,26 +1039,35 @@
         }
     }
 
+    // Reset do Cofre
     window.resetVault = function() {
         showConfirmModal(() => {
             localStorage.removeItem(VAULT_PASS_KEY);
-            masterPass = null;
+            // Opcional: localStorage.removeItem(VAULT_KEY); // Se quiser limpar dados
             alert('Senha resetada. Configure uma nova senha.');
+            lockVault();
             checkVaultStatus();
         });
     };
 
     document.getElementById('btnUnlockVault').addEventListener('click', () => {
         const input = document.getElementById('vaultPassword').value;
+        const masterPass = localStorage.getItem(VAULT_PASS_KEY);
+        
         if (!input) return;
+        
         if (!masterPass) {
+            // Criar senha
             localStorage.setItem(VAULT_PASS_KEY, input);
-            masterPass = input;
             alert('Senha criada! Não a esqueça.');
             unlockVault();
         } else {
-            if (input === masterPass) unlockVault();
-            else document.getElementById('vaultError').style.display = 'block';
+            // Verificar senha
+            if (input === masterPass) {
+                unlockVault();
+            } else {
+                document.getElementById('vaultError').style.display = 'block';
+            }
         }
     });
 
@@ -1021,6 +1081,7 @@
     function lockVault() {
         document.getElementById('vaultLockScreen').style.display = 'flex';
         document.getElementById('vaultContent').style.display = 'none';
+        document.getElementById('vaultError').style.display = 'none';
     }
 
     document.getElementById('formVaultAdd').addEventListener('submit', (e) => {
@@ -1050,6 +1111,20 @@
             vaultData = vaultData.filter(i=>i.id!==id); 
             localStorage.setItem(VAULT_KEY, JSON.stringify(vaultData)); 
             renderVaultList(); 
+        });
+    };
+
+    // --- ZERAR DADOS DO MÊS ---
+    window.zerarDadosMes = function() {
+        showConfirmModal(async () => {
+            // Deleta o documento inteiro do mês no Firebase
+            await db.collection('financas').doc(getMesId()).delete();
+            
+            // Reseta a UI
+            document.querySelectorAll('input').forEach(i => i.value = '');
+            // Recarrega defaults (categorias) se existirem em outro lugar ou reinicia
+            recarregarTudo();
+            alert('Dados do mês limpos!');
         });
     };
 
@@ -1109,23 +1184,38 @@
         }
     }
 
-    async function calcularFinanceiro() {
-        let rec = 0, desp = 0, data = {};
+    // NOVA FUNÇÃO: SALVAR ENTRADAS MANUALMENTE
+    async function salvarEntradas() {
+        let rec = 0, data = {};
         ['salario1', 'salario2', 'rendaExtra'].forEach(id => { 
             const v = parseFloat(document.getElementById(id).value)||0; rec+=v; data[id]=v; 
         });
+        
+        data.totalReceitas = rec;
+        
+        await db.collection('financas').doc(getMesId()).set(data, {merge:true});
+        showToast("Salvo com sucesso!");
+        carregarDashboard();
+    }
+
+    async function calcularFinanceiro() {
+        let desp = 0, data = {};
+        
+        // Apenas despesas agora auto-salvam (ou podemos migrar tbm), mantendo lógica original para despesas
         document.querySelectorAll('.despesa-input').forEach(i => { 
             const v = parseFloat(i.value)||0; 
             if(i.id!=='cartaoCredito') desp+=v; 
             data[i.id]=v; 
         });
         
-        data.totalReceitas = rec; 
         data.totalDespesasFixas = desp;
         await db.collection('financas').doc(getMesId()).set(data, {merge:true});
         carregarDashboard();
     }
-    document.querySelectorAll('.receita-input').forEach(i => i.addEventListener('input', calcularFinanceiro));
+    // Removido listener automatico de receitas
+    // document.querySelectorAll('.receita-input').forEach(i => i.addEventListener('input', calcularFinanceiro));
+    
+    document.querySelectorAll('.despesa-input').forEach(i => i.addEventListener('input', calcularFinanceiro));
     document.getElementById('cartaoCredito').addEventListener('input', calcularFinanceiro);
 
     document.getElementById('valorTotalVA').addEventListener('input', async (e) => {
@@ -1168,7 +1258,6 @@
             const doc = await docRef.get();
             if(doc.exists) {
                 let list = doc.data()[arrayName] || [];
-                // Filtra usando o ID. Como usamos Date.now(), é um número.
                 list = list.filter(i => i.id !== id);
                 await docRef.update({ [arrayName]: list });
                 carregarListas();
@@ -1198,6 +1287,9 @@
             if(dt.listaAbastecimento) c += dt.listaAbastecimento.reduce((a,b)=>a+(parseFloat(b.gasValorTotal)||0),0);
             if(dt.listaManutencao) c += dt.listaManutencao.reduce((a,b)=>a+(parseFloat(b.manutencaoValor)||0),0);
             d = f + m + c + cc;
+        } else {
+            // Se não existe documento, zera tudo visualmente
+            r = 0; d = 0;
         }
 
         document.getElementById('totalReceitasPrincipal').innerText = fmt(r);
@@ -1301,7 +1393,11 @@
     function atualizarGraficos() { carregarDashboard(); }
     function fmt(v) { return parseFloat(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
-    document.addEventListener('DOMContentLoaded', () => { renderizarInputsFixos(); recarregarTudo(); });
+    document.addEventListener('DOMContentLoaded', () => { 
+        renderizarInputsFixos(); 
+        recarregarTudo(); 
+        checkVaultStatus(); // Verifica status do cofre ao carregar
+    });
 </script>
 </body>
 </html>
