@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ADAPTAÇÃO MOBILE: Zoom bloqueado e escala fixa para App Inventor -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Controle Financeiro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Ícones -->
@@ -13,7 +14,7 @@
         :root {
             /* --- Dark Mode (Padrão) --- */
             --bg-body: #050505;
-            --sidebar-bg: rgba(10, 10, 10, 0.95);
+            --sidebar-bg: rgba(10, 10, 10, 0.98); /* Mais opaco para mobile */
             --content-bg: rgba(20, 20, 20, 0.4);
             --card-bg: rgba(30, 30, 30, 0.6);
             --border-color: rgba(255, 255, 255, 0.1);
@@ -32,7 +33,7 @@
         /* --- Light Mode --- */
         body.light-mode {
             --bg-body: #ffffff;
-            --sidebar-bg: #f8f9fa;
+            --sidebar-bg: #ffffff;
             --content-bg: rgba(255, 255, 255, 0.1);
             --card-bg: rgba(255, 255, 255, 0.75); 
             --border-color: rgba(0, 0, 0, 0.1);
@@ -46,7 +47,12 @@
             --nav-active-text: #ffffff;
         }
 
-        * { box-sizing: border-box; outline: none; }
+        * { 
+            box-sizing: border-box; 
+            outline: none; 
+            /* Remove highlight azul de toque no Android */
+            -webkit-tap-highlight-color: transparent; 
+        }
 
         body {
             font-family: 'Poppins', sans-serif;
@@ -55,9 +61,13 @@
             margin: 0;
             padding: 0;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
             display: flex;
             transition: background-color 0.4s ease, color 0.4s ease;
+            /* Impede seleção de texto para sensação de App Nativo */
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* --- LAYOUT --- */
@@ -185,7 +195,14 @@
         .theme-toggle-btn { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-primary); width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
         .theme-toggle-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
-        .scroll-area { flex-grow: 1; overflow-y: auto; padding: 30px; scroll-behavior: smooth; }
+        .scroll-area { 
+            flex-grow: 1; 
+            overflow-y: auto; 
+            padding: 20px; 
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
+            padding-bottom: 100px; /* Espaço extra para o menu inferior no mobile */
+        }
         .scroll-area::-webkit-scrollbar { width: 5px; }
         .scroll-area::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 
@@ -226,7 +243,6 @@
 
         input, select, textarea { 
             background: var(--input-bg); 
-            /* Borda alterada para a cor de destaque (var(--accent-color)) */
             border: 1px solid var(--accent-color); 
             border-radius: 8px; 
             padding: 12px 15px; 
@@ -234,7 +250,9 @@
             font-family: 'Poppins', sans-serif; 
             transition: all 0.3s; 
             width: 100%; 
-            font-size: 0.95em; 
+            font-size: 16px; /* Tamanho 16px evita zoom automático ao focar no iOS */
+            user-select: text; /* Permite selecionar texto dentro de inputs */
+            -webkit-user-select: text;
         }
         input:focus, select:focus, textarea:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px var(--accent-hover); }
 
@@ -268,7 +286,7 @@
         /* --- Modais --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; backdrop-filter: blur(5px); justify-content: center; align-items: center; }
         .modal.open { display: flex; }
-        .modal-content { background: var(--sidebar-bg); border: 1px solid var(--accent-color); padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; box-shadow: 0 0 40px rgba(0,0,0,0.5); position: relative; }
+        .modal-content { background: var(--sidebar-bg); border: 1px solid var(--accent-color); padding: 30px; border-radius: 15px; width: 90%; max-width: 450px; box-shadow: 0 0 40px rgba(0,0,0,0.5); position: relative; max-height: 90vh; overflow-y: auto; }
         
         .icon-selector { display: flex; gap: 10px; margin: 15px 0; justify-content: center; flex-wrap: wrap; height: 150px; overflow-y: auto; }
         .icon-option { width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); transition: 0.2s; flex-shrink: 0; }
@@ -276,7 +294,6 @@
 
         .category-tag { display: inline-flex; align-items: center; background: var(--card-bg); padding: 6px 14px; border-radius: 20px; margin: 5px; font-size: 0.9em; border: 1px solid var(--border-color); color: var(--text-primary); }
         
-        /* CORREÇÃO CRÍTICA DO BOTÃO DE EXCLUSÃO DA CATEGORIA */
         .remove-wrapper { 
             display: inline-flex; 
             align-items: center; 
@@ -287,12 +304,10 @@
             cursor: pointer; 
             border-radius: 50%;
             transition: 0.2s;
-            background: rgba(255, 255, 255, 0.05); /* Área de clique visível */
+            background: rgba(255, 255, 255, 0.05); 
         }
-        .remove-wrapper:hover { 
-            background: rgba(255, 107, 107, 0.2); 
-        }
-        .remove-wrapper i { pointer-events: none; } /* O ícone não atrapalha o clique do wrapper */
+        .remove-wrapper:hover { background: rgba(255, 107, 107, 0.2); }
+        .remove-wrapper i { pointer-events: none; }
         .remove-wrapper:hover i { color: var(--danger); }
 
         /* CALENDÁRIO */
@@ -309,17 +324,59 @@
         .day-number { font-weight: bold; font-size: 0.9em; margin-bottom: 4px; }
         .day-indicator { width: 6px; height: 6px; background-color: var(--accent-color); border-radius: 50%; display: inline-block; margin-right: 2px; }
 
+        /* MOBILE OPTIMIZATIONS (MIT INVENTOR) */
         @media (max-width: 768px) {
             .app-wrapper { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-between; align-items: center; padding: 10px 20px; position: fixed; bottom: 0; left: 0; border-right: none; border-top: 1px solid var(--border-color); order: 2; background: var(--sidebar-bg); }
-            .logo-container { margin-bottom: 0; }
+            /* Sidebar fixado no fundo, estilo app */
+            .sidebar { 
+                width: 100%; 
+                height: 70px; 
+                flex-direction: row; 
+                justify-content: space-around; 
+                align-items: center; 
+                padding: 0; 
+                position: fixed; 
+                bottom: 0; 
+                left: 0; 
+                border-right: none; 
+                border-top: 1px solid var(--border-color); 
+                order: 2; 
+                background: var(--sidebar-bg);
+                z-index: 1000;
+            }
+            .logo-container { display: none; } /* Remove logo para economizar espaço */
             .logo-text { display: none; }
-            .sidebar-footer { display: none; }
-            nav { flex-direction: row; justify-content: space-around; width: 100%; }
-            nav a { flex-direction: column; padding: 8px; font-size: 0.75em; gap: 5px; border-radius: 8px; border: none; }
+            .sidebar-footer { display: none; } /* Remove botões de backup no mobile */
+            
+            nav { 
+                flex-direction: row; 
+                justify-content: space-evenly; 
+                width: 100%; 
+                height: 100%;
+                gap: 0;
+            }
+            nav a { 
+                flex-direction: column; 
+                padding: 5px; 
+                font-size: 0.65em; /* Fonte menor para caber */
+                gap: 4px; 
+                border-radius: 8px; 
+                border: none; 
+                flex: 1; /* Distribui espaço igualmente */
+                justify-content: center;
+                text-align: center;
+                height: 100%;
+            }
+            nav a i { width: 20px; height: 20px; }
+            
             .main-content { order: 1; margin-bottom: 70px; }
+            .top-bar { padding: 0 15px; }
+            .page-title { font-size: 1.2em; }
+            
+            .dashboard-grid { grid-template-columns: 1fr; }
             .charts-wrapper { grid-template-columns: 1fr; }
             .calendar-day { height: 50px; }
+            .input-grid { grid-template-columns: 1fr; } /* Inputs ocupam largura total */
         }
     </style>
 </head>
@@ -345,10 +402,10 @@
         </div>
         
         <nav>
-            <a href="#principal" class="nav-link active"><i data-lucide="layout-dashboard"></i> <span>Dashboard</span></a>
-            <a href="#financeiro" class="nav-link"><i data-lucide="dollar-sign"></i> <span>Financeiro</span></a>
+            <a href="#principal" class="nav-link active"><i data-lucide="layout-dashboard"></i> <span>Home</span></a>
+            <a href="#financeiro" class="nav-link"><i data-lucide="dollar-sign"></i> <span>Finanças</span></a>
             <a href="#compras" class="nav-link"><i data-lucide="shopping-cart"></i> <span>Mercado</span></a>
-            <a href="#carro" class="nav-link"><i data-lucide="car"></i> <span>Veículo</span></a>
+            <a href="#carro" class="nav-link"><i data-lucide="car"></i> <span>Carro</span></a>
             <a href="#agenda" class="nav-link"><i data-lucide="calendar"></i> <span>Agenda</span></a>
             <a href="#cofre" class="nav-link special-link"><i data-lucide="lock"></i> <span>Cofre</span></a>
         </nav>
@@ -365,7 +422,7 @@
         <header class="top-bar">
             <div class="page-title" id="pageTitleDisplay">Dashboard</div>
             <div style="display: flex; align-items: center;">
-                <div class="live-clock" id="liveClock"><i data-lucide="clock" style="width:14px;"></i> --:--</div>
+                <div class="live-clock" id="liveClock" style="display:none;"><i data-lucide="clock" style="width:14px;"></i> --:--</div>
                 <div class="controls">
                     <input type="month" id="seletorMes">
                     <button class="theme-toggle-btn" id="themeToggle"><i data-lucide="sun"></i></button>
