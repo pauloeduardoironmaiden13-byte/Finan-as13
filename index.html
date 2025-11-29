@@ -556,9 +556,12 @@
                     <button class="btn-primary" onclick="salvarEntradas()"><i data-lucide="save"></i> Salvar Receitas</button>
                 </div>
 
-                <h3 style="color: var(--danger); display:flex; align-items:center; gap:8px;">
-                    <i data-lucide="trending-down" style="width:20px;"></i> Despesas
-                </h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="color: var(--danger); display:flex; align-items:center; gap:8px;">
+                        <i data-lucide="trending-down" style="width:20px;"></i> Despesas
+                    </h3>
+                    <button class="btn-danger btn-small" onclick="limparDespesasManual()" style="height: 32px;"><i data-lucide="trash-2" style="width:14px; margin-right:5px;"></i> Limpar Despesas</button>
+                </div>
                 <div id="containerDespesasFixas" class="input-grid"></div>
 
                 <div class="input-wrapper has-icon" style="margin-top: 10px; max-width: 300px;">
@@ -654,32 +657,39 @@
                 <ul id="listaAgenda" class="modern-list"></ul>
             </div>
 
-            <!-- PÁGINA: COFRE -->
+            <!-- PÁGINA: COFRE (REFEITA 3 OPÇÕES) -->
             <div id="page-cofre" class="page-section">
                 <h2>Cofre de Senhas</h2>
-                <!-- Interface Unificada -->
-                <div id="vaultLockScreen" style="display:flex; flex-direction:column; align-items:center; height:60vh; justify-content:center;">
+                
+                <!-- MENU INICIAL DO COFRE -->
+                <div id="vaultMenu" style="display:flex; flex-direction:column; align-items:center; height:60vh; justify-content:center; gap: 15px;">
+                    <i data-lucide="shield-check" style="width:64px; height:64px; color:var(--accent-color); margin-bottom:10px;"></i>
+                    <h3 style="margin-bottom: 20px;">Gerenciador Seguro</h3>
+                    
+                    <button class="btn-primary" onclick="showVaultScreen('login')" style="width: 200px; justify-content: center;">Entrar</button>
+                    <button class="btn-outline" onclick="showVaultScreen('register')" style="width: 200px; justify-content: center;">Cadastrar Senha</button>
+                    <button class="btn-danger" onclick="showVaultScreen('reset')" style="width: 200px; justify-content: center;">Resetar Senha</button>
+                </div>
+
+                <!-- TELA DE LOGIN/CADASTRO -->
+                <div id="vaultLockScreen" style="display:none; flex-direction:column; align-items:center; height:60vh; justify-content:center;">
                     <i data-lucide="lock" style="width:48px; height:48px; color:var(--accent-color); margin-bottom:15px;"></i>
                     <h3 id="vaultTitle">Cofre Protegido</h3>
-                    <p id="vaultMsg" style="color:var(--text-secondary); margin-bottom:20px; text-align:center;">Digite a senha para acessar.</p>
+                    <p id="vaultMsg" style="color:var(--text-secondary); margin-bottom:20px; text-align:center;">Digite a senha.</p>
                     
                     <div style="display:flex; gap:10px; width: 100%; max-width: 300px; justify-content: center;">
                         <input type="password" id="vaultPassword" placeholder="Senha" style="max-width: 180px;">
-                        <button class="btn-primary" id="btnUnlockVault">Entrar</button>
+                        <button class="btn-primary" id="btnUnlockVault">Ação</button>
                     </div>
                     
-                    <div style="margin-top: 20px; display: flex; gap: 15px;">
-                        <button class="btn-outline btn-small" id="btnRegisterVault" style="display: none;">Cadastrar Senha</button>
-                        <button class="btn-danger btn-small" id="btnResetVault" style="border: none; background: transparent;">Resetar Senha</button>
-                    </div>
-
-                    <p id="vaultError" style="color:var(--danger); display:none; margin-top:10px;">Senha incorreta!</p>
+                    <button class="btn-outline btn-small" onclick="backToVaultMenu()" style="margin-top: 20px;">Voltar</button>
+                    <p id="vaultError" style="color:var(--danger); display:none; margin-top:10px;">Erro!</p>
                 </div>
                 
-                <!-- Desbloqueado -->
+                <!-- CONTEÚDO DESBLOQUEADO -->
                 <div id="vaultContent" style="display:none; animation: slideUp 0.3s;">
                     <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
-                        <button class="btn-outline btn-small" onclick="lockVault()">Bloquear</button>
+                        <button class="btn-outline btn-small" onclick="lockVault()">Sair do Cofre</button>
                     </div>
                     <div class="card" style="margin-bottom:20px;">
                         <form id="formVaultAdd" style="display:flex; gap:10px; flex-direction: column;">
@@ -832,7 +842,7 @@
             document.getElementById(`page-${targetId}`).classList.add('active');
             document.getElementById('pageTitleDisplay').innerText = link.querySelector('span').innerText;
             if(targetId === 'principal') carregarDashboard();
-            if(targetId === 'cofre') checkVaultStatus();
+            if(targetId === 'cofre') backToVaultMenu();
             if(targetId === 'agenda') renderCalendar();
         });
     });
@@ -1132,75 +1142,72 @@
         carregarListas(); 
     });
 
-    // --- COFRE (Lógica Refeita) ---
+    // --- COFRE (NOVA LÓGICA DE 3 BOTÕES) ---
     const VAULT_KEY = 'fintech_vault_data';
     const VAULT_PASS_KEY = 'fintech_vault_master_pass';
     let vaultData = [];
+    if(localStorage.getItem(VAULT_KEY)) { try { vaultData = JSON.parse(localStorage.getItem(VAULT_KEY)); } catch(e){} }
 
-    // Carrega dados se existirem
-    if(localStorage.getItem(VAULT_KEY)) { 
-        try { vaultData = JSON.parse(localStorage.getItem(VAULT_KEY)); } catch(e){} 
+    function backToVaultMenu() {
+        document.getElementById('vaultMenu').style.display = 'flex';
+        document.getElementById('vaultLockScreen').style.display = 'none';
+        document.getElementById('vaultContent').style.display = 'none';
+        document.getElementById('vaultError').style.display = 'none';
+        document.getElementById('vaultPassword').value = '';
     }
 
-    function checkVaultStatus() {
-        const masterPass = localStorage.getItem(VAULT_PASS_KEY);
+    window.showVaultScreen = function(mode) {
+        document.getElementById('vaultMenu').style.display = 'none';
+        
+        if (mode === 'reset') {
+            if(confirm('Tem certeza? Isso apaga a senha atual.')) {
+                localStorage.removeItem(VAULT_PASS_KEY);
+                alert('Senha resetada! Cadastre uma nova.');
+                backToVaultMenu();
+            } else {
+                backToVaultMenu();
+            }
+            return;
+        }
+
+        const lockScreen = document.getElementById('vaultLockScreen');
+        lockScreen.style.display = 'flex';
         const title = document.getElementById('vaultTitle');
         const msg = document.getElementById('vaultMsg');
-        const btnUnlock = document.getElementById('btnUnlockVault');
-        const btnRegister = document.getElementById('btnRegisterVault');
-        const btnReset = document.getElementById('btnResetVault');
-        const errorMsg = document.getElementById('vaultError');
+        const btn = document.getElementById('btnUnlockVault');
+        
+        // Remove listener antigo para evitar duplicação
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
 
-        errorMsg.style.display = 'none';
-        document.getElementById('vaultPassword').value = '';
-
-        if (!masterPass) {
-            // Modo Cadastro
-            title.innerText = 'Criar Senha Mestre';
-            msg.innerText = 'Crie uma senha para proteger seus dados.';
-            btnUnlock.innerText = 'Cadastrar';
-            btnRegister.style.display = 'none';
-            btnReset.style.display = 'none';
-            
-            // Remove listeners antigos e adiciona novo para cadastro
-            btnUnlock.onclick = cadastrarSenha;
-        } else {
-            // Modo Login
-            title.innerText = 'Cofre Protegido';
-            msg.innerText = 'Digite sua senha para entrar.';
-            btnUnlock.innerText = 'Entrar';
-            btnRegister.style.display = 'none';
-            btnReset.style.display = 'block';
-            
-            // Remove listeners antigos e adiciona novo para login
-            btnUnlock.onclick = tentarEntrar;
+        if (mode === 'register') {
+            title.innerText = 'Cadastrar Senha';
+            msg.innerText = 'Crie uma nova senha';
+            newBtn.innerText = 'Salvar';
+            newBtn.onclick = () => {
+                const pass = document.getElementById('vaultPassword').value;
+                if(pass) {
+                    localStorage.setItem(VAULT_PASS_KEY, pass);
+                    alert('Senha salva!');
+                    backToVaultMenu();
+                }
+            };
+        } else if (mode === 'login') {
+            title.innerText = 'Entrar no Cofre';
+            msg.innerText = 'Digite sua senha';
+            newBtn.innerText = 'Entrar';
+            newBtn.onclick = () => {
+                const pass = document.getElementById('vaultPassword').value;
+                const stored = localStorage.getItem(VAULT_PASS_KEY);
+                if (pass === stored) {
+                    unlockVault();
+                } else {
+                    document.getElementById('vaultError').style.display = 'block';
+                    document.getElementById('vaultError').innerText = stored ? 'Senha Incorreta' : 'Nenhuma senha cadastrada!';
+                }
+            };
         }
-    }
-
-    function cadastrarSenha() {
-        const input = document.getElementById('vaultPassword').value;
-        if(input.length < 3) { alert('Senha muito curta!'); return; }
-        localStorage.setItem(VAULT_PASS_KEY, input);
-        alert('Senha cadastrada com sucesso!');
-        unlockVault();
-    }
-
-    function tentarEntrar() {
-        const input = document.getElementById('vaultPassword').value;
-        const masterPass = localStorage.getItem(VAULT_PASS_KEY);
-        if(input === masterPass) {
-            unlockVault();
-        } else {
-            document.getElementById('vaultError').style.display = 'block';
-        }
-    }
-
-    document.getElementById('btnResetVault').addEventListener('click', () => {
-        if(confirm('Tem certeza? Isso resetará a senha, mas manterá os dados salvos.')) {
-            localStorage.removeItem(VAULT_PASS_KEY);
-            checkVaultStatus();
-        }
-    });
+    };
 
     function unlockVault() {
         document.getElementById('vaultLockScreen').style.display = 'none';
@@ -1208,9 +1215,7 @@
         renderVaultList();
     }
     function lockVault() {
-        document.getElementById('vaultLockScreen').style.display = 'flex';
-        document.getElementById('vaultContent').style.display = 'none';
-        checkVaultStatus(); // Re-inicia estado
+        backToVaultMenu();
     }
 
     document.getElementById('formVaultAdd').addEventListener('submit', (e) => {
@@ -1250,6 +1255,21 @@
             document.querySelectorAll('input').forEach(i => i.value = '');
             recarregarTudo();
             alert('Dados do mês limpos!');
+        });
+    };
+    
+    // --- LIMPAR DESPESAS MANUAL ---
+    window.limparDespesasManual = function() {
+        showConfirmModal(async () => {
+            let updates = { totalDespesasFixas: 0 };
+            document.querySelectorAll('.despesa-input').forEach(i => {
+               i.value = '';
+               updates[i.id] = 0;
+            });
+            await db.collection('financas').doc(getMesId()).update(updates);
+            showToast('Despesas limpas!');
+            carregarDashboard();
+            atualizarTotaisTelaFinanceiro();
         });
     };
 
@@ -1351,8 +1371,12 @@
     document.getElementById('cartaoCredito').addEventListener('input', calcularFinanceiro);
 
     document.getElementById('valorTotalVA').addEventListener('input', async (e) => {
-        await db.collection('financas').doc(getMesId()).set({ valorTotalVA: parseFloat(e.target.value)||0 }, { merge: true });
-        carregarListas();
+        // Correção Mercado: Atualiza saldo instantaneamente no input
+        const totalCompras = parseFloat(document.getElementById('totalCompras').innerText.replace('R$','').replace('.','').replace(',','.')) || 0;
+        const va = parseFloat(e.target.value) || 0;
+        document.getElementById('saldoVA').innerText = fmt(va - totalCompras);
+
+        await db.collection('financas').doc(getMesId()).set({ valorTotalVA: va }, { merge: true });
     });
 
     // Submissão de Formulários
@@ -1525,7 +1549,7 @@
     document.addEventListener('DOMContentLoaded', () => { 
         renderizarInputsFixos(); 
         recarregarTudo(); 
-        checkVaultStatus(); 
+        backToVaultMenu(); // Inicia Cofre no Menu
     });
 </script>
 </body>
