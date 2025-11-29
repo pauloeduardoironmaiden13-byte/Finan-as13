@@ -547,6 +547,13 @@
                     </div>
                 </div>
 
+                <!-- ADICIONADO BOTÃO DE LIMPAR MÊS AQUI PARA APARECER NO MOBILE -->
+                <div style="margin-bottom: 20px; display: flex; justify-content: flex-end;">
+                    <button class="btn-danger btn-small" onclick="zerarDadosMes()" style="border: 1px solid var(--danger); background: transparent; color: var(--danger);">
+                        <i data-lucide="trash-2"></i> Limpar Todo Mês
+                    </button>
+                </div>
+
                 <h3 style="color: var(--success); display:flex; align-items:center; gap:8px;">
                     <i data-lucide="banknote" style="width:20px;"></i> Receitas
                 </h3>
@@ -1118,7 +1125,7 @@
         const hora = document.getElementById('eventoHora').value;
         const desc = document.getElementById('eventoDesc').value;
 
-        if(!dataEvt || !desc) { alert('Preencha data e descrição'); return; }
+        if(!dataEvt || !desc) { showToast('Preencha data e descrição'); return; }
 
         const docRef = db.collection('financas').doc(getMesId());
         const doc = await docRef.get();
@@ -1160,13 +1167,11 @@
         document.getElementById('vaultMenu').style.display = 'none';
         
         if (mode === 'reset') {
-            if(confirm('Tem certeza? Isso apaga a senha atual.')) {
+            showConfirmModal(() => {
                 localStorage.removeItem(VAULT_PASS_KEY);
-                alert('Senha resetada! Cadastre uma nova.');
+                showToast('Senha resetada! Cadastre uma nova.');
                 backToVaultMenu();
-            } else {
-                backToVaultMenu();
-            }
+            });
             return;
         }
 
@@ -1188,7 +1193,7 @@
                 const pass = document.getElementById('vaultPassword').value;
                 if(pass) {
                     localStorage.setItem(VAULT_PASS_KEY, pass);
-                    alert('Senha salva!');
+                    showToast('Senha salva!');
                     backToVaultMenu();
                 }
             };
@@ -1254,7 +1259,7 @@
             await db.collection('financas').doc(getMesId()).delete();
             document.querySelectorAll('input').forEach(i => i.value = '');
             recarregarTudo();
-            alert('Dados do mês limpos!');
+            showToast('Dados do mês limpos!');
         });
     };
     
@@ -1351,6 +1356,7 @@
         await db.collection('financas').doc(getMesId()).set(data, {merge:true});
         showToast("Salvo com sucesso!");
         carregarDashboard();
+        atualizarTotaisTelaFinanceiro(); // Atualiza tela localmente também
     }
 
     async function calcularFinanceiro() {
