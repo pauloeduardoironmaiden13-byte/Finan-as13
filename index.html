@@ -23,6 +23,7 @@
             --accent-color: #00d2d3;
             --accent-hover: rgba(0, 210, 211, 0.15);
             --danger: #ff6b6b;
+            --success: #00b894;
             --input-bg: rgba(0, 0, 0, 0.5);
             --glass-blur: 25px;
             --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
@@ -269,6 +270,40 @@
         .btn-danger { background: rgba(255, 107, 107, 0.1); border: 1px solid var(--danger); color: var(--danger); padding: 8px 15px; border-radius: 8px; cursor: pointer; }
         .btn-danger:hover { background: var(--danger); color: #fff; }
 
+        /* Estilo do Resumo Financeiro */
+        .finance-summary-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 100px;
+        }
+        .summary-item span {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .summary-item strong {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .text-success { color: var(--success) !important; }
+        .text-danger { color: var(--danger) !important; }
+
         .modern-list { list-style: none; padding: 0; margin-top: 20px; }
         .modern-list li { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; transition: all 0.2s; }
         .modern-list li:hover { transform: translateX(5px); border-color: var(--accent-color); background: var(--accent-hover); }
@@ -307,6 +342,11 @@
         .remove-wrapper:hover { background: rgba(255, 107, 107, 0.2); }
         .remove-wrapper i { pointer-events: none; }
         .remove-wrapper:hover i { color: var(--danger); }
+
+        /* ABAS MODAL */
+        .modal-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .modal-tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: var(--text-secondary); border-radius: 8px; font-weight: 500; transition: 0.2s; }
+        .modal-tab.active { background: var(--accent-hover); color: var(--accent-color); font-weight: bold; }
 
         /* TOAST NOTIFICATION */
         .toast {
@@ -368,19 +408,8 @@
             }
             .logo-container { display: none; }
             .logo-text { display: none; }
-            .sidebar-footer { display: none; } /* Botões de backup escondidos no mobile */
+            .sidebar-footer { display: none; } 
             
-            /* Botão de Limpar no Mobile adicionado manualmente na barra */
-            .sidebar-mobile-action {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: var(--danger);
-                font-size: 0.65em;
-                cursor: pointer;
-            }
-
             nav { 
                 flex-direction: row; 
                 justify-content: space-evenly; 
@@ -460,7 +489,6 @@
                 <div class="controls">
                     <input type="month" id="seletorMes">
                     <button class="theme-toggle-btn" id="themeToggle"><i data-lucide="sun"></i></button>
-                    <!-- Botão Limpar Visível Apenas no Mobile (via lógica futura se necessário, por enquanto no desktop fica na sidebar) -->
                 </div>
             </div>
         </header>
@@ -503,30 +531,34 @@
                     <button class="btn-primary btn-small" id="btnGerenciarCategorias"><i data-lucide="settings"></i> Categorias</button>
                 </div>
 
-                <h3>Entradas</h3>
-                <div class="input-grid">
-                    <div class="input-wrapper has-icon">
-                        <label>Salário 1</label>
-                        <i data-lucide="dollar-sign" class="icon-left"></i>
-                        <input type="number" id="salario1" class="receita-input" placeholder="0,00">
+                <!-- Resumo Financeiro -->
+                <div class="finance-summary-card">
+                    <div class="summary-item">
+                        <span><i data-lucide="trending-up" style="color:var(--success)"></i> Total Receitas</span>
+                        <strong id="displayTotalReceitas" class="text-success">R$ 0,00</strong>
                     </div>
-                    <div class="input-wrapper has-icon">
-                        <label>Salário 2</label>
-                        <i data-lucide="wallet" class="icon-left"></i>
-                        <input type="number" id="salario2" class="receita-input" placeholder="0,00">
+                    <div class="summary-item">
+                        <span><i data-lucide="trending-down" style="color:var(--danger)"></i> Total Despesas</span>
+                        <strong id="displayTotalDespesas" class="text-danger">R$ 0,00</strong>
                     </div>
-                    <div class="input-wrapper has-icon">
-                        <label>Renda Extra</label>
-                        <i data-lucide="plus-circle" class="icon-left"></i>
-                        <input type="number" id="rendaExtra" class="receita-input" placeholder="0,00">
+                    <div class="summary-item">
+                        <span><i data-lucide="scale"></i> Saldo</span>
+                        <strong id="displaySaldoFinanceiro">R$ 0,00</strong>
                     </div>
-                </div>
-                
-                <div style="margin-bottom: 30px;">
-                    <button class="btn-primary" onclick="salvarEntradas()"><i data-lucide="save"></i> Salvar Entradas</button>
                 </div>
 
-                <h3 style="color: var(--danger)">Despesas</h3>
+                <h3 style="color: var(--success); display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="banknote" style="width:20px;"></i> Receitas
+                </h3>
+                <div id="containerReceitas" class="input-grid"></div>
+                
+                <div style="margin-bottom: 30px;">
+                    <button class="btn-primary" onclick="salvarEntradas()"><i data-lucide="save"></i> Salvar Receitas</button>
+                </div>
+
+                <h3 style="color: var(--danger); display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="trending-down" style="width:20px;"></i> Despesas
+                </h3>
                 <div id="containerDespesasFixas" class="input-grid"></div>
 
                 <div class="input-wrapper has-icon" style="margin-top: 10px; max-width: 300px;">
@@ -600,10 +632,9 @@
                 <ul id="listaAbastecimento" class="modern-list"></ul>
             </div>
 
-            <!-- PÁGINA: AGENDA (Calendário Novo) -->
+            <!-- PÁGINA: AGENDA -->
             <div id="page-agenda" class="page-section">
                 <h2>Agenda & Calendário</h2>
-                
                 <div class="calendar-container">
                     <div class="calendar-header">
                         <h3 id="calendarMonthYear">Mês/Ano</h3>
@@ -619,7 +650,6 @@
                     </div>
                     <div class="calendar-grid" id="calendarDays"></div>
                 </div>
-
                 <h3 style="margin-top: 20px;">Próximos Compromissos</h3>
                 <ul id="listaAgenda" class="modern-list"></ul>
             </div>
@@ -627,19 +657,23 @@
             <!-- PÁGINA: COFRE -->
             <div id="page-cofre" class="page-section">
                 <h2>Cofre de Senhas</h2>
-                <!-- Bloqueado -->
+                <!-- Interface Unificada -->
                 <div id="vaultLockScreen" style="display:flex; flex-direction:column; align-items:center; height:60vh; justify-content:center;">
                     <i data-lucide="lock" style="width:48px; height:48px; color:var(--accent-color); margin-bottom:15px;"></i>
-                    <h3 id="vaultTitle">Área Protegida</h3>
-                    <p id="vaultMsg" style="color:var(--text-secondary); margin-bottom:20px;">Digite a senha mestre.</p>
-                    <div style="display:flex; gap:10px;">
-                        <input type="password" id="vaultPassword" placeholder="Senha">
+                    <h3 id="vaultTitle">Cofre Protegido</h3>
+                    <p id="vaultMsg" style="color:var(--text-secondary); margin-bottom:20px; text-align:center;">Digite a senha para acessar.</p>
+                    
+                    <div style="display:flex; gap:10px; width: 100%; max-width: 300px; justify-content: center;">
+                        <input type="password" id="vaultPassword" placeholder="Senha" style="max-width: 180px;">
                         <button class="btn-primary" id="btnUnlockVault">Entrar</button>
                     </div>
-                    <p id="vaultError" style="color:var(--danger); display:none; margin-top:10px;">Senha incorreta!</p>
                     
-                    <!-- Opção de Resetar Senha -->
-                    <a href="#" onclick="resetVault()" style="color:var(--text-secondary); font-size:0.8em; margin-top:20px; text-decoration:underline;">Esqueci a senha / Resetar</a>
+                    <div style="margin-top: 20px; display: flex; gap: 15px;">
+                        <button class="btn-outline btn-small" id="btnRegisterVault" style="display: none;">Cadastrar Senha</button>
+                        <button class="btn-danger btn-small" id="btnResetVault" style="border: none; background: transparent;">Resetar Senha</button>
+                    </div>
+
+                    <p id="vaultError" style="color:var(--danger); display:none; margin-top:10px;">Senha incorreta!</p>
                 </div>
                 
                 <!-- Desbloqueado -->
@@ -648,7 +682,7 @@
                         <button class="btn-outline btn-small" onclick="lockVault()">Bloquear</button>
                     </div>
                     <div class="card" style="margin-bottom:20px;">
-                        <form id="formVaultAdd" style="display:flex; gap:10px;">
+                        <form id="formVaultAdd" style="display:flex; gap:10px; flex-direction: column;">
                             <input type="text" id="vTitle" placeholder="Serviço" style="flex:1;">
                             <input type="text" id="vUser" placeholder="Usuário" style="flex:1;">
                             <input type="text" id="vPass" placeholder="Senha" style="flex:1;">
@@ -666,7 +700,7 @@
 <!-- TOAST -->
 <div id="toast" class="toast">Salvo com sucesso!</div>
 
-<!-- MODAL CONFIRMAÇÃO (CUSTOMIZADO) -->
+<!-- MODAL CONFIRMAÇÃO -->
 <div id="modalConfirmacao" class="modal">
     <div class="modal-content" style="text-align: center;">
         <i data-lucide="alert-triangle" style="width: 48px; height: 48px; color: var(--danger); margin-bottom: 10px;"></i>
@@ -683,30 +717,34 @@
 <div id="modalCategorias" class="modal">
     <div class="modal-content">
         <h3 style="color: var(--accent-color)">Gerenciar Categorias</h3>
+        
+        <!-- Abas -->
+        <div class="modal-tabs">
+            <div class="modal-tab active" id="tabReceitas" onclick="mudarAbaCategoria('receita')">Receitas</div>
+            <div class="modal-tab" id="tabDespesas" onclick="mudarAbaCategoria('despesa')">Despesas</div>
+        </div>
+
         <div class="icon-selector">
-            <!-- Mais ícones adicionados -->
             <div class="icon-option selected" data-icon="zap"><i data-lucide="zap"></i></div>
-            <div class="icon-option" data-icon="droplet"><i data-lucide="droplet"></i></div>
-            <div class="icon-option" data-icon="wifi"><i data-lucide="wifi"></i></div>
+            <div class="icon-option" data-icon="car"><i data-lucide="car"></i></div> <!-- Carro adicionado -->
+            <div class="icon-option" data-icon="dollar-sign"><i data-lucide="dollar-sign"></i></div>
+            <div class="icon-option" data-icon="briefcase"><i data-lucide="briefcase"></i></div>
             <div class="icon-option" data-icon="home"><i data-lucide="home"></i></div>
-            <div class="icon-option" data-icon="shield"><i data-lucide="shield"></i></div>
-            <div class="icon-option" data-icon="smartphone"><i data-lucide="smartphone"></i></div>
             <div class="icon-option" data-icon="shopping-bag"><i data-lucide="shopping-bag"></i></div>
             <div class="icon-option" data-icon="heart"><i data-lucide="heart"></i></div>
-            <div class="icon-option" data-icon="dumbbell"><i data-lucide="dumbbell"></i></div>
-            <div class="icon-option" data-icon="gamepad-2"><i data-lucide="gamepad-2"></i></div>
             <div class="icon-option" data-icon="book"><i data-lucide="book"></i></div>
-            <div class="icon-option" data-icon="briefcase"><i data-lucide="briefcase"></i></div>
             <div class="icon-option" data-icon="coffee"><i data-lucide="coffee"></i></div>
             <div class="icon-option" data-icon="music"><i data-lucide="music"></i></div>
             <div class="icon-option" data-icon="gift"><i data-lucide="gift"></i></div>
             <div class="icon-option" data-icon="plane"><i data-lucide="plane"></i></div>
-            <div class="icon-option" data-icon="credit-card"><i data-lucide="credit-card"></i></div>
-            <div class="icon-option" data-icon="piggy-bank"><i data-lucide="piggy-bank"></i></div>
+            <div class="icon-option" data-icon="shield"><i data-lucide="shield"></i></div>
+            <div class="icon-option" data-icon="droplet"><i data-lucide="droplet"></i></div>
+            <div class="icon-option" data-icon="wifi"><i data-lucide="wifi"></i></div>
+            <div class="icon-option" data-icon="smartphone"><i data-lucide="smartphone"></i></div>
         </div>
 
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <input type="text" id="novaCategoriaInput" placeholder="Nome (ex: Academia)">
+            <input type="text" id="novaCategoriaInput" placeholder="Nome da Categoria">
             <button id="btnAddCategoria" class="btn-primary">Adicionar</button>
         </div>
 
@@ -754,15 +792,22 @@
     const db = firebase.firestore();
 
     // Estado e Configuração
-    let categoriasFixas = [
-        {name: 'Escola', icon: 'graduation-cap'},
+    let categoriasReceitas = [
+        {name: 'Salário 1', icon: 'dollar-sign'},
+        {name: 'Salário 2', icon: 'briefcase'},
+        {name: 'Renda Extra', icon: 'plus-circle'}
+    ];
+    let categoriasDespesas = [
+        {name: 'Escola', icon: 'book'},
         {name: 'Água', icon: 'droplet'},
         {name: 'Luz', icon: 'zap'},
         {name: 'Internet', icon: 'wifi'},
         {name: 'Casa', icon: 'home'},
         {name: 'Seguro', icon: 'shield'}
     ];
+    
     let selectedIcon = 'zap';
+    let modalAbaAtual = 'receita'; // 'receita' ou 'despesa'
     let chartDoughnut = null, chartBar = null;
     let confirmCallback = null; 
     let agendaAtual = []; 
@@ -829,19 +874,29 @@
         setTimeout(function(){ t.className = t.className.replace("show", ""); }, 3000);
     }
 
-    // --- CATEGORIAS & MODAL ---
+    // --- CATEGORIAS & MODAL (RECEITAS / DESPESAS) ---
     const modal = document.getElementById('modalCategorias');
+    
+    // Abrir Modal
     document.getElementById('btnGerenciarCategorias').addEventListener('click', () => {
-        renderizarTagsCategorias();
+        mudarAbaCategoria('receita'); // Default
         modal.classList.add('open');
     });
+
+    // Fechar Modal e Salvar
     document.getElementById('btnFecharModal').addEventListener('click', async () => {
         modal.classList.remove('open');
-        renderizarInputsFixos();
-        await db.collection('financas').doc(getMesId()).set({ categoriasConfig: categoriasFixas }, { merge: true });
+        // Salva ambas as listas
+        await db.collection('financas').doc(getMesId()).set({ 
+            categoriasReceitas: categoriasReceitas,
+            categoriasDespesas: categoriasDespesas 
+        }, { merge: true });
+        
+        renderizarInputsFixos(); // Atualiza UI de inputs
         carregarValoresInputs();
     });
 
+    // Seleção de Ícone
     document.querySelectorAll('.icon-option').forEach(opt => {
         opt.addEventListener('click', () => {
             document.querySelectorAll('.icon-option').forEach(o => o.classList.remove('selected'));
@@ -850,52 +905,67 @@
         });
     });
 
+    // Adicionar Categoria
     document.getElementById('btnAddCategoria').addEventListener('click', async () => {
         const val = document.getElementById('novaCategoriaInput').value.trim();
-        if(val && !categoriasFixas.some(c => c.name === val)) {
-            categoriasFixas.push({ name: val, icon: selectedIcon });
+        const listaAtual = modalAbaAtual === 'receita' ? categoriasReceitas : categoriasDespesas;
+        
+        if(val && !listaAtual.some(c => c.name === val)) {
+            listaAtual.push({ name: val, icon: selectedIcon });
             document.getElementById('novaCategoriaInput').value = '';
-            renderizarTagsCategorias();
+            renderizarTagsCategorias(modalAbaAtual);
             
-            // Save immediately
-            await db.collection('financas').doc(getMesId()).set({ categoriasConfig: categoriasFixas }, { merge: true });
+            // Salvar Imediatamente
+            await db.collection('financas').doc(getMesId()).set({ 
+                categoriasReceitas: categoriasReceitas,
+                categoriasDespesas: categoriasDespesas 
+            }, { merge: true });
             
             renderizarInputsFixos();
         }
     });
 
-    // CORREÇÃO CRÍTICA: LIXEIRA CATEGORIAS
-    function renderizarTagsCategorias() {
+    // Função para mudar aba no modal
+    window.mudarAbaCategoria = function(tipo) {
+        modalAbaAtual = tipo;
+        document.getElementById('tabReceitas').classList.toggle('active', tipo === 'receita');
+        document.getElementById('tabDespesas').classList.toggle('active', tipo === 'despesa');
+        renderizarTagsCategorias(tipo);
+    };
+
+    function renderizarTagsCategorias(tipo) {
         const container = document.getElementById('containerTagsCategorias');
         container.innerHTML = '';
-        categoriasFixas.forEach((cat, index) => {
+        const lista = tipo === 'receita' ? categoriasReceitas : categoriasDespesas;
+
+        lista.forEach((cat, index) => {
             const div = document.createElement('div');
             div.className = 'category-tag';
             div.innerHTML = `<i data-lucide="${cat.icon || 'circle'}" style="width:14px; margin-right:5px; color:var(--text-secondary)"></i> ${cat.name}`;
             
-            // Criar um wrapper para o botão de exclusão
+            // Botão Excluir
             const btnRemove = document.createElement('span');
             btnRemove.className = 'remove-wrapper';
             btnRemove.innerHTML = `<i data-lucide="trash-2" style="width:16px; height:16px; color:var(--text-secondary)"></i>`;
             
             btnRemove.onclick = () => {
                 showConfirmModal(async () => {
-                    // 1. Remove da lista local
-                    const removedCat = categoriasFixas.splice(index, 1)[0];
-                    renderizarTagsCategorias();
+                    const removedCat = lista.splice(index, 1)[0];
+                    renderizarTagsCategorias(tipo);
                     
-                    // 2. Calcula o ID do campo no banco de dados para deletar o valor
-                    const idSafe = 'fix_' + removedCat.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    // ID Seguro para deletar do banco
+                    const prefix = tipo === 'receita' ? 'rec_' : 'fix_';
+                    const idSafe = prefix + removedCat.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
                     
-                    // 3. Atualiza Firebase: Salva nova lista E deleta o campo de valor
+                    // Update Firebase
                     await db.collection('financas').doc(getMesId()).update({
-                        categoriasConfig: categoriasFixas,
+                        categoriasReceitas: categoriasReceitas,
+                        categoriasDespesas: categoriasDespesas,
                         [idSafe]: firebase.firestore.FieldValue.delete()
                     });
 
-                    // 4. Atualiza UI
                     renderizarInputsFixos();
-                    recarregarTudo(); // Recarrega para garantir que totais batam
+                    recarregarTudo(); 
                 });
             };
             
@@ -905,13 +975,32 @@
         lucide.createIcons();
     }
 
+    // Renderiza inputs na tela principal (Receitas e Despesas)
     function renderizarInputsFixos() {
-        const container = document.getElementById('containerDespesasFixas');
-        container.innerHTML = '';
-        categoriasFixas.forEach(cat => {
-            if(!cat.name) return;
+        const containerRec = document.getElementById('containerReceitas');
+        const containerDesp = document.getElementById('containerDespesasFixas');
+        
+        containerRec.innerHTML = '';
+        containerDesp.innerHTML = '';
+
+        // Receitas
+        categoriasReceitas.forEach(cat => {
             const safeName = cat.name;
-            const idSafe = 'fix_' + safeName.toLowerCase().replace(/[^a-z0-9]/g, '_'); 
+            const idSafe = 'rec_' + safeName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            const div = document.createElement('div');
+            div.className = 'input-wrapper has-icon';
+            div.innerHTML = `
+                <label>${safeName}</label>
+                <i data-lucide="${cat.icon || 'dollar-sign'}" class="icon-left"></i>
+                <input type="number" id="${idSafe}" data-cat="${safeName}" class="receita-input" placeholder="0,00">
+            `;
+            containerRec.appendChild(div);
+        });
+
+        // Despesas
+        categoriasDespesas.forEach(cat => {
+            const safeName = cat.name;
+            const idSafe = 'fix_' + safeName.toLowerCase().replace(/[^a-z0-9]/g, '_');
             const div = document.createElement('div');
             div.className = 'input-wrapper has-icon';
             div.innerHTML = `
@@ -919,12 +1008,38 @@
                 <i data-lucide="${cat.icon || 'circle'}" class="icon-left"></i>
                 <input type="number" id="${idSafe}" data-cat="${safeName}" class="despesa-input" placeholder="0,00">
             `;
-            container.appendChild(div);
+            containerDesp.appendChild(div);
         });
+
         lucide.createIcons();
-        document.querySelectorAll('.despesa-input').forEach(input => {
-            input.addEventListener('input', calcularFinanceiro);
+        
+        // Listeners para Receitas (Display Update only) e Despesas (Auto-save)
+        document.querySelectorAll('.receita-input').forEach(input => input.addEventListener('input', atualizarTotaisTelaFinanceiro));
+        document.querySelectorAll('.despesa-input').forEach(input => input.addEventListener('input', calcularFinanceiro));
+    }
+
+    // --- FUNÇÃO PARA ATUALIZAR TOTAIS NA TELA (SEM SALVAR) ---
+    function atualizarTotaisTelaFinanceiro() {
+        let totalReceitas = 0;
+        let totalDespesas = 0;
+
+        document.querySelectorAll('.receita-input').forEach(i => totalReceitas += parseFloat(i.value) || 0);
+        document.querySelectorAll('.despesa-input').forEach(i => {
+            if(i.id !== 'cartaoCredito') totalDespesas += parseFloat(i.value) || 0;
         });
+        totalDespesas += parseFloat(document.getElementById('cartaoCredito').value) || 0;
+
+        document.getElementById('displayTotalReceitas').innerText = fmt(totalReceitas);
+        document.getElementById('displayTotalDespesas').innerText = fmt(totalDespesas);
+        
+        const saldo = totalReceitas - totalDespesas;
+        const elSaldo = document.getElementById('displaySaldoFinanceiro');
+        elSaldo.innerText = fmt(saldo);
+        
+        // Cor do Saldo
+        elSaldo.classList.remove('text-success', 'text-danger');
+        if(saldo >= 0) elSaldo.classList.add('text-success');
+        else elSaldo.classList.add('text-danger');
     }
 
     // --- CALENDÁRIO & AGENDA ---
@@ -1017,71 +1132,85 @@
         carregarListas(); 
     });
 
-    // --- COFRE ---
-    let vaultData = [];
+    // --- COFRE (Lógica Refeita) ---
     const VAULT_KEY = 'fintech_vault_data';
     const VAULT_PASS_KEY = 'fintech_vault_master_pass';
-    
-    // Check initial load
-    if(localStorage.getItem(VAULT_KEY)) { try { vaultData = JSON.parse(localStorage.getItem(VAULT_KEY)); } catch(e){} }
+    let vaultData = [];
+
+    // Carrega dados se existirem
+    if(localStorage.getItem(VAULT_KEY)) { 
+        try { vaultData = JSON.parse(localStorage.getItem(VAULT_KEY)); } catch(e){} 
+    }
 
     function checkVaultStatus() {
         const masterPass = localStorage.getItem(VAULT_PASS_KEY);
+        const title = document.getElementById('vaultTitle');
+        const msg = document.getElementById('vaultMsg');
+        const btnUnlock = document.getElementById('btnUnlockVault');
+        const btnRegister = document.getElementById('btnRegisterVault');
+        const btnReset = document.getElementById('btnResetVault');
+        const errorMsg = document.getElementById('vaultError');
+
+        errorMsg.style.display = 'none';
+        document.getElementById('vaultPassword').value = '';
+
         if (!masterPass) {
-            document.getElementById('vaultTitle').innerText = 'Configurar Senha Mestre';
-            document.getElementById('vaultMsg').innerText = 'Crie uma senha para proteger o cofre.';
-            document.getElementById('btnUnlockVault').innerText = 'Criar';
-            document.getElementById('vaultError').style.display = 'none';
+            // Modo Cadastro
+            title.innerText = 'Criar Senha Mestre';
+            msg.innerText = 'Crie uma senha para proteger seus dados.';
+            btnUnlock.innerText = 'Cadastrar';
+            btnRegister.style.display = 'none';
+            btnReset.style.display = 'none';
+            
+            // Remove listeners antigos e adiciona novo para cadastro
+            btnUnlock.onclick = cadastrarSenha;
         } else {
-            document.getElementById('vaultTitle').innerText = 'Área Protegida';
-            document.getElementById('vaultMsg').innerText = 'Digite a senha mestre.';
-            document.getElementById('btnUnlockVault').innerText = 'Entrar';
+            // Modo Login
+            title.innerText = 'Cofre Protegido';
+            msg.innerText = 'Digite sua senha para entrar.';
+            btnUnlock.innerText = 'Entrar';
+            btnRegister.style.display = 'none';
+            btnReset.style.display = 'block';
+            
+            // Remove listeners antigos e adiciona novo para login
+            btnUnlock.onclick = tentarEntrar;
         }
     }
 
-    // Reset do Cofre
-    window.resetVault = function() {
-        showConfirmModal(() => {
-            localStorage.removeItem(VAULT_PASS_KEY);
-            // Opcional: localStorage.removeItem(VAULT_KEY); // Se quiser limpar dados
-            alert('Senha resetada. Configure uma nova senha.');
-            lockVault();
-            checkVaultStatus();
-        });
-    };
+    function cadastrarSenha() {
+        const input = document.getElementById('vaultPassword').value;
+        if(input.length < 3) { alert('Senha muito curta!'); return; }
+        localStorage.setItem(VAULT_PASS_KEY, input);
+        alert('Senha cadastrada com sucesso!');
+        unlockVault();
+    }
 
-    document.getElementById('btnUnlockVault').addEventListener('click', () => {
+    function tentarEntrar() {
         const input = document.getElementById('vaultPassword').value;
         const masterPass = localStorage.getItem(VAULT_PASS_KEY);
-        
-        if (!input) return;
-        
-        if (!masterPass) {
-            // Criar senha
-            localStorage.setItem(VAULT_PASS_KEY, input);
-            alert('Senha criada! Não a esqueça.');
+        if(input === masterPass) {
             unlockVault();
         } else {
-            // Verificar senha
-            if (input === masterPass) {
-                unlockVault();
-            } else {
-                document.getElementById('vaultError').style.display = 'block';
-            }
+            document.getElementById('vaultError').style.display = 'block';
+        }
+    }
+
+    document.getElementById('btnResetVault').addEventListener('click', () => {
+        if(confirm('Tem certeza? Isso resetará a senha, mas manterá os dados salvos.')) {
+            localStorage.removeItem(VAULT_PASS_KEY);
+            checkVaultStatus();
         }
     });
 
     function unlockVault() {
         document.getElementById('vaultLockScreen').style.display = 'none';
         document.getElementById('vaultContent').style.display = 'block';
-        document.getElementById('vaultError').style.display = 'none';
-        document.getElementById('vaultPassword').value = '';
         renderVaultList();
     }
     function lockVault() {
         document.getElementById('vaultLockScreen').style.display = 'flex';
         document.getElementById('vaultContent').style.display = 'none';
-        document.getElementById('vaultError').style.display = 'none';
+        checkVaultStatus(); // Re-inicia estado
     }
 
     document.getElementById('formVaultAdd').addEventListener('submit', (e) => {
@@ -1117,12 +1246,8 @@
     // --- ZERAR DADOS DO MÊS ---
     window.zerarDadosMes = function() {
         showConfirmModal(async () => {
-            // Deleta o documento inteiro do mês no Firebase
             await db.collection('financas').doc(getMesId()).delete();
-            
-            // Reseta a UI
             document.querySelectorAll('input').forEach(i => i.value = '');
-            // Recarrega defaults (categorias) se existirem em outro lugar ou reinicia
             recarregarTudo();
             alert('Dados do mês limpos!');
         });
@@ -1162,9 +1287,10 @@
     // --- LÓGICA GERAL ---
     async function recarregarTudo() {
         const doc = await db.collection('financas').doc(getMesId()).get();
-        if(doc.exists && doc.data().categoriasConfig) {
-            let loaded = doc.data().categoriasConfig;
-            categoriasFixas = loaded.map(c => typeof c === 'string' ? {name:c, icon:'circle'} : c);
+        if(doc.exists) {
+            const data = doc.data();
+            if(data.categoriasReceitas) categoriasReceitas = data.categoriasReceitas;
+            if(data.categoriasDespesas) categoriasDespesas = data.categoriasDespesas;
         }
         renderizarInputsFixos();
         carregarValoresInputs();
@@ -1176,19 +1302,28 @@
         const doc = await db.collection('financas').doc(getMesId()).get();
         if(doc.exists) {
             const data = doc.data();
-            ['salario1', 'salario2', 'rendaExtra', 'cartaoCredito', 'valorTotalVA'].forEach(id => { if(data[id]) document.getElementById(id).value = data[id]; });
+            if(data.cartaoCredito) document.getElementById('cartaoCredito').value = data.cartaoCredito;
+            if(data.valorTotalVA) document.getElementById('valorTotalVA').value = data.valorTotalVA;
+            
+            // Carrega dinâmicos
+            document.querySelectorAll('.receita-input').forEach(input => { if(data[input.id]) input.value = data[input.id]; });
             document.querySelectorAll('.despesa-input').forEach(input => { if(data[input.id]) input.value = data[input.id]; });
+            
+            // Atualiza resumo
+            atualizarTotaisTelaFinanceiro();
         } else {
-            // Limpa se não houver dados
             document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+            atualizarTotaisTelaFinanceiro();
         }
     }
 
     // NOVA FUNÇÃO: SALVAR ENTRADAS MANUALMENTE
     async function salvarEntradas() {
         let rec = 0, data = {};
-        ['salario1', 'salario2', 'rendaExtra'].forEach(id => { 
-            const v = parseFloat(document.getElementById(id).value)||0; rec+=v; data[id]=v; 
+        document.querySelectorAll('.receita-input').forEach(i => {
+            const v = parseFloat(i.value)||0;
+            rec += v;
+            data[i.id] = v;
         });
         
         data.totalReceitas = rec;
@@ -1201,7 +1336,6 @@
     async function calcularFinanceiro() {
         let desp = 0, data = {};
         
-        // Apenas despesas agora auto-salvam (ou podemos migrar tbm), mantendo lógica original para despesas
         document.querySelectorAll('.despesa-input').forEach(i => { 
             const v = parseFloat(i.value)||0; 
             if(i.id!=='cartaoCredito') desp+=v; 
@@ -1211,11 +1345,9 @@
         data.totalDespesasFixas = desp;
         await db.collection('financas').doc(getMesId()).set(data, {merge:true});
         carregarDashboard();
+        atualizarTotaisTelaFinanceiro(); // Atualiza tela localmente também
     }
-    // Removido listener automatico de receitas
-    // document.querySelectorAll('.receita-input').forEach(i => i.addEventListener('input', calcularFinanceiro));
     
-    document.querySelectorAll('.despesa-input').forEach(i => i.addEventListener('input', calcularFinanceiro));
     document.getElementById('cartaoCredito').addEventListener('input', calcularFinanceiro);
 
     document.getElementById('valorTotalVA').addEventListener('input', async (e) => {
@@ -1287,9 +1419,6 @@
             if(dt.listaAbastecimento) c += dt.listaAbastecimento.reduce((a,b)=>a+(parseFloat(b.gasValorTotal)||0),0);
             if(dt.listaManutencao) c += dt.listaManutencao.reduce((a,b)=>a+(parseFloat(b.manutencaoValor)||0),0);
             d = f + m + c + cc;
-        } else {
-            // Se não existe documento, zera tudo visualmente
-            r = 0; d = 0;
         }
 
         document.getElementById('totalReceitasPrincipal').innerText = fmt(r);
@@ -1396,7 +1525,7 @@
     document.addEventListener('DOMContentLoaded', () => { 
         renderizarInputsFixos(); 
         recarregarTudo(); 
-        checkVaultStatus(); // Verifica status do cofre ao carregar
+        checkVaultStatus(); 
     });
 </script>
 </body>
