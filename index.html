@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Controle Z</title>
+    <title>Controle Financeiro</title>
     
-    <!-- Bibliotecas Externas (Carregam em segundo plano) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js" defer></script>
+    <!-- Bibliotecas Externas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     
+    <!-- Firebase (Compat v9) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
 
@@ -19,189 +23,206 @@
             --font-title: 'Chakra Petch', sans-serif;
         }
 
-        /* --- TEMA PADRÃO (DARK) --- */
+        /* --- ANIMAÇÃO SSJ --- */
+        @keyframes shakeHard {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(-5px, -5px) rotate(-1deg); }
+            20% { transform: translate(5px, 5px) rotate(1deg); }
+            30% { transform: translate(-5px, 5px) rotate(0deg); }
+            40% { transform: translate(5px, -5px) rotate(1deg); }
+            50% { transform: translate(-5px, 0px) rotate(-1deg); }
+            60% { transform: translate(5px, 0px) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        @keyframes flashBang {
+            0% { opacity: 0; }
+            10% { opacity: 1; background: #fff; }
+            30% { opacity: 0.8; background: #ffff00; } /* Amarelo Raio */
+            50% { opacity: 0.9; background: #fff; }
+            100% { opacity: 0; }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body.transforming { animation: shakeHard 0.2s infinite; }
+        #flash-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 99999; opacity: 0; }
+        body.transforming #flash-overlay { animation: flashBang 2s ease-out; }
+
+        /* --- TEMAS E FUNDO --- */
         body {
             background-color: #1a2035;
             background-image: url('https://i.pinimg.com/736x/69/68/3f/69683f67bbde5da0e76957fa8c2f28a5.jpg');
-            background-size: cover;
-            background-position: center;
+            background-size: cover; 
+            background-position: center center;
+            background-repeat: no-repeat;
             background-attachment: fixed;
-            color: #fff;
-            font-family: var(--font-main);
-            margin: 0; padding: 0;
-            height: 100vh; width: 100vw;
+            color: #fff; font-family: var(--font-main);
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
             overflow: hidden; display: flex; flex-direction: column;
-            position: absolute; top:0; left:0; right:0; bottom:0;
-        }
-
-        /* Classes de Tema */
-        body.theme-light {
-            background-image: url('https://wallpapers.com/images/hd/dbz-son-goku-transformations-9llax3evn2xks53i.jpg');
-            color: #1e293b;
-            --overlay: rgba(255,255,255,0.9);
-            --card: #fff;
-            --border: #e2e8f0;
-        }
-        body.theme-ssj {
-            background-image: url('https://preview.redd.it/ihv076kym8q61.jpg?width=1080&crop=smart&auto=webp&s=d9480d7530ae38848bac72962f28a545d05c89db');
-            color: #fffbeb;
-            --overlay: rgba(40, 30, 0, 0.85);
-            --card: rgba(60, 40, 0, 0.9);
-            --border: #fbbf24;
-        }
-        
-        /* Variáveis Dinâmicas */
-        body {
-            --overlay: rgba(13, 15, 20, 0.9);
-            --card: rgba(30, 35, 50, 0.95);
-            --accent: #ff7e00;
+            position: absolute; inset: 0;
+            --overlay: rgba(13, 15, 20, 0.9); 
+            --card: rgba(30, 35, 50, 0.95); 
+            --accent: #ff7e00; 
             --border: rgba(255,255,255,0.1);
         }
 
-        .app-overlay {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--overlay); z-index: 0;
-            /* CRUCIAL: Garante que o clique atravesse o fundo */
-            pointer-events: none; 
+        body.theme-light {
+            background-image: url('https://wallpapers.com/images/hd/dbz-son-goku-transformations-9llax3evn2xks53i.jpg');
+            color: #1e293b; --overlay: rgba(255,255,255,0.9); --card: #fff; --border: #e2e8f0;
         }
+        body.theme-ssj {
+            background-image: url('https://preview.redd.it/ihv076kym8q61.jpg?width=1080&crop=smart&auto=webp&s=d9480d7530ae38848bac72962f28a545d05c89db');
+            color: #fffbeb; --overlay: rgba(40, 30, 0, 0.8); --card: rgba(60, 40, 0, 0.9); --border: #fbbf24; --accent: #fbbf24;
+        }
+        
+        .app-overlay { position: absolute; inset: 0; background: var(--overlay); z-index: 0; pointer-events: none; }
 
         /* --- HEADER --- */
         .top-bar {
             height: 60px; display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px; z-index: 20; background: rgba(0,0,0,0.3);
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-            position: relative; /* Garante clique */
+            padding: 0 15px; z-index: 20; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border); flex-shrink: 0;
         }
-        .logo { font-family: var(--font-title); font-weight: 800; font-size: 1.2em; color: var(--accent); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+        .logo { font-family: var(--font-title); font-weight: 800; font-size: 1.1em; color: var(--accent); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
         .logo span { background: var(--accent); color: #fff; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid #fff; }
 
         .controls { display: flex; gap: 8px; align-items: center; }
-        .icon-btn { width: 34px; height: 34px; background: var(--card); border: 1px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent); z-index: 21;}
+        .icon-btn { width: 34px; height: 34px; background: var(--card); border: 1px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent); z-index: 21; }
         .icon-btn svg { width: 18px; height: 18px; }
+        
+        input[type="month"] {
+            background: rgba(255,255,255,0.1); border: 1px solid var(--accent); border-radius: 8px;
+            padding: 4px 8px; color: inherit; font-family: var(--font-title); font-weight: 700;
+            width: auto; font-size: 0.8em; text-transform: uppercase;
+        }
 
         /* --- CONTENT --- */
         .main-content { flex-grow: 1; position: relative; z-index: 10; overflow: hidden; padding-bottom: 80px; display: flex; flex-direction: column; }
         .scroll-area { flex-grow: 1; overflow-y: auto; padding: 15px; }
 
-        /* --- CARDS --- */
-        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        /* Cards */
+        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .card { background: var(--card); padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .card h3 { margin: 0 0 5px 0; font-size: 0.65em; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; }
-        .card .val { font-size: 0.9em; font-weight: 800; word-break: break-all; }
+        .card h3 { margin: 0 0 5px 0; font-size: 0.6em; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; }
+        .card .val { font-size: 0.85em; font-weight: 800; word-break: break-all; }
         .c-orange { color: #ff7e00; border-top: 3px solid #ff7e00; }
         .c-green { color: #10b981; border-top: 3px solid #10b981; }
         .c-red { color: #ef4444; border-top: 3px solid #ef4444; }
         .c-blue { color: #3b82f6; border-top: 3px solid #3b82f6; }
 
-        /* --- LISTAS --- */
+        /* GRID DE TRANSAÇÕES */
+        .section-title {
+            font-family: var(--font-title); font-size: 0.9em; margin: 15px 0 5px 0; 
+            color: var(--accent); text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 1px solid var(--border); padding-bottom: 5px;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .trans-card { 
+            background: var(--card); padding: 10px; border-radius: 10px; 
+            display: flex; flex-direction: column; justify-content: space-between;
+            border: 1px solid var(--border); position: relative;
+            animation: slideIn 0.3s ease-out; height: 100px;
+        }
+        .trans-card.receita { border-top: 3px solid #10b981; }
+        .trans-card.despesa { border-top: 3px solid #ef4444; }
+        .trans-card.paid { opacity: 0.6; border-top-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        
+        .tc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .tc-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .tc-val { font-weight: 800; font-size: 1.1em; margin-top: auto; }
+        .tc-desc { font-size: 0.8em; line-height: 1.1; margin-bottom: 2px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tc-date { font-size: 0.65em; opacity: 0.7; }
+        
+        .tc-actions { position: absolute; bottom: 8px; right: 8px; display: flex; gap: 8px; }
+        .btn-action { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; background: rgba(0,0,0,0.2); }
+        .btn-check { color: #10b981; border: 1px solid #10b981; }
+        .btn-check.active { background: #10b981; color: #fff; }
+        .btn-trash { color: #ef4444; border: 1px solid #ef4444; }
+
+        /* Listas Simples */
         .list-item { 
-            background: var(--card); margin-bottom: 10px; padding: 12px; border-radius: 10px; 
+            background: var(--card); margin-bottom: 8px; padding: 10px; border-radius: 10px; 
             display: flex; justify-content: space-between; align-items: center;
             border-left: 4px solid transparent; border-bottom: 1px solid var(--border);
         }
-        .list-item.in { border-left-color: #10b981; }
         .list-item.out { border-left-color: #ef4444; }
-        .list-item.paid { border-left-color: #3b82f6; opacity: 0.7; }
         
-        .item-left { display: flex; align-items: center; gap: 12px; }
-        .icon-box { width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
-        .item-info strong { display: block; font-size: 0.95em; }
-        .item-info small { font-size: 0.75em; opacity: 0.7; }
-        .item-right { text-align: right; }
-        .item-val { font-weight: 800; font-size: 0.95em; }
-
-        /* --- BOTTOM NAV (DRAGON BALL STYLE) --- */
+        /* --- NAV FLUTUANTE --- */
         .bottom-nav {
-            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
-            width: 95%; max-width: 450px; 
-            background: rgba(0,0,0,0.6); 
-            border-radius: 50px; padding: 5px 15px;
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            width: 95%; max-width: 400px; background: rgba(26, 32, 53, 0.95);
+            border-radius: 40px; padding: 5px 20px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5); 
-            border: 1px solid rgba(255,255,255,0.1);
-            z-index: 100;
-            height: 70px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5); border: 2px solid var(--accent);
+            z-index: 9999; height: 65px;
         }
-        
         .nav-btn {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 50px; height: 50px; border-radius: 50%;
+            width: 45px; height: 45px; border-radius: 50%;
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             background: radial-gradient(circle at 30% 30%, #fb923c, #c2410c);
-            border: 2px solid #7c2d12;
-            color: #7c2d12;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(0,0,0,0.2);
+            border: 2px solid #7c2d12; color: #7c2d12;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
         }
-        
-        /* Brilho da Esfera */
-        .nav-btn::after {
-            content: ''; position: absolute; top: 5px; left: 5px;
-            width: 15px; height: 8px; border-radius: 50%;
-            background: rgba(255,255,255,0.4); transform: rotate(-45deg);
-            pointer-events: none;
-        }
-
-        .nav-btn svg { width: 22px; height: 22px; stroke-width: 2.5; z-index: 2; pointer-events: none; }
+        .nav-btn::after { content: ''; position: absolute; top: 5px; left: 5px; width: 12px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); transform: rotate(-45deg); pointer-events: none; }
+        .nav-btn svg { width: 20px; height: 20px; stroke-width: 2.5; z-index: 2; pointer-events: none; }
         
         .nav-btn.active {
-            transform: translateY(-25px) scale(1.2);
+            transform: translateY(-15px) scale(1.15);
             background: radial-gradient(circle at 30% 30%, #fcd34d, #f59e0b);
-            border-color: #fff;
-            color: #b45309;
-            box-shadow: 0 0 20px #fbbf24, 0 0 40px rgba(251, 191, 36, 0.4);
-            z-index: 101;
+            border-color: #fff; color: #b45309;
+            box-shadow: 0 0 15px #fbbf24; z-index: 10000;
         }
-        
         .nav-btn span { 
-            position: absolute; bottom: -20px; font-size: 0.5em; font-weight: 900; 
-            color: #fff; text-shadow: 0 2px 4px #000; opacity: 0; transition: 0.2s;
+            position: absolute; bottom: -14px; font-size: 0.55em; font-weight: 900; 
+            color: #fff; text-shadow: 0 2px 2px #000; opacity: 0; transition: 0.2s;
             white-space: nowrap; text-transform: uppercase; font-family: var(--font-title);
             pointer-events: none;
         }
-        .nav-btn.active span { opacity: 1; bottom: -25px; }
+        .nav-btn.active span { opacity: 1; bottom: -18px; }
 
         /* --- MODAL --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .modal.open { display: flex; }
         .modal-box { background: var(--card); width: 90%; max-width: 350px; padding: 20px; border-radius: 16px; border: 2px solid var(--accent); max-height: 85vh; overflow-y: auto; z-index: 201; }
         
-        .full-btn { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: 800; margin-top: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; position: relative; z-index: 20; }
+        .modal-box::-webkit-scrollbar { display: none; }
+        .modal-box { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .full-btn { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: 800; margin-top: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; font-family: var(--font-title); }
         .full-btn.red { background: #ef4444; }
-        
-        input, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: inherit; margin-bottom: 10px; font-family: inherit; z-index: 20; }
-        
-        /* Grid de Icones Expandido */
-        .icon-grid { 
-            display: grid; 
-            grid-template-columns: repeat(6, 1fr); 
-            gap: 8px; 
-            margin: 10px 0; 
-            max-height: 250px; 
-            overflow-y: auto; 
-            padding-right: 5px;
-        }
-        /* Scrollbar fina para o grid */
-        .icon-grid::-webkit-scrollbar { width: 4px; }
-        .icon-grid::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+        .full-btn.pdf { background: #ef4444; margin-bottom: 20px; font-size: 0.9em; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
 
+        input, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: inherit; margin-bottom: 8px; font-weight: 600; box-sizing: border-box; }
+        
+        /* Ajuste para inputs de data */
+        input[type="date"] {
+            font-family: var(--font-main);
+            text-transform: uppercase;
+        }
+
+        .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 10px 0; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+        .icon-grid::-webkit-scrollbar { display: none; }
         .icon-opt { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .icon-opt.selected { background: var(--accent); color: #fff; border-color: #fff; }
         .icon-opt svg { width: 20px; height: 20px; pointer-events: none; }
 
         .page { display: none; width: 100%; }
-        .page.active { display: block; animation: fade 0.3s; }
-        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Gráficos */
+        .page.active { display: block; animation: slideIn 0.3s; }
         .chart-container { height: 200px; background: rgba(0,0,0,0.1); border-radius: 12px; padding: 10px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .fab { position: fixed; bottom: 90px; right: 20px; width: 55px; height: 55px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; border: 3px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 90; cursor: pointer; }
 
-        /* Floating Action Button */
-        .fab { position: fixed; bottom: 100px; right: 20px; width: 50px; height: 50px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 90; cursor: pointer; }
-        
+        .type-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; opacity: 0.4; transition: 0.2s; }
+        .type-btn.active { opacity: 1; transform: scale(1.05); }
+
         /* NUMPAD */
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 250px; margin: 20px auto; }
         .num-btn {
@@ -213,23 +234,29 @@
         .num-btn.ok { background: var(--accent); color: #fff; }
         .num-btn.del { background: #ef4444; color: #fff; }
 
-        /* PIN DOTS */
         .pin-display { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
         .pin-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--accent); transition: 0.2s; }
         .pin-dot.filled { background: var(--accent); box-shadow: 0 0 10px var(--accent); transform: scale(1.2); }
+
+        /* Confirm Modal Customizado */
+        #confirm-modal { display: none; }
     </style>
 </head>
 <body class="theme-dark">
 
+<div id="flash-overlay"></div>
 <div class="app-overlay"></div>
 
 <!-- HEADER -->
 <div class="top-bar">
-    <div class="logo"><span>$</span> CONTROLE Z</div>
+    <div class="logo">
+        <span style="background:var(--accent); color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #fff;">$</span>
+        CONTROLE FINANCEIRO
+    </div>
     <div class="controls">
         <div class="icon-btn" onclick="toggleMute()"><span id="muteIcon">🔊</span></div>
         <div class="icon-btn" onclick="toggleTheme()">⚡</div>
-        <input type="month" id="mesSelect" style="width: 110px; background: #fff; color: #000;">
+        <input type="month" id="mesSelect">
     </div>
 </div>
 
@@ -245,13 +272,18 @@
                 <div class="card c-red"><h3>Despesa</h3><div class="val" id="dDesp">0</div></div>
             </div>
             
-            <button class="full-btn" onclick="gerarPDF()" style="margin-bottom: 20px; background: #3b82f6;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                BAIXAR RELATÓRIO PDF
+            <button class="full-btn pdf" onclick="gerarPDF()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                BAIXAR PDF
             </button>
 
-            <div class="chart-container"><canvas id="cHomeBar"></canvas></div>
-            <div class="chart-container"><canvas id="cHomePie"></canvas></div>
+            <!-- Grafico 1: Receita vs Despesa (Pizza) -->
+            <h3 class="section-title">Resumo Geral</h3>
+            <div class="chart-container"><canvas id="cHomePieMain"></canvas></div>
+
+            <!-- Grafico 2: Evolução (Linha) -->
+            <h3 class="section-title">Evolução Mensal</h3>
+            <div class="chart-container"><canvas id="cHomeLine"></canvas></div>
         </div>
 
         <!-- GRANA -->
@@ -261,19 +293,56 @@
                 <div class="card c-red"><h3>Saída</h3><div class="val" id="gSai">0</div></div>
                 <div class="card c-blue"><h3>Pago</h3><div class="val" id="gPag">0</div></div>
             </div>
-            <div id="listGrana"></div>
+            
+            <div id="listGrana">
+                <!-- Preenchido via JS -->
+            </div>
+            
             <div class="fab" onclick="openModal('modalTrans')">+</div>
         </div>
 
         <!-- MERCADO -->
         <div id="p-mercado" class="page">
-            <div class="card c-orange" style="margin-bottom: 15px;"><h3>Total Carrinho</h3><div class="val" id="mMontante">R$ 0,00</div></div>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="mItem" placeholder="Item" style="flex:2">
-                <input type="number" id="mQtd" placeholder="Q" style="flex:1">
-                <input type="number" id="mVal" placeholder="$" style="flex:1">
+            <div class="card c-orange" style="margin-bottom: 10px;">
+                <h3>Total Carrinho</h3><div class="val" id="mMontante">R$ 0,00</div>
             </div>
-            <button class="full-btn" onclick="addMercado()">Adicionar Item</button>
+            
+            <div class="card c-blue" style="margin-bottom: 10px; background: rgba(59, 130, 246, 0.1); border-color: #3b82f6;">
+                <h3>Total Benefícios (VR + VA)</h3>
+                <div class="val" id="mTotalBeneficios">R$ 0,00</div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <div class="card c-blue" style="flex:1">
+                    <h3>Refeição</h3>
+                    <input type="number" id="saldoVR" placeholder="R$ 0,00" style="background:transparent; border:none; text-align:center; font-weight:800; color:inherit; padding:0; margin:0;" onchange="saveSaldos()">
+                </div>
+                <div class="card c-green" style="flex:1">
+                    <h3>Alimentação</h3>
+                    <input type="number" id="saldoVA" placeholder="R$ 0,00" style="background:transparent; border:none; text-align:center; font-weight:800; color:inherit; padding:0; margin:0;" onchange="saveSaldos()">
+                </div>
+            </div>
+
+            <div style="background:var(--card); padding:10px; border-radius:10px; border:1px solid var(--border);">
+                <div style="display: flex; gap: 5px; margin-bottom:5px;">
+                    <input type="text" id="mItem" placeholder="Item" style="flex:2">
+                    <input type="number" id="mQtd" placeholder="Q" style="flex:1">
+                    <input type="number" id="mVal" placeholder="$" style="flex:1">
+                </div>
+                
+                <!-- SELEÇÃO DE CARTÃO ATUALIZADA -->
+                <select id="mCard" style="margin-bottom:5px;">
+                    <option value="none">Selecione o Pagamento...</option>
+                    <option value="Credito">Cartão de Crédito</option>
+                    <option value="Debito">Cartão de Débito</option>
+                    <option value="Dinheiro">Dinheiro/PIX</option>
+                    <option value="VR">Vale Refeição (Descontar)</option>
+                    <option value="VA">Vale Alimentação (Descontar)</option>
+                </select>
+                
+                <button class="full-btn" onclick="addMercado()">Adicionar</button>
+            </div>
+
             <div id="listMercado" style="margin-top: 15px;"></div>
             <button class="full-btn red" onclick="limparMercado()">Limpar Tudo</button>
         </div>
@@ -281,54 +350,64 @@
         <!-- CARRO -->
         <div id="p-carro" class="page">
             <div class="grid-stats">
-                <div class="card c-blue"><h3>Consumo</h3><div class="val" id="cKm">--</div></div>
+                <div class="card c-blue"><h3>Km/L</h3><div class="val" id="cKm">--</div></div>
                 <div class="card c-orange"><h3>Gasto</h3><div class="val" id="cGasto">0</div></div>
             </div>
-            <div class="chart-container"><canvas id="cCarro"></canvas></div>
+            
+            <h3 class="section-title">Gastos por Mês</h3>
+            <div class="chart-container"><canvas id="cCarroMes"></canvas></div>
+
             <div style="display: flex; gap: 10px;">
                 <button class="full-btn" onclick="toggleId('formGas')">Abastecer</button>
                 <button class="full-btn red" onclick="toggleId('formMan')">Manutenção</button>
             </div>
-            <div id="formGas" style="display:none; background:var(--card); padding:10px; margin-top:10px; border-radius:10px;">
+            
+            <div id="formGas" style="display:none; background:var(--card); padding:10px; margin-top:10px; border-radius:10px; border:1px solid var(--border);">
                 <input type="date" id="gData">
                 <input type="number" id="gKm" placeholder="KM Atual">
+                
+                <!-- Seleção de Combustivel -->
+                <select id="gTipo" style="margin-bottom:8px;">
+                    <option value="Gasolina">Gasolina</option>
+                    <option value="Etanol">Etanol</option>
+                </select>
+
                 <input type="number" id="gLit" placeholder="Litros">
                 <input type="number" id="gVal" placeholder="Valor Total">
-                <button class="full-btn" onclick="addGas()">Salvar</button>
+                <button class="full-btn" onclick="addGas()">Salvar Abastecimento</button>
             </div>
-            <div id="formMan" style="display:none; background:var(--card); padding:10px; margin-top:10px; border-radius:10px;">
+
+            <div id="formMan" style="display:none; background:var(--card); padding:10px; margin-top:10px; border-radius:10px; border:1px solid var(--border);">
                 <input type="text" id="manDesc" placeholder="Descrição">
                 <input type="number" id="manVal" placeholder="Valor">
-                <button class="full-btn" onclick="addMan()">Salvar</button>
+                <button class="full-btn" onclick="addMan()">Salvar Manutenção</button>
             </div>
             <div id="listCarro" style="margin-top: 15px;"></div>
         </div>
 
         <!-- COFRE -->
         <div id="p-cofre" class="page">
-            <div id="vaultLock" style="text-align: center; margin-top: 50px;">
-                <h2>🔒 COFRE Z</h2>
-                <input type="password" id="vPin" placeholder="PIN" style="font-size: 2em; text-align: center; letter-spacing: 5px; width: 150px; margin-bottom: 20px; display:none;">
+            <div id="vaultLock" style="text-align: center; margin-top: 30px;">
+                <h2>🔒 COFRE</h2>
+                <input type="password" id="vPin" placeholder="PIN" readonly style="font-size: 2em; text-align: center; letter-spacing: 5px; width: 150px; margin-bottom: 20px; background: transparent; border:none; color:var(--accent);">
                 
-                <!-- PIN DOTS -->
-                <div class="pin-display">
-                    <div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div><div class="pin-dot" id="pd4"></div>
+                <div class="numpad" id="numpad-container">
+                    <!-- JS GERA -->
                 </div>
-
-                <div class="numpad">
-                    <!-- Teclado numérico gerado via JS -->
-                </div>
-                <p onclick="resetVault()" style="margin-top:20px; text-decoration: underline;">Resetar</p>
+                <p onclick="resetVault()" style="margin-top:20px; text-decoration: underline; cursor:pointer;">Resetar</p>
             </div>
             <div id="vaultOpen" style="display: none;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h3>Senhas</h3>
                     <button class="icon-btn" onclick="lockVault()">🔒</button>
                 </div>
-                <small style="color:#aaa">ID Recuperação: <span id="uidDisplay"></span></small>
                 <div style="margin-top: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
-                    <input type="text" id="recID" placeholder="Colar ID Antigo">
-                    <button class="full-btn" onclick="recoverData()">Recuperar Dados</button>
+                    <small>Recuperar Backup:</small>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="recID" placeholder="ID Antigo" style="margin:0">
+                        <button class="full-btn" style="width:auto; margin:0; padding:5px 15px;" onclick="recoverData()">OK</button>
+                    </div>
+                    <small style="color:#666">Seu ID: <span id="uidDisplay"></span></small>
                 </div>
                 <hr style="border-color: var(--border); margin: 15px 0;">
                 <input type="text" id="pSite" placeholder="Site">
@@ -345,23 +424,23 @@
 <!-- NAV INFERIOR -->
 <div class="bottom-nav">
     <div class="nav-btn active" onclick="nav('p-home', this)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         <span>Home</span>
     </div>
     <div class="nav-btn" onclick="nav('p-grana', this)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         <span>Grana</span>
     </div>
     <div class="nav-btn" onclick="nav('p-mercado', this)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
         <span>Mkt</span>
     </div>
     <div class="nav-btn" onclick="nav('p-carro', this)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
         <span>Carro</span>
     </div>
     <div class="nav-btn" onclick="nav('p-cofre', this)">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         <span>Cofre</span>
     </div>
 </div>
@@ -371,11 +450,12 @@
     <div class="modal-box">
         <h3 style="text-align: center; color: var(--accent);">NOVO LANÇAMENTO</h3>
         <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <button class="full-btn" id="btnRec" style="background:#10b981" onclick="setType('receita')">RECEITA</button>
-            <button class="full-btn" id="btnDes" style="background:#334155" onclick="setType('despesa')">DESPESA</button>
+            <button class="type-btn active" id="btnRec" style="background:#10b981; color:#fff;" onclick="setType('receita')">RECEITA</button>
+            <button class="type-btn" id="btnDes" style="background:#ef4444; color:#fff;" onclick="setType('despesa')">DESPESA</button>
         </div>
         <input type="text" id="tDesc" placeholder="Descrição">
         <input type="number" id="tVal" placeholder="Valor">
+        <!-- Input Date: Abre seletor de dia/mes/ano -->
         <input type="date" id="tData">
         <div class="icon-grid" id="iconPicker"></div>
         <button class="full-btn" onclick="saveTrans()">SALVAR</button>
@@ -383,13 +463,54 @@
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<!-- MODAL CONFIRM (Custom replacement for native confirm) -->
+<div id="modalConfirm" class="modal">
+    <div class="modal-box" style="text-align: center;">
+        <h3 id="confirmMsg" style="margin-bottom: 20px;">Tem certeza?</h3>
+        <div style="display: flex; gap: 10px;">
+            <button class="full-btn" id="btnConfirmYes">SIM</button>
+            <button class="full-btn red" onclick="document.getElementById('modalConfirm').classList.remove('open')">NÃO</button>
+        </div>
+    </div>
+</div>
 
 <script>
-    // --- ICONS SVG (60 ÍCONES EMBUTIDOS) ---
-    // Agora temos 60 opções nativas sem depender de biblioteca externa
-    const SVGS = {
+    // --- 1. CONFIGURAÇÃO E GLOBAIS ---
+    var firebaseConfig = {
+        apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
+        authDomain: "finan1313.firebaseapp.com",
+        projectId: "finan1313",
+        storageBucket: "finan1313.firebasestorage.app",
+        messagingSenderId: "92060764433",
+        appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
+    };
+
+    var db = null;
+    try {
+        if(typeof firebase !== 'undefined') {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        }
+    } catch (e) { console.log("Offline Mode"); }
+
+    var USER_ID = localStorage.getItem('z_uid') || 'u_' + Date.now();
+    localStorage.setItem('z_uid', USER_ID);
+
+    var dataStore = { lancamentos: [], mercado: [], carro: [], vault: [], saldos: { vr: 0, va: 0 } };
+    var currentType = 'receita';
+    var currentIcon = 'zap';
+    var pinBuffer = "";
+    var charts = {};
+    var isMuted = false;
+    
+    // Configuração Global ChartJS - Círculos na Legenda
+    if(typeof Chart !== 'undefined') {
+        Chart.defaults.plugins.legend.labels.usePointStyle = true;
+        Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+    }
+
+    // --- 2. ÍCONES SVG ---
+    var SVGS = {
         'zap': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
         'home': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
         'cart': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
@@ -403,7 +524,6 @@
         'fuel': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22v-8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8"/><path d="M11 22h4a2 2 0 0 0 2-2V4.5a2.5 2.5 0 0 0-5 0V6"/><path d="M14 12h2"/></svg>',
         'tool': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
         'lock': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
-        // --- NOVOS ÍCONES (Total ~60) ---
         'dollar': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
         'credit-card': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
         'wallet': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>',
@@ -455,96 +575,78 @@
         'droplet': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.74 5.88a7 7 0 1 1-9.9 0L12 2.69z"/></svg>'
     };
 
-    // --- FIREBASE CONFIG ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
-        authDomain: "finan1313.firebaseapp.com",
-        projectId: "finan1313",
-        storageBucket: "finan1313.firebasestorage.app",
-        messagingSenderId: "92060764433",
-        appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    let USER_ID = localStorage.getItem('mit_z_uid') || 'u_' + Date.now();
-    localStorage.setItem('mit_z_uid', USER_ID);
-
-    // --- ESTADO ---
-    let dataStore = { lancamentos: [], mercado: [], carro: [], vault: [] };
-    let currentType = 'receita';
-    let currentIcon = 'zap';
-    let pinBuffer = "";
-    let charts = {};
-    let isMuted = false;
-
-    // --- STARTUP ---
+    // --- 3. STARTUP ---
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('mesSelect').value = new Date().toISOString().slice(0, 7);
         document.getElementById('mesSelect').addEventListener('change', loadData);
         document.getElementById('uidDisplay').innerText = USER_ID;
         
         // Gerar Grid de Icones no Modal
-        const ig = document.getElementById('iconPicker');
-        Object.keys(SVGS).forEach(k => {
-            if(k === 'trash' || k === 'check' || k === 'circle') return; 
-            const d = document.createElement('div');
-            d.className = 'icon-opt';
-            d.innerHTML = SVGS[k];
-            d.onclick = () => {
-                document.querySelectorAll('.icon-opt').forEach(el => el.classList.remove('selected'));
-                d.classList.add('selected'); currentIcon = k;
-            };
-            ig.appendChild(d);
-        });
+        var ig = document.getElementById('iconPicker');
+        if (ig) {
+            Object.keys(SVGS).forEach(function(k) {
+                if(k === 'trash' || k === 'check' || k === 'circle') return; 
+                var d = document.createElement('div');
+                d.className = 'icon-opt';
+                d.innerHTML = SVGS[k];
+                d.onclick = function() {
+                    document.querySelectorAll('.icon-opt').forEach(function(el){ el.classList.remove('selected'); });
+                    d.classList.add('selected'); currentIcon = k;
+                };
+                ig.appendChild(d);
+            });
+        }
 
         // Gerar Numpad
-        const pad = document.querySelector('.numpad');
+        var pad = document.getElementById('numpad-container');
         if (pad) {
-            [1,2,3,4,5,6,7,8,9].forEach(n => {
-                pad.innerHTML += `<div class="num-btn" onclick="typePin(${n})">${n}</div>`;
+            pad.innerHTML = '';
+            [1,2,3,4,5,6,7,8,9].forEach(function(n) {
+                pad.innerHTML += '<div class="num-btn" onclick="typePin(' + n + ')">' + n + '</div>';
             });
-            pad.innerHTML += `<div class="num-btn del" onclick="clearPin()">C</div><div class="num-btn" onclick="typePin(0)">0</div><div class="num-btn ok" onclick="checkPin()">OK</div>`;
+            pad.innerHTML += '<div class="num-btn del" onclick="clearPin()">C</div><div class="num-btn" onclick="typePin(0)">0</div><div class="num-btn ok" onclick="checkPin()">OK</div>';
         }
 
         loadData();
     });
 
-    // --- NAVEGAÇÃO ---
-    window.nav = function(pageId, el) {
-        playSound('click');
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-        
-        if(pageId === 'p-home') renderHomeCharts();
-        if(pageId === 'p-carro') renderCarroChart();
-        if(pageId === 'p-cofre') lockVault();
-    };
-
-    window.toggleId = function(id) {
-        const el = document.getElementById(id);
-        el.style.display = el.style.display === 'none' ? 'block' : 'none';
-    };
-
-    // --- DADOS ---
-    function getRef() { return db.collection('users').doc(USER_ID).collection('meses').doc(document.getElementById('mesSelect').value); }
-
+    // --- 4. LÓGICA DE DADOS ROBUSTA (Offline/Online) ---
     async function loadData() {
-        try {
-            const doc = await getRef().get();
-            if(doc.exists) {
-                dataStore = doc.data();
-                if(!dataStore.lancamentos) dataStore.lancamentos = [];
-                if(!dataStore.mercado) dataStore.mercado = [];
-                if(!dataStore.carro) dataStore.carro = [];
-            } else {
-                dataStore = { lancamentos: [], mercado: [], carro: [] };
-            }
-            renderAll();
-        } catch (error) {
-            console.log("Erro ao carregar dados: " + error.message);
+        var monthKey = 'data_' + USER_ID + '_' + document.getElementById('mesSelect').value;
+        
+        // 1. Carrega do LocalStorage (Sempre funciona)
+        var local = localStorage.getItem(monthKey);
+        if (local) {
+            dataStore = JSON.parse(local);
+        } else {
+            dataStore = { lancamentos: [], mercado: [], carro: [], vault: [], saldos: { vr: 0, va: 0 } };
+        }
+        
+        // Atualiza UI imediatamente
+        renderAll();
+
+        // 2. Tenta sincronizar com nuvem (Se houver internet)
+        if (db) {
+            try {
+                var doc = await db.collection('users').doc(USER_ID).collection('meses').doc(document.getElementById('mesSelect').value).get();
+                if (doc.exists) {
+                    dataStore = doc.data();
+                    if(!dataStore.saldos) dataStore.saldos = { vr: 0, va: 0 }; // Backward compat
+                    renderAll();
+                    localStorage.setItem(monthKey, JSON.stringify(dataStore)); // Atualiza cache local
+                }
+            } catch (e) { console.log("Sem conexão, usando dados locais."); }
+        }
+    }
+
+    async function saveData() {
+        var monthKey = 'data_' + USER_ID + '_' + document.getElementById('mesSelect').value;
+        localStorage.setItem(monthKey, JSON.stringify(dataStore)); // Salva local
+        
+        if (db) {
+            try {
+                await db.collection('users').doc(USER_ID).collection('meses').doc(document.getElementById('mesSelect').value).set(dataStore, {merge:true});
+            } catch (e) { console.log("Salvo apenas offline"); }
         }
     }
 
@@ -555,134 +657,296 @@
         renderHomeCharts();
     }
 
-    // --- GRANA ---
+    // --- 5. FUNÇÕES DE NEGÓCIO ---
+    window.nav = function(pageId, el) {
+        playSound('click');
+        document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+        document.getElementById(pageId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+        el.classList.add('active');
+        
+        if(pageId === 'p-home') renderHomeCharts();
+        if(pageId === 'p-carro') renderCarroChart();
+        if(pageId === 'p-cofre') lockVault();
+    };
+
+    window.toggleId = function(id) {
+        var el = document.getElementById(id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    };
+
     window.setType = function(t) {
         currentType = t;
-        document.getElementById('btnRec').style.opacity = t==='receita'?'1':'0.5';
-        document.getElementById('btnDes').style.opacity = t==='despesa'?'1':'0.5';
+        var btnRec = document.getElementById('btnRec');
+        var btnDes = document.getElementById('btnDes');
+        
+        btnRec.classList.remove('active');
+        btnDes.classList.remove('active');
+        
+        if(t === 'receita') {
+            btnRec.classList.add('active');
+            btnRec.style.opacity = '1';
+            btnDes.style.opacity = '0.4';
+        } else {
+            btnDes.classList.add('active');
+            btnDes.style.opacity = '1';
+            btnRec.style.opacity = '0.4';
+        }
     };
+    
     window.openModal = function(id) { document.getElementById(id).classList.add('open'); };
-    window.closeModal = function() { document.querySelector('.modal.open')?.classList.remove('open'); };
+    window.closeModal = function() { document.querySelector('.modal.open').classList.remove('open'); };
+    
+    // Custom Confirm Helper
+    function doConfirm(text, callback) {
+        document.getElementById('confirmMsg').innerText = text;
+        document.getElementById('modalConfirm').classList.add('open');
+        document.getElementById('btnConfirmYes').onclick = function() {
+            document.getElementById('modalConfirm').classList.remove('open');
+            callback();
+        };
+    }
 
+    // --- GRANA (NOVO LAYOUT) ---
     window.saveTrans = async function() {
-        const desc = document.getElementById('tDesc').value;
-        const val = parseFloat(document.getElementById('tVal').value);
+        var desc = document.getElementById('tDesc').value;
+        var val = parseFloat(document.getElementById('tVal').value);
         if(!desc || !val) return;
-        playSound('ssj');
-        dataStore.lancamentos.push({ id: Date.now(), type: currentType, desc, val, icon: currentIcon, paid: false, date: document.getElementById('tData').value });
-        await getRef().set(dataStore, {merge:true});
+        
+        playSound('click'); // Alterado para não tocar SSJ em salvamento comum
+        dataStore.lancamentos.push({ id: Date.now(), type: currentType, desc: desc, val: val, icon: currentIcon, paid: false, date: document.getElementById('tData').value });
+        await saveData();
         closeModal();
         renderTrans();
     };
 
     window.togglePaid = async function(id) {
         playSound('tap');
-        const item = dataStore.lancamentos.find(i => i.id === id);
-        if(item) { item.paid = !item.paid; await getRef().update({lancamentos: dataStore.lancamentos}); renderTrans(); }
+        var item = dataStore.lancamentos.find(function(i) { return i.id === id; });
+        if(item) { item.paid = !item.paid; await saveData(); renderTrans(); }
     };
 
     window.delTrans = async function(id) {
-        if(!confirm('Excluir?')) return;
-        dataStore.lancamentos = dataStore.lancamentos.filter(i => i.id !== id);
-        await getRef().update({lancamentos: dataStore.lancamentos});
-        renderTrans();
+        doConfirm('Excluir?', async function() {
+            dataStore.lancamentos = dataStore.lancamentos.filter(function(i) { return i.id !== id; });
+            await saveData();
+            renderTrans();
+        });
     };
 
     function renderTrans() {
-        const div = document.getElementById('listGrana'); div.innerHTML = '';
-        let rec=0, desp=0, pago=0;
+        var div = document.getElementById('listGrana'); if(div) div.innerHTML = '';
+        var recTotal=0, despTotal=0, pagoTotal=0;
         
-        dataStore.lancamentos.forEach(t => {
-            if(t.type === 'receita') rec += t.val;
-            else { desp += t.val; if(t.paid) pago += t.val; }
+        var htmlRec = '';
+        var htmlDesp = '';
+
+        dataStore.lancamentos.forEach(function(t) {
+            if(t.type === 'receita') recTotal += t.val;
+            else { 
+                despTotal += t.val; 
+                if(t.paid) pagoTotal += t.val; 
+            }
             
-            const iconSvg = SVGS[t.icon] || SVGS['zap'];
-            const checkIcon = t.paid ? SVGS['check'] : SVGS['circle'];
+            var iconSvg = SVGS[t.icon] || SVGS['zap'];
             
-            div.innerHTML += `
-            <div class="list-item ${t.type==='receita'?'in':(t.paid?'paid':'out')}">
-                <div class="item-left">
-                    <div class="icon-box">${iconSvg}</div>
-                    <div class="item-info"><strong>${t.desc}</strong><small>${t.date || ''}</small></div>
-                </div>
-                <div class="item-right">
-                    <div class="item-val">R$ ${t.val.toFixed(2)}</div>
-                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:5px;">
-                        ${t.type==='despesa' ? `<div style="width:20px; cursor:pointer;" onclick="togglePaid(${t.id})">${checkIcon}</div>` : ''}
-                        <div style="width:20px; cursor:pointer; color:#ef4444;" onclick="delTrans(${t.id})">${SVGS['trash']}</div>
+            // CARD HTML
+            var card = `
+                <div class="trans-card ${t.type} ${t.paid ? 'paid' : ''}">
+                    <div class="tc-header">
+                        <div class="tc-icon">${iconSvg}</div>
+                        <div class="tc-val">R$ ${t.val.toFixed(2)}</div>
+                    </div>
+                    <div class="tc-desc">${t.desc}</div>
+                    <div class="tc-date">${t.date || '-'}</div>
+                    <div class="tc-actions">
+                        ${t.type === 'despesa' ? 
+                            `<div class="btn-action btn-check ${t.paid ? 'active' : ''}" onclick="togglePaid(${t.id})">
+                                ${SVGS['check']}
+                            </div>` : ''
+                        }
+                        <div class="btn-action btn-trash" onclick="delTrans(${t.id})">
+                            ${SVGS['trash']}
+                        </div>
                     </div>
                 </div>
-            </div>`;
+            `;
+
+            if(t.type === 'receita') htmlRec += card;
+            else htmlDesp += card;
         });
 
-        document.getElementById('gEnt').innerText = rec.toFixed(2);
-        document.getElementById('gSai').innerText = desp.toFixed(2);
-        document.getElementById('gPag').innerText = pago.toFixed(2);
-        // Home
-        document.getElementById('dRec').innerText = rec.toFixed(2);
-        document.getElementById('dDesp').innerText = desp.toFixed(2);
-        document.getElementById('dSaldo').innerText = (rec-pago).toFixed(2);
+        // Montar a estrutura final
+        var finalHtml = '';
+        if(htmlRec) {
+            finalHtml += `<div class="section-title">Receitas</div><div class="cards-grid">${htmlRec}</div>`;
+        }
+        if(htmlDesp) {
+            finalHtml += `<div class="section-title" style="margin-top:20px;">Despesas</div><div class="cards-grid">${htmlDesp}</div>`;
+        }
+        
+        if(!finalHtml) finalHtml = '<p style="text-align:center; opacity:0.5; margin-top:20px;">Sem lançamentos</p>';
+
+        div.innerHTML = finalHtml;
+
+        document.getElementById('gEnt').innerText = recTotal.toFixed(2);
+        document.getElementById('gSai').innerText = despTotal.toFixed(2);
+        document.getElementById('gPag').innerText = pagoTotal.toFixed(2);
+        
+        document.getElementById('dRec').innerText = recTotal.toFixed(2);
+        document.getElementById('dDesp').innerText = despTotal.toFixed(2);
+        document.getElementById('dSaldo').innerText = (recTotal-pagoTotal).toFixed(2);
     }
 
-    // --- MERCADO ---
-    window.addMercado = async function() {
-        dataStore.mercado.push({ item: document.getElementById('mItem').value, qtd: document.getElementById('mQtd').value, val: document.getElementById('mVal').value });
-        await getRef().update({ mercado: dataStore.mercado }); renderMercado();
-        document.getElementById('mItem').value=''; document.getElementById('mQtd').value=''; document.getElementById('mVal').value='';
+    // --- MERCADO (NOVA LÓGICA) ---
+    window.saveSaldos = async function() {
+        dataStore.saldos.vr = parseFloat(document.getElementById('saldoVR').value) || 0;
+        dataStore.saldos.va = parseFloat(document.getElementById('saldoVA').value) || 0;
+        await saveData();
+        renderMercado(); // Para atualizar o total de beneficios
     };
+
+    window.addMercado = async function() {
+        var item = document.getElementById('mItem').value;
+        var qtd = parseFloat(document.getElementById('mQtd').value) || 1;
+        var val = parseFloat(document.getElementById('mVal').value) || 0;
+        var cardType = document.getElementById('mCard').value;
+
+        if (!item || !val) return;
+
+        // Desconta do Saldo
+        if (cardType === 'VR') dataStore.saldos.vr -= (val * qtd);
+        if (cardType === 'VA') dataStore.saldos.va -= (val * qtd);
+
+        dataStore.mercado.push({ item: item, qtd: qtd, val: val, card: cardType });
+        
+        await saveData(); 
+        renderMercado();
+        
+        document.getElementById('mItem').value=''; 
+        document.getElementById('mQtd').value=''; 
+        document.getElementById('mVal').value='';
+    };
+
     function renderMercado() {
-        const div = document.getElementById('listMercado'); div.innerHTML = ''; let tot=0;
-        dataStore.mercado.forEach((i, idx) => {
-            let sub = i.qtd * i.val; tot += sub;
-            div.innerHTML += `<div class="list-item out"><div>${i.qtd}x ${i.item}</div><div>R$ ${sub.toFixed(2)} <span onclick="delMercado(${idx})" style="color:red; margin-left:10px;">X</span></div></div>`;
+        var vr = dataStore.saldos.vr || 0;
+        var va = dataStore.saldos.va || 0;
+        document.getElementById('saldoVR').value = vr.toFixed(2);
+        document.getElementById('saldoVA').value = va.toFixed(2);
+        document.getElementById('mTotalBeneficios').innerText = "R$ " + (vr + va).toFixed(2);
+
+        var div = document.getElementById('listMercado'); if(div) div.innerHTML = ''; var tot=0;
+        dataStore.mercado.forEach(function(i, idx) {
+            var sub = i.qtd * i.val; tot += sub;
+            var cardLabel = '';
+            if(i.card === 'VR') cardLabel = '(VR)';
+            else if(i.card === 'VA') cardLabel = '(VA)';
+            else if(i.card === 'Credito') cardLabel = '(Crédito)';
+            else if(i.card === 'Debito') cardLabel = '(Débito)';
+            else if(i.card === 'Dinheiro') cardLabel = '(Dinheiro)';
+
+            
+            div.innerHTML += '<div class="list-item out">' +
+                '<div>' + i.qtd + 'x ' + i.item + ' <small>' + cardLabel + '</small></div>' +
+                '<div>R$ ' + sub.toFixed(2) + ' <span onclick="delMercado(' + idx + ')" style="color:red; margin-left:10px; cursor:pointer;">X</span></div>' +
+            '</div>';
         });
         document.getElementById('mMontante').innerText = 'R$ ' + tot.toFixed(2);
     }
-    window.delMercado = async function(idx) { dataStore.mercado.splice(idx,1); await getRef().update({mercado:dataStore.mercado}); renderMercado(); };
-    window.limparMercado = async function() { if(confirm('Limpar?')) { dataStore.mercado=[]; await getRef().update({mercado:[]}); renderMercado(); } };
+
+    window.delMercado = async function(idx) { 
+        dataStore.mercado.splice(idx,1); 
+        await saveData(); 
+        renderMercado(); 
+    };
+    
+    window.limparMercado = async function() { 
+        doConfirm('Limpar tudo?', async function() {
+            dataStore.mercado=[]; await saveData(); renderMercado();
+        });
+    };
 
     // --- CARRO ---
     window.addGas = async function() {
-        dataStore.carro.push({ type:'gas', data: document.getElementById('gData').value, km: document.getElementById('gKm').value, lit: document.getElementById('gLit').value, val: parseFloat(document.getElementById('gVal').value) });
-        await saveCar(); toggleId('formGas');
+        var tipo = document.getElementById('gTipo').value;
+        dataStore.carro.push({ 
+            type:'gas', 
+            fuelType: tipo,
+            data: document.getElementById('gData').value, 
+            km: document.getElementById('gKm').value, 
+            lit: document.getElementById('gLit').value, 
+            val: parseFloat(document.getElementById('gVal').value) 
+        });
+        await saveData(); toggleId('formGas'); renderCarro();
     };
     window.addMan = async function() {
         dataStore.carro.push({ type:'man', desc: document.getElementById('manDesc').value, val: parseFloat(document.getElementById('manVal').value) });
-        await saveCar(); toggleId('formMan');
+        await saveData(); toggleId('formMan'); renderCarro();
     };
-    async function saveCar() { await getRef().update({ carro: dataStore.carro }); renderCarro(); }
     
     function renderCarro() {
-        const div = document.getElementById('listCarro'); div.innerHTML=''; let tot=0, gas=[];
-        dataStore.carro.forEach((i, idx) => {
+        var div = document.getElementById('listCarro'); if(div) div.innerHTML=''; var tot=0, gas=[];
+        dataStore.carro.forEach(function(i, idx) {
             tot += i.val; if(i.type==='gas') gas.push(i);
-            div.innerHTML += `<div class="list-item ${i.type==='gas'?'paid':'out'}"><div>${i.type==='gas'?'⛽ '+i.km+'km':'🔧 '+i.desc}</div><div>R$ ${i.val.toFixed(2)} <span onclick="delCarro(${idx})" style="color:red">X</span></div></div>`;
+            
+            var label = i.type==='gas' 
+                ? '⛽ ' + (i.fuelType || 'Gasolina') + ' - ' + i.km + 'km' 
+                : '🔧 ' + i.desc;
+
+            div.innerHTML += '<div class="list-item ' + (i.type==='gas'?'paid':'out') + '"><div>' + label + '</div><div>R$ ' + i.val.toFixed(2) + ' <span onclick="delCarro(' + idx + ')" style="color:red; cursor:pointer;">X</span></div></div>';
         });
         document.getElementById('cGasto').innerText = tot.toFixed(2);
-        gas.sort((a,b)=>a.km-b.km);
-        if(gas.length>1) document.getElementById('cKm').innerText = ((gas[gas.length-1].km - gas[gas.length-2].km)/gas[gas.length-1].lit).toFixed(1);
+        
+        // KM/L calc (simples)
+        gas.sort(function(a,b){ return a.km - b.km });
+        if(gas.length>1) {
+             var last = gas[gas.length-1];
+             var prev = gas[gas.length-2];
+             // Apenas calcula se for do mesmo tipo, ou simplificado
+             var diff = last.km - prev.km;
+             if(diff > 0 && last.lit > 0) {
+                 document.getElementById('cKm').innerText = (diff / last.lit).toFixed(1);
+             }
+        }
+        
         renderCarroChart();
     }
-    window.delCarro = async function(idx) { dataStore.carro.splice(idx,1); saveCar(); };
+    window.delCarro = async function(idx) { dataStore.carro.splice(idx,1); await saveData(); renderCarro(); };
 
-    // --- COFRE (CORRIGIDO: getElementById) ---
+    // --- COFRE ---
     window.typePin = function(n) { if(pinBuffer.length < 4) { pinBuffer+=n; updateDots(); playSound('tap'); } };
     window.clearPin = function() { pinBuffer=""; updateDots(); };
-    
     function updateDots() { 
-        for(let i=1;i<=4;i++) { 
-            const d = document.getElementById('pd' + i);
-            if(d) { // Check de segurança
-                if(i <= pinBuffer.length) d.classList.add('filled'); 
-                else d.classList.remove('filled');
-            }
+        var dotsHtml = '';
+        for(var i=1;i<=4;i++) {
+            var filled = i <= pinBuffer.length ? 'filled' : '';
+            dotsHtml += '<div class="pin-dot ' + filled + '"></div>';
         }
+        var container = document.querySelector('.pin-display');
+        if(!container) {
+            container = document.createElement('div');
+            container.className = 'pin-display';
+            document.getElementById('vPin').insertAdjacentElement('afterend', container);
+        }
+        container.innerHTML = dotsHtml;
     }
-    
     window.checkPin = function() {
-        const saved = localStorage.getItem('pin_z');
-        if(!saved) { if(pinBuffer.length===4) { localStorage.setItem('pin_z', pinBuffer); unlockVault(); } }
-        else { if(pinBuffer===saved) unlockVault(); else { alert('PIN ERRADO'); clearPin(); } }
+        var saved = localStorage.getItem('pin_z');
+        if(!saved) { 
+            if(pinBuffer.length===4) { 
+                localStorage.setItem('pin_z', pinBuffer); 
+                unlockVault(); 
+            } 
+        } else { 
+            if(pinBuffer===saved) {
+                unlockVault(); 
+            } else { 
+                var lock = document.getElementById('vaultLock');
+                lock.style.animation = 'shakeHard 0.5s';
+                setTimeout(() => lock.style.animation = '', 500);
+                clearPin(); 
+            } 
+        }
     };
     window.unlockVault = function() {
         playSound('ssj');
@@ -695,131 +959,236 @@
         document.getElementById('vaultOpen').style.display='none';
         clearPin();
     };
-    window.resetVault = function() { if(confirm('Resetar PIN?')) { localStorage.removeItem('pin_z'); clearPin(); alert('Crie novo PIN'); } };
-    window.recoverData = function() {
-        const old = document.getElementById('recID').value;
-        if(old) { USER_ID = old; localStorage.setItem('mit_z_uid', old); location.reload(); }
+    window.resetVault = function() { 
+        doConfirm('Resetar PIN?', function() {
+            localStorage.removeItem('pin_z'); 
+            clearPin(); 
+            document.getElementById('vPin').placeholder = "NOVO PIN";
+        });
     };
-
-    async function loadVault() {
-        const doc = await db.collection('users').doc(USER_ID).collection('vault').doc('data').get();
-        const list = doc.exists ? doc.data().list : [];
-        const div = document.getElementById('listPass'); div.innerHTML='';
-        list.forEach((i, idx) => {
-            div.innerHTML += `<div class="list-item"><div><strong>${i.site}</strong><br><small>${i.user}</small></div><div><span onclick="this.innerText='${i.pass}'">****</span> <span onclick="delPass(${idx})" style="color:red; margin-left:5px;">X</span></div></div>`;
+    window.recoverData = function() {
+        var old = document.getElementById('recID').value;
+        if(old) { USER_ID = old; localStorage.setItem('z_uid', old); location.reload(); }
+    };
+    function loadVault() {
+        var saved = localStorage.getItem('vault_' + USER_ID);
+        dataStore.vault = saved ? JSON.parse(saved) : [];
+        var div = document.getElementById('listPass'); if(div) div.innerHTML='';
+        dataStore.vault.forEach(function(i, idx) {
+            div.innerHTML += '<div class="list-item"><div><strong>' + i.site + '</strong><br><small>' + i.user + '</small></div><div><span onclick="this.innerText=\'' + i.pass + '\'">****</span> <span onclick="delPass(' + idx + ')" style="color:red; margin-left:5px; cursor:pointer;">X</span></div></div>';
         });
     }
     window.addPass = async function() {
-        const docRef = db.collection('users').doc(USER_ID).collection('vault').doc('data');
-        const doc = await docRef.get();
-        let list = doc.exists ? doc.data().list : [];
-        list.push({ site: document.getElementById('pSite').value, user: document.getElementById('pUser').value, pass: document.getElementById('pPass').value });
-        await docRef.set({ list: list });
+        dataStore.vault.push({ site: document.getElementById('pSite').value, user: document.getElementById('pUser').value, pass: document.getElementById('pPass').value });
+        localStorage.setItem('vault_' + USER_ID, JSON.stringify(dataStore.vault));
         loadVault();
+        document.getElementById('pSite').value = '';
+        document.getElementById('pUser').value = '';
+        document.getElementById('pPass').value = '';
     };
     window.delPass = async function(idx) {
-        if(confirm('Apagar?')) {
-            const docRef = db.collection('users').doc(USER_ID).collection('vault').doc('data');
-            const doc = await docRef.get();
-            let list = doc.data().list; list.splice(idx,1);
-            await docRef.set({ list: list });
+        doConfirm('Apagar senha?', function() {
+            dataStore.vault.splice(idx,1); 
+            localStorage.setItem('vault_' + USER_ID, JSON.stringify(dataStore.vault)); 
             loadVault();
-        }
+        });
     };
 
-    // --- PDF GENERATOR ---
+    // --- PDF ---
     window.gerarPDF = function() {
-        if (typeof window.jspdf === 'undefined') { alert("Biblioteca PDF não carregada. Verifique internet."); return; }
+        if (typeof window.jspdf === 'undefined') { console.log("PDF Lib offline"); return; }
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
-        doc.setFontSize(22);
-        doc.setTextColor(255, 126, 0);
-        doc.text("Relatório Z", 105, 20, null, null, "center");
-        
-        doc.setFontSize(12);
-        doc.setTextColor(0,0,0);
+        doc.setFontSize(22); doc.setTextColor(255, 69, 0); doc.text("Relatório Z", 105, 20, null, null, "center");
+        doc.setFontSize(12); doc.setTextColor(0,0,0);
         doc.text("Referência: " + document.getElementById('mesSelect').value, 14, 30);
-        
-        const saldo = document.getElementById('dSaldo').innerText;
-        doc.text(`Saldo Atual: ${saldo}`, 14, 40);
-
-        let bodyData = [];
-        dataStore.lancamentos.forEach(t => {
-            bodyData.push([t.date, t.desc, t.type.toUpperCase(), "R$ " + t.val.toFixed(2)]);
-        });
-
-        doc.autoTable({
-            startY: 50,
-            head: [['Data', 'Descrição', 'Tipo', 'Valor']],
-            body: bodyData,
-            theme: 'striped',
-            headStyles: { fillColor: [255, 126, 0] }
-        });
-
+        var saldo = document.getElementById('dSaldo').innerText;
+        doc.text("Saldo Atual: " + saldo, 14, 40);
+        var bodyData = [];
+        dataStore.lancamentos.forEach(function(t) { bodyData.push([t.date, t.desc, t.type.toUpperCase(), "R$ " + t.val.toFixed(2)]); });
+        doc.autoTable({ startY: 50, head: [['Data', 'Descrição', 'Tipo', 'Valor']], body: bodyData, theme: 'striped', headStyles: { fillColor: [255, 69, 0] } });
         doc.save("Relatorio_Z.pdf");
     };
 
-    // --- AUDIO ---
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    let ctx = new AudioCtx();
+    // --- AUDIO AVANÇADO (SSJ + Trovões) ---
+    var AudioCtx = window.AudioContext || window.webkitAudioContext;
+    var ctx = new AudioCtx();
     window.toggleMute = function() { isMuted = !isMuted; document.getElementById('muteIcon').innerText = isMuted ? '🔇' : '🔊'; };
+    
+    // Função auxiliar para criar barulho (noise buffer)
+    function createNoiseBuffer() {
+        var bufferSize = ctx.sampleRate * 2.0; // 2 segundos de buffer
+        var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        var data = buffer.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        return buffer;
+    }
+    var noiseBuffer = null;
+
     function playSound(t) {
         if(isMuted) return;
         if(ctx.state==='suspended') ctx.resume();
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        const n = ctx.currentTime;
-        if(t==='click') { o.frequency.setValueAtTime(600,n); o.frequency.exponentialRampToValueAtTime(100,n+0.1); g.gain.setValueAtTime(0.1,n); g.gain.exponentialRampToValueAtTime(0.01,n+0.1); o.start(n); o.stop(n+0.1); }
-        else if(t==='ssj') { o.type='sawtooth'; o.frequency.setValueAtTime(100,n); o.frequency.linearRampToValueAtTime(500,n+0.5); g.gain.setValueAtTime(0.1,n); g.gain.linearRampToValueAtTime(0,n+0.5); o.start(n); o.stop(n+0.5); }
-        else { o.frequency.setValueAtTime(1000,n); g.gain.setValueAtTime(0.05,n); g.gain.exponentialRampToValueAtTime(0.01,n+0.05); o.start(n); o.stop(n+0.05); }
+        if(!noiseBuffer) noiseBuffer = createNoiseBuffer();
+        
+        var n = ctx.currentTime;
+
+        if(t==='click') { 
+            var o = ctx.createOscillator(); var g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            o.frequency.setValueAtTime(600,n); o.frequency.exponentialRampToValueAtTime(100,n+0.1); 
+            g.gain.setValueAtTime(0.1,n); g.gain.exponentialRampToValueAtTime(0.01,n+0.1); 
+            o.start(n); o.stop(n+0.1); 
+        }
+        else if(t==='ssj') {
+            // --- EFEITO AURA (SHIU SHIU) ---
+            var auraSrc = ctx.createBufferSource();
+            auraSrc.buffer = noiseBuffer;
+            var auraFilter = ctx.createBiquadFilter();
+            auraFilter.type = 'bandpass';
+            auraFilter.Q.value = 1;
+            auraFilter.frequency.setValueAtTime(200, n);
+            auraFilter.frequency.linearRampToValueAtTime(800, n+2); // Sobe o tom
+            
+            var auraGain = ctx.createGain();
+            auraGain.gain.setValueAtTime(0, n);
+            auraGain.gain.linearRampToValueAtTime(0.8, n+0.5);
+            auraGain.gain.linearRampToValueAtTime(0, n+2.5);
+
+            auraSrc.connect(auraFilter); auraFilter.connect(auraGain); auraGain.connect(ctx.destination);
+            auraSrc.start(n);
+            
+            // --- EFEITO RAIOS (TRAC TRAC) - Múltiplos estalos ---
+            for(let i=0; i<6; i++) {
+                let timeOffset = n + Math.random() * 2;
+                let sparkSrc = ctx.createBufferSource();
+                sparkSrc.buffer = noiseBuffer;
+                
+                let sparkFilter = ctx.createBiquadFilter();
+                sparkFilter.type = 'highpass';
+                sparkFilter.frequency.value = 1000;
+                
+                let sparkGain = ctx.createGain();
+                sparkGain.gain.setValueAtTime(0, timeOffset);
+                sparkGain.gain.linearRampToValueAtTime(0.6, timeOffset + 0.02);
+                sparkGain.gain.exponentialRampToValueAtTime(0.01, timeOffset + 0.1);
+                
+                sparkSrc.connect(sparkFilter); sparkFilter.connect(sparkGain); sparkGain.connect(ctx.destination);
+                sparkSrc.start(timeOffset);
+                sparkSrc.stop(timeOffset + 0.15);
+            }
+        }
+        else if(t==='tap') { 
+             var o = ctx.createOscillator(); var g = ctx.createGain();
+             o.connect(g); g.connect(ctx.destination);
+             o.frequency.setValueAtTime(800,n); 
+             g.gain.setValueAtTime(0.05,n); g.gain.exponentialRampToValueAtTime(0.01,n+0.05); 
+             o.start(n); o.stop(n+0.05); 
+        }
     }
 
-    // --- TEMA ---
-    let themeIdx = 0;
-    const themeClasses = ['theme-dark', 'theme-light', 'theme-ssj'];
+    var themeIdx = 0;
+    var themeClasses = ['theme-dark', 'theme-light', 'theme-ssj'];
     window.toggleTheme = function() {
         document.body.classList.remove(themeClasses[themeIdx]);
         themeIdx = (themeIdx + 1) % 3;
-        const newClass = themeClasses[themeIdx];
+        var newClass = themeClasses[themeIdx];
+        
         if(newClass === 'theme-ssj') {
-            document.body.classList.add('transforming'); playSound('ssj');
-            setTimeout(() => { document.body.classList.remove('transforming'); document.body.classList.add(newClass); }, 500);
+            document.body.classList.add('transforming'); 
+            playSound('ssj'); // Som Trovão/Aura
+            setTimeout(function() { document.body.classList.remove('transforming'); document.body.classList.add(newClass); }, 2500);
         } else {
-            document.body.classList.add(newClass); playSound('click');
+            document.body.classList.add(newClass); 
+            playSound('click');
         }
     };
 
-    // --- GRÁFICOS ---
+    // --- GRÁFICOS (NOVOS E ATUALIZADOS) ---
     function renderHomeCharts() {
         if(typeof Chart === 'undefined') return;
         if(document.getElementById('p-home').style.display === 'none') return;
-        let rec=0, desp=0, cats={};
-        dataStore.lancamentos.forEach(t => { if(t.type==='receita') rec+=t.val; else { desp+=t.val; cats[t.icon]=(cats[t.icon]||0)+t.val; } });
         
-        if(charts.bar) charts.bar.destroy();
-        charts.bar = new Chart(document.getElementById('cHomeBar'), {
-            type: 'bar', data: { labels: ['Entrada', 'Saída'], datasets: [{ data: [rec, desp], backgroundColor: ['#10b981', '#ef4444'] }] },
-            options: { plugins: { legend: {display:false} }, maintainAspectRatio: false }
+        var rec=0, desp=0;
+        var evolucao = {}; 
+
+        dataStore.lancamentos.forEach(function(t) { 
+            if(t.type==='receita') rec+=t.val; 
+            else { desp+=t.val; }
+            
+            if(t.date) {
+                // Pega mês YYYY-MM
+                var m = t.date.substring(0, 7); 
+                if(!evolucao[m]) evolucao[m] = {rec:0, desp:0};
+                if(t.type==='receita') evolucao[m].rec += t.val;
+                else evolucao[m].desp += t.val;
+            }
+        });
+
+        // 1. Receita vs Despesa (PIZZA)
+        if(charts.pieMain) charts.pieMain.destroy();
+        charts.pieMain = new Chart(document.getElementById('cHomePieMain'), {
+            type: 'pie', 
+            data: { labels: ['Receita', 'Despesa'], datasets: [{ data: [rec, desp], backgroundColor: ['#10b981', '#ef4444'] }] },
+            options: { plugins: { legend: {position:'right'} }, maintainAspectRatio: false }
+        });
+
+        // 2. Evolução (LINHA)
+        var dates = Object.keys(evolucao).sort();
+        var dataRec = dates.map(d => evolucao[d].rec);
+        var dataDesp = dates.map(d => evolucao[d].desp);
+
+        if(charts.line) charts.line.destroy();
+        charts.line = new Chart(document.getElementById('cHomeLine'), {
+            type: 'line',
+            data: { 
+                labels: dates, 
+                datasets: [
+                    { label: 'Receita', data: dataRec, borderColor: '#10b981', tension: 0.3 },
+                    { label: 'Despesa', data: dataDesp, borderColor: '#ef4444', tension: 0.3 }
+                ]
+            },
+            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } } } }
         });
         
-        if(charts.pie) charts.pie.destroy();
-        charts.pie = new Chart(document.getElementById('cHomePie'), {
-            type: 'doughnut', data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#ff7e00','#3b82f6','#eab308'] }] },
-            options: { plugins: { legend: {display:false} }, maintainAspectRatio: false }
-        });
+        // Remove grafico de categorias da home se existir
+        if(charts.pieCats) charts.pieCats.destroy();
     }
 
     function renderCarroChart() {
         if(typeof Chart === 'undefined') return;
         if(document.getElementById('p-carro').style.display === 'none') return;
-        let gas=0, man=0;
-        dataStore.carro.forEach(c => c.type==='gas'?gas+=c.val:man+=c.val);
-        if(charts.car) charts.car.destroy();
-        charts.car = new Chart(document.getElementById('cCarro'), {
-            type: 'doughnut', data: { labels: ['Gas', 'Manut'], datasets: [{ data: [gas, man], backgroundColor: ['#3b82f6', '#ff7e00'] }] },
-            options: { maintainAspectRatio: false }
+        
+        var gastosMes = {};
+        
+        dataStore.carro.forEach(function(c) { 
+            // Agrupar por mes
+            if(c.data) {
+                var m = c.data.substring(0, 7); // YYYY-MM
+                gastosMes[m] = (gastosMes[m] || 0) + c.val;
+            } else {
+                gastosMes['N/D'] = (gastosMes['N/D'] || 0) + c.val;
+            }
         });
+        
+        // Grafico de Pizza dos Meses
+        if(charts.carMes) charts.carMes.destroy();
+        charts.carMes = new Chart(document.getElementById('cCarroMes'), {
+            type: 'pie', 
+            data: { 
+                labels: Object.keys(gastosMes), 
+                datasets: [{ 
+                    data: Object.values(gastosMes), 
+                    backgroundColor: ['#3b82f6', '#ff7e00', '#10b981', '#ef4444', '#8b5cf6', '#eab308'] 
+                }] 
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: {position:'right'} } }
+        });
+
+        // Remove graficos antigos se existirem
+        if(charts.carComb) charts.carComb.destroy();
+        if(charts.carMan) charts.carMan.destroy();
     }
 </script>
 </body>
