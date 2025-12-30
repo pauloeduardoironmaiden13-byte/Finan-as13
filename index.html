@@ -4,13 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Controle Financeiro</title>
-    <!-- Bibliotecas Gráficas e Utilitários -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Bibliotecas para PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
 
@@ -24,8 +19,9 @@
 
         /* --- TEMA ESCURO (GOKU BASE) --- */
         body.theme-dark {
+            /* Nova URL Escura */
             --bg-image: url('https://i.pinimg.com/736x/69/68/3f/69683f67bbde5da0e76957fa8c2f28a5.jpg');
-            --bg-overlay: rgba(13, 15, 20, 0.85); 
+            --bg-overlay: rgba(13, 15, 20, 0.85); /* Um pouco mais transparente para ver o Goku */
             --nav-bg: #1a2035;
             --card-bg: rgba(30, 35, 50, 0.95);
             --text-primary: #ffffff;
@@ -36,8 +32,9 @@
             --shadow-color: rgba(0,0,0,0.5);
         }
 
-        /* --- TEMA CLARO (KAIOKEN) --- */
+        /* --- TEMA CLARO (TRANSFORMAÇÕES) --- */
         body.theme-light {
+            /* Nova URL Clara */
             --bg-image: url('https://wallpapers.com/images/hd/dbz-son-goku-transformations-9llax3evn2xks53i.jpg');
             --bg-overlay: rgba(255, 255, 255, 0.9);
             --nav-bg: #ffffff;
@@ -52,8 +49,9 @@
 
         /* --- TEMA SUPER SAIYAJIN --- */
         body.theme-ssj {
+            /* Nova URL SSJ */
             --bg-image: url('https://preview.redd.it/ihv076kym8q61.jpg?width=1080&crop=smart&auto=webp&s=d9480d7530ae38848bac72962f28a545d05c89db');
-            --bg-overlay: rgba(30, 20, 0, 0.6);
+            --bg-overlay: rgba(30, 20, 0, 0.6); /* Dourado escuro transparente */
             --nav-bg: #2a1a00;
             --card-bg: rgba(40, 30, 0, 0.9);
             --text-primary: #fffbeb;
@@ -64,7 +62,7 @@
             --shadow-color: rgba(251, 191, 36, 0.4);
         }
 
-        /* Animações */
+        /* Animação de Transformação */
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -73,17 +71,26 @@
             70% { transform: translate(3px, 1px) rotate(-1deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
+
         @keyframes flash {
             0% { opacity: 0; }
             50% { opacity: 1; background: white; }
             100% { opacity: 0; }
         }
-        body.transforming { animation: shake 0.5s; overflow: hidden; }
+
+        body.transforming {
+            animation: shake 0.5s;
+            overflow: hidden;
+        }
+
         #flash-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 9999; opacity: 0;
         }
-        body.transforming #flash-overlay { animation: flash 0.8s; }
+        
+        body.transforming #flash-overlay {
+            animation: flash 0.8s;
+        }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
@@ -107,39 +114,38 @@
         /* --- HEADER --- */
         .top-bar {
             height: 80px; display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px; z-index: 10;
+            padding: 0 20px; z-index: 10;
             background: rgba(0,0,0,0.2); backdrop-filter: blur(5px);
             border-bottom: 1px solid var(--border-color);
         }
 
-        .logo-area { display: flex; align-items: center; gap: 8px; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo-icon {
-            width: 40px; height: 40px;
+            width: 45px; height: 45px;
             background: var(--accent); color: #fff;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             border: 2px solid #fff; box-shadow: 0 0 15px var(--accent);
             font-weight: 800; font-size: 1.2em;
         }
-        .app-title { font-family: var(--font-title); font-weight: 700; font-size: 1.1em; color: var(--accent); text-transform: uppercase; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+        .app-title { font-family: var(--font-title); font-weight: 700; font-size: 1.2em; color: var(--accent); text-transform: uppercase; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
 
-        .controls { display: flex; gap: 8px; align-items: center; }
+        .controls { display: flex; gap: 10px; align-items: center; }
         
         input[type="month"] {
             background: #ffffff !important; 
             color: #000000 !important;
             border: 2px solid var(--accent);
             border-radius: 8px;
-            padding: 5px;
+            padding: 5px 10px;
             font-family: var(--font-title);
             font-weight: 700;
             cursor: pointer;
             z-index: 20;
-            width: 125px;
         }
 
         .icon-btn {
             background: var(--card-bg); border: 2px solid var(--accent);
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             color: var(--accent); cursor: pointer; transition: 0.3s;
             box-shadow: 0 0 10px var(--shadow-color);
@@ -154,7 +160,7 @@
         }
         .scroll-area { flex-grow: 1; overflow-y: auto; padding: 20px; }
 
-        /* --- CARDS & UI --- */
+        /* --- CARDS --- */
         .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 20px; }
         
         .z-card {
@@ -283,10 +289,6 @@
         <div class="app-title">Controle Financeiro</div>
     </div>
     <div class="controls">
-        <!-- PDF PRINT -->
-        <div class="icon-btn" id="btnPrint" onclick="gerarPDF()">
-            <i data-lucide="printer"></i>
-        </div>
         <!-- SOM MUDO -->
         <div class="icon-btn" id="btnMute" onclick="toggleMute()">
             <i data-lucide="volume-2"></i>
@@ -350,7 +352,7 @@
             <div class="btn-float" onclick="abrirModalTrans()"><i data-lucide="plus"></i></div>
         </div>
 
-        <!-- MERCADO -->
+        <!-- MERCADO (SEM GRÁFICO) -->
         <div id="page-compras" class="page-sec">
             <div class="z-card accent"><h3>Total Carrinho</h3><div class="val" id="totalMercado">R$ 0,00</div></div>
             
@@ -422,22 +424,9 @@
             <!-- TELA CONTEÚDO -->
             <div id="vaultContent" style="display: none;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                    <div style="display:flex; flex-direction:column;">
-                        <h3>Senhas</h3>
-                        <small style="color:var(--text-secondary); font-size:0.7em;">ID: <span id="userIdDisplay">---</span></small>
-                    </div>
+                    <h3>Senhas</h3>
                     <button class="btn-z red" style="width: auto;" onclick="sairCofre()">Sair</button>
                 </div>
-                
-                <!-- Backup Input -->
-                <div style="margin-bottom:15px; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
-                    <small>Recuperar Backup (Colar ID):</small>
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="restoreIdInput" placeholder="ID Antigo" style="margin:0;">
-                        <button class="btn-z blue" style="width:auto;" onclick="restaurarBackup()">OK</button>
-                    </div>
-                </div>
-
                 <form id="formPass" style="background:var(--card-bg); padding:15px; border-radius:10px; margin-bottom:20px;">
                     <input type="text" id="pSite" placeholder="Site/App">
                     <input type="text" id="pUser" placeholder="Usuário">
@@ -486,61 +475,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
 <script>
-    // --- FIREBASE ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
-        authDomain: "finan1313.firebaseapp.com",
-        projectId: "finan1313",
-        storageBucket: "finan1313.firebasestorage.app",
-        messagingSenderId: "92060764433",
-        appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    
-    // SISTEMA DE ID (Para persistência)
-    let USER_ID = localStorage.getItem('dbz_z_uid');
-    if (!USER_ID) {
-        USER_ID = 'u_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
-        localStorage.setItem('dbz_z_uid', USER_ID);
-    }
-
-    // --- PDF GENERATOR ---
-    function gerarPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Título
-        doc.setFontSize(20);
-        doc.text("Relatório Financeiro Z", 14, 22);
-        doc.setFontSize(12);
-        doc.text("Mês: " + document.getElementById('mesSelect').value, 14, 30);
-        
-        // Resumo
-        const rec = document.getElementById('dRec').innerText;
-        const desp = document.getElementById('dDesp').innerText;
-        const saldo = document.getElementById('dSaldo').innerText;
-        doc.text(`Receita: ${rec} | Despesa: ${desp} | Saldo: ${saldo}`, 14, 40);
-
-        // Transações
-        let rows = [];
-        transacoes.forEach(t => {
-            rows.push([t.data, t.desc, t.tipo, "R$ " + t.val.toFixed(2), t.pago ? "Sim" : "Não"]);
-        });
-
-        doc.autoTable({
-            startY: 50,
-            head: [['Data', 'Descrição', 'Tipo', 'Valor', 'Pago']],
-            body: rows,
-            theme: 'grid',
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [255, 126, 0] } // Laranja Goku
-        });
-
-        doc.save(`Relatorio_Financeiro_${document.getElementById('mesSelect').value}.pdf`);
-    }
-
-    // --- AUDIO SYSTEM ---
+    // --- AUDIO SYSTEM IMPROVED (WEB AUDIO API - NO LINKS) ---
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     let ctx = new AudioCtx();
     let isMuted = false;
@@ -569,35 +504,71 @@
             osc.start(now); osc.stop(now + 0.1);
         } 
         else if (type === 'ssj') {
+            // 1. O Grito da Energia (Rising Pitch)
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(100, now);
-            osc.frequency.exponentialRampToValueAtTime(800, now + 1.5); 
+            osc.frequency.exponentialRampToValueAtTime(800, now + 1.5); // Sobe o tom
             gain.gain.setValueAtTime(0.1, now);
             gain.gain.linearRampToValueAtTime(0.5, now + 1.0);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 2.5);
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.start(now); osc.stop(now + 2.5);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 2.5);
 
-            // Aura Noise
-            const bufferSize = ctx.sampleRate * 2.5; 
+            // 2. Aura (Ruído Branco / Jato) - Criando Buffer de Ruído
+            const bufferSize = ctx.sampleRate * 2.5; // 2.5 segundos
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
 
             const noise = ctx.createBufferSource();
             noise.buffer = buffer;
             const noiseFilter = ctx.createBiquadFilter();
             noiseFilter.type = 'lowpass';
             noiseFilter.frequency.setValueAtTime(400, now);
-            noiseFilter.frequency.linearRampToValueAtTime(1500, now + 1.0); 
+            noiseFilter.frequency.linearRampToValueAtTime(1500, now + 1.0); // O filtro abre
+            
             const noiseGain = ctx.createGain();
             noiseGain.gain.setValueAtTime(0.1, now);
-            noiseGain.gain.linearRampToValueAtTime(0.8, now + 1.0);
+            noiseGain.gain.linearRampToValueAtTime(0.8, now + 1.0); // Aumenta volume
             noiseGain.gain.linearRampToValueAtTime(0, now + 2.5);
-            noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(ctx.destination);
+
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(ctx.destination);
             noise.start(now);
+
+            // 3. Eletricidade (Pequenos estalos - Opcional mas legal)
+            // Simples oscilador quadrado rápido
+            const elec = ctx.createOscillator();
+            const elecGain = ctx.createGain();
+            elec.type = 'square';
+            elec.frequency.setValueAtTime(50, now);
+            // Modulação de frequencia aleatoria seria ideal, mas fixo com LFO serve
+            const lfo = ctx.createOscillator();
+            lfo.type = 'sawtooth';
+            lfo.frequency.value = 20; // 20hz tremedeira
+            const lfoGain = ctx.createGain();
+            lfoGain.gain.value = 500;
+            lfo.connect(lfoGain);
+            lfoGain.connect(elec.frequency);
+            lfo.start(now);
+            
+            elecGain.gain.setValueAtTime(0, now);
+            elecGain.gain.linearRampToValueAtTime(0.05, now + 0.5);
+            elecGain.gain.linearRampToValueAtTime(0, now + 2.0);
+            
+            elec.connect(elecGain);
+            elecGain.connect(ctx.destination);
+            elec.start(now);
+            elec.stop(now + 2.0);
+            lfo.stop(now + 2.0);
         }
         else if (type === 'tap') {
             const osc = ctx.createOscillator();
@@ -619,6 +590,7 @@
         document.body.classList.remove(themes[currentTheme]);
         currentTheme = (currentTheme + 1) % 3;
         const newTheme = themes[currentTheme];
+        
         playSound('click');
 
         if (newTheme === 'theme-ssj') {
@@ -631,8 +603,23 @@
         } else {
             document.body.classList.add(newTheme);
         }
+        
         setTimeout(refreshAllCharts, 600);
     }
+
+    // --- FIREBASE ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
+        authDomain: "finan1313.firebaseapp.com",
+        projectId: "finan1313",
+        storageBucket: "finan1313.firebasestorage.app",
+        messagingSenderId: "92060764433",
+        appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    let USER_ID = localStorage.getItem('dbz_z_uid') || 'u_' + Date.now();
+    localStorage.setItem('dbz_z_uid', USER_ID);
 
     // --- GLOBALS ---
     let transacoes = [], mercadoList = [], carroList = [];
@@ -886,7 +873,6 @@
         playSound('ssj');
         document.getElementById('vaultLogin').style.display='none'; 
         document.getElementById('vaultContent').style.display='block'; 
-        document.getElementById('userIdDisplay').innerText = USER_ID;
         carregarSenhas(); clearPin(); 
     }
     function sairCofre() { 
@@ -896,16 +882,6 @@
     }
     function resetVault() {
         if(confirm('Resetar PIN?')) { localStorage.removeItem('dbz_vault_pin'); clearPin(); alert('Crie novo PIN'); }
-    }
-    function restaurarBackup() {
-        const oldID = document.getElementById('restoreIdInput').value.trim();
-        if(oldID && confirm('Isso carregará dados do ID: ' + oldID)) {
-            USER_ID = oldID;
-            localStorage.setItem('dbz_z_uid', USER_ID);
-            document.getElementById('userIdDisplay').innerText = USER_ID;
-            carregarDados();
-            alert('Dados carregados! (Pode ser necessário recarregar a página)');
-        }
     }
     
     async function carregarSenhas() {
