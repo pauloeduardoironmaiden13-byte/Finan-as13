@@ -2,1856 +2,937 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- NOVO: Meta tag viewport essencial para responsividade -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controle Financeiro</title>
+    <!-- Bibliotecas Gráficas e Utilitários -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Bibliotecas para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
     <style>
-        /* Importa uma fonte moderna */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
 
-        /* Configurações Globais */
+        :root {
+            /* --- VARIAVEIS BASE --- */
+            --radius: 16px;
+            --font-main: 'Nunito', sans-serif;
+            --font-title: 'Chakra Petch', sans-serif;
+            --transition-speed: 0.3s;
+        }
+
+        /* --- TEMA ESCURO (GOKU BASE) --- */
+        body.theme-dark {
+            --bg-image: url('https://i.pinimg.com/736x/69/68/3f/69683f67bbde5da0e76957fa8c2f28a5.jpg');
+            --bg-overlay: rgba(13, 15, 20, 0.85); 
+            --nav-bg: #1a2035;
+            --card-bg: rgba(30, 35, 50, 0.95);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent: #ff7e00; /* Laranja */
+            --secondary: #2855ff; /* Azul */
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0,0,0,0.5);
+        }
+
+        /* --- TEMA CLARO (KAIOKEN) --- */
+        body.theme-light {
+            --bg-image: url('https://wallpapers.com/images/hd/dbz-son-goku-transformations-9llax3evn2xks53i.jpg');
+            --bg-overlay: rgba(255, 255, 255, 0.9);
+            --nav-bg: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --accent: #ea580c;
+            --secondary: #0284c7;
+            --border-color: rgba(0,0,0,0.1);
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        /* --- TEMA SUPER SAIYAJIN --- */
+        body.theme-ssj {
+            --bg-image: url('https://preview.redd.it/ihv076kym8q61.jpg?width=1080&crop=smart&auto=webp&s=d9480d7530ae38848bac72962f28a545d05c89db');
+            --bg-overlay: rgba(30, 20, 0, 0.6);
+            --nav-bg: #2a1a00;
+            --card-bg: rgba(40, 30, 0, 0.9);
+            --text-primary: #fffbeb;
+            --text-secondary: #fcd34d;
+            --accent: #fbbf24; /* Dourado */
+            --secondary: #f59e0b;
+            --border-color: #fbbf24;
+            --shadow-color: rgba(251, 191, 36, 0.4);
+        }
+
+        /* Animações */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        @keyframes flash {
+            0% { opacity: 0; }
+            50% { opacity: 1; background: white; }
+            100% { opacity: 0; }
+        }
+        body.transforming { animation: shake 0.5s; overflow: hidden; }
+        #flash-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0;
+        }
+        body.transforming #flash-overlay { animation: flash 0.8s; }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #081c15 100%);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            background-attachment: fixed; 
-            color: #e0e0e0; 
-            margin: 0;
-            padding: 10px; /* Reduzido para mobile */
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family: var(--font-main);
+            color: var(--text-primary);
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            overflow: hidden; display: flex; flex-direction: column;
+            transition: background 0.5s ease;
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
         }
 
-        /* Animação do Fundo */
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .app-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-overlay); z-index: 0;
+            transition: background 0.5s ease;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 10px auto; /* Margem reduzida */
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 15px; /* Menos arredondado */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            overflow: hidden;
+        /* --- HEADER --- */
+        .top-bar {
+            height: 80px; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 15px; z-index: 10;
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--border-color);
         }
 
-        header {
-            text-align: center;
-            padding: 25px 15px; /* Padding reduzido */
-            background: rgba(255, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
+        .logo-area { display: flex; align-items: center; gap: 8px; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: var(--accent); color: #fff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border: 2px solid #fff; box-shadow: 0 0 15px var(--accent);
+            font-weight: 800; font-size: 1.2em;
         }
+        .app-title { font-family: var(--font-title); font-weight: 700; font-size: 1.1em; color: var(--accent); text-transform: uppercase; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
 
-        header h1 {
-            margin: 0;
-            font-size: 1.8em; /* Tamanho reduzido para mobile */
+        .controls { display: flex; gap: 8px; align-items: center; }
+        
+        input[type="month"] {
+            background: #ffffff !important; 
+            color: #000000 !important;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            padding: 5px;
+            font-family: var(--font-title);
             font-weight: 700;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
-        }
-
-        /* Menu de Navegação */
-        nav {
-            background: rgba(0, 0, 0, 0.1);
-            padding: 10px 5px; /* Padding reduzido */
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            /* Permite scroll horizontal se não couber */
-            white-space: nowrap;
-            overflow-x: auto; 
-        }
-
-        nav a {
-            display: inline-block;
-            text-decoration: none;
-            color: #d8f3dc; 
-            font-weight: 500;
-            padding: 10px 12px; /* Padding reduzido */
-            margin: 0 3px; /* Margem reduzida */
-            border-radius: 8px; /* Menos arredondado */
-            transition: all 0.3s ease;
             cursor: pointer;
-            background: transparent;
-            box-shadow: none;
-            font-size: 0.9em; /* Fonte menor no menu */
+            z-index: 20;
+            width: 125px;
         }
 
-        nav a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            transform: translateY(-2px);
+        .icon-btn {
+            background: var(--card-bg); border: 2px solid var(--accent);
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); cursor: pointer; transition: 0.3s;
+            box-shadow: 0 0 10px var(--shadow-color);
+        }
+        .icon-btn:hover { transform: scale(1.1); background: var(--accent); color: #fff; }
+
+        /* --- MAIN --- */
+        .main-content {
+            flex-grow: 1; display: flex; flex-direction: column;
+            overflow: hidden; position: relative; z-index: 5;
+            padding-bottom: 90px;
+        }
+        .scroll-area { flex-grow: 1; overflow-y: auto; padding: 20px; }
+
+        /* --- CARDS & UI --- */
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        
+        .z-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 15px; position: relative;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            transition: 0.2s;
+        }
+        .z-card h3 { 
+            margin: 0 0 5px 0; font-size: 0.75em; text-transform: uppercase; 
+            color: var(--text-secondary); font-family: var(--font-title); letter-spacing: 1px;
+        }
+        .z-card .val { font-size: 1.3em; font-weight: 800; color: var(--text-primary); }
+        .z-card.accent .val { color: var(--accent); text-shadow: 0 0 10px var(--shadow-color); }
+        .z-card.green .val { color: #22c55e; }
+        .z-card.red .val { color: #ef4444; }
+
+        /* --- LISTAS --- */
+        .trans-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .trans-item {
+            background: var(--card-bg); border-radius: 12px; padding: 12px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-left: 4px solid transparent; border-bottom: 1px solid var(--border-color);
+        }
+        .trans-item.receita { border-left-color: #22c55e; }
+        .trans-item.despesa { border-left-color: #ef4444; }
+        .trans-item.pago { border-left-color: var(--secondary); opacity: 0.7; }
+
+        /* --- CHART BOX --- */
+        .chart-box { 
+            background: var(--card-bg); padding: 15px; border-radius: var(--radius); 
+            height: 250px; margin-top: 20px; border: 1px solid var(--border-color); 
+            position: relative;
+        }
+        .chart-title { position: absolute; top: 10px; left: 0; width: 100%; text-align: center; font-size: 0.9em; color: var(--text-secondary); font-family: var(--font-title); font-weight: 700; z-index: 5; }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 450px;
+            background: var(--nav-bg); border-radius: 50px;
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid var(--accent); z-index: 100;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-secondary); width: 50px; height: 50px; border-radius: 50%;
+            transition: 0.3s; position: relative; cursor: pointer;
+        }
+        .nav-item.active {
+            background: var(--accent); color: #fff;
+            transform: translateY(-20px) scale(1.1);
+            box-shadow: 0 0 15px var(--accent); border: 2px solid #fff;
+        }
+        .nav-item span { 
+            font-size: 0.6em; position: absolute; bottom: -18px; opacity: 0; 
+            transition: 0.2s; white-space: nowrap; color: var(--accent); font-weight: 700;
+        }
+        .nav-item.active span { opacity: 1; bottom: -25px; }
+
+        /* --- COFRE --- */
+        .vault-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 400px; text-align: center; }
+        .pin-display { display: flex; gap: 15px; margin-bottom: 30px; }
+        .pin-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--accent); transition: 0.2s; }
+        .pin-dot.filled { background: var(--accent); box-shadow: 0 0 10px var(--accent); transform: scale(1.2); }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .num-btn {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: var(--card-bg); border: 2px solid var(--border-color);
+            color: var(--text-primary); font-size: 1.5em; font-family: var(--font-title);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.1s;
+        }
+        .num-btn:active { background: var(--accent); color: #fff; transform: scale(0.9); }
+
+        /* --- MODAL & BUTTONS --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal.open { display: flex; }
+        .modal-content { background: var(--nav-bg); width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; border: 2px solid var(--accent); box-shadow: 0 0 40px var(--shadow-color); position: relative; }
+
+        .btn-z {
+            background: var(--accent); color: #fff; border: none; padding: 12px;
+            width: 100%; border-radius: 12px; font-family: var(--font-title); font-weight: 700;
+            text-transform: uppercase; cursor: pointer; letter-spacing: 1px;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2); transition: 0.1s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-z:active { transform: translateY(3px); box-shadow: none; }
+        .btn-z.red { background: #ef4444; }
+        .btn-z.blue { background: var(--secondary); }
+
+        .btn-float {
+            position: fixed; bottom: 100px; right: 20px; width: 60px; height: 60px;
+            background: var(--accent); border-radius: 50%; border: 3px solid #fff;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px var(--accent); z-index: 90; cursor: pointer; color: #000;
+        }
+
+        input, select {
+            background: rgba(0,0,0,0.2); border: 1px solid var(--text-secondary);
+            padding: 12px; border-radius: 8px; color: var(--text-primary);
+            width: 100%; margin-bottom: 10px; font-weight: 600;
         }
         
-        nav a.active {
-            background: #52b788;
-            color: #081c15; 
-            font-weight: 700;
-            box-shadow: 0 0 10px rgba(82, 183, 136, 0.4); /* Glow reduzido */
-            transform: translateY(0);
-        }
+        .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 10px; max-height: 150px; overflow-y: auto; margin: 15px 0; }
+        .icon-opt { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); cursor: pointer; }
+        .icon-opt.selected { background: var(--accent); color: #fff; border-color: #fff; }
 
-        /* --- Seletor de Mês --- */
-        .month-selector-bar {
-            background: transparent;
-            padding: 15px 15px; /* Padding reduzido */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px; /* Gap reduzido */
-        }
-        
-        .month-selector-bar label {
-            font-weight: 500;
-            font-size: 1em; /* Tamanho reduzido */
-            color: #d8f3dc;
-        }
-        
-        #seletorMes {
-            font-family: 'Roboto', sans-serif;
-            font-size: 1em; /* Tamanho reduzido */
-            padding: 8px; /* Padding reduzido */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px; /* Menos arredondado */
-            color: #ffffff;
-            background: rgba(0, 0, 0, 0.3); 
-            box-shadow: none;
-        }
-        /* --- Fim do CSS Seletor --- */
-
-        /* Estilo das Seções */
-        section {
-            padding: 20px 15px; /* Padding reduzido */
-        }
-        
-        .page-section { display: none; }
-        .page-section.active { display: block; }
-
-        h2 {
-            font-size: 1.5em; /* Tamanho reduzido */
-            color: #ffffff; 
-            margin-top: 0;
-            padding-bottom: 10px; /* Padding reduzido */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Linha mais fina */
-            font-weight: 700;
-        }
-        
-        h3 {
-            color: #b7e4c7; 
-            font-weight: 500;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 6px; /* Padding reduzido */
-            font-size: 1.2em; /* Tamanho reduzido */
-        }
-
-        /* Estilo dos Grupos de Input */
-        .input-group {
-            display: flex;
-             /* NOVO: Quebra a linha em telas pequenas */
-            flex-direction: column; 
-            align-items: flex-start; /* Alinha label à esquerda */
-            margin-bottom: 15px; /* Margem reduzida */
-            padding: 8px 0; /* Padding reduzido */
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-        }
-        
-        .fixed-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px; /* Margem reduzida */
-            padding: 12px; /* Padding reduzido */
-            background: rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 8px; /* Menos arredondado */
-            flex-wrap: wrap; /* Permite quebra */
-        }
-        .fixed-item span {
-            font-size: 1em; /* Tamanho reduzido */
-            font-weight: 500;
-            color: #e0e0e0;
-             margin-bottom: 5px; /* Espaço se quebrar linha */
-        }
-        .fixed-item span:first-child {
-            color: #d8f3dc; 
-            margin-right: 10px; /* Espaço entre descrição e valor */
-        }
-        
-        .input-group label {
-            font-weight: 500;
-            font-size: 1em; /* Tamanho reduzido */
-            color: #d8f3dc; 
-            margin-bottom: 5px; /* Espaço entre label e input */
-        }
-
-        input[type="number"],
-        input[type="text"],
-        input[type="date"],
-        input[type="time"] {
-            padding: 10px 12px; /* Padding reduzido */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px; /* Menos arredondado */
-            font-size: 1em; /* Tamanho reduzido */
-            text-align: left; /* Alinha à esquerda no mobile */
-            width: 100%; /* Ocupa toda a largura */
-            box-sizing: border-box;
-            background: rgba(0, 0, 0, 0.3); 
-            color: #ffffff; 
-            box-shadow: none;
-            transition: all 0.2s ease-in-out;
-             margin-top: 5px; /* Espaço se estiver abaixo do label */
-        }
-        
-        input:focus {
-            outline: none;
-            background: rgba(0, 0, 0, 0.5);
-            border-color: #52b788; 
-            box-shadow: 0 0 8px rgba(82, 183, 136, 0.2); /* Glow menor */
-        }
-        
-        /* Ajuste para inputs em formulários dinâmicos */
-         form.add-item-form {
-            display: flex;
-            flex-direction: column; /* Coluna no mobile */
-            gap: 10px;
-            margin-bottom: 15px; /* Margem reduzida */
-        }
-        form.add-item-form input[type="text"],
-        form.add-item-form input[type="number"],
-        form.add-item-form input[type="date"],
-        form.add-item-form input[type="time"] { 
-            width: 100%; /* Largura total */
-            text-align: left; /* Alinha à esquerda */
-            min-width: 0; /* Remove min-width */
-        } 
-        form.add-item-form button { 
-            margin-top: 5px; /* Espaço */
-            padding: 10px 15px; /* Padding reduzido */
-            align-self: flex-end; /* Alinha botão à direita */
-        }
-
-        /* Resumo Financeiro */
-        .summary {
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            padding: 20px; /* Padding reduzido */
-            border-radius: 12px; /* Menos arredondado */
-            margin-bottom: 15px; /* Margem reduzida */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.1em; /* Tamanho reduzido */
-            margin-bottom: 10px; /* Margem reduzida */
-            font-weight: 700;
-            color: #f0f0f0;
-            flex-wrap: wrap; /* Quebra linha se necessário */
-        }
-        
-        .summary-item .receita-valor { color: #28a745 !important; }
-        .summary-item .despesa-valor { color: #dc3545 !important; }
-
-        .summary-item.saldo-final {
-            font-size: 1.3em; /* Tamanho reduzido */
-            color: #ffffff;
-            padding-top: 10px; /* Padding reduzido */
-            border-top: 1px solid rgba(255, 255, 255, 0.1); /* Linha mais fina */
-        }
-
-        .positive { color: #28a745; }
-        .negative { color: #dc3545; }
-
-        /* Botões */
-        button {
-            background: linear-gradient(145deg, #52b788, #40916c);
-            color: #081c15; 
-            font-weight: 700; 
-            border: none;
-            padding: 10px 18px; /* Padding reduzido */
-            border-radius: 8px; /* Menos arredondado */
-            cursor: pointer;
-            font-size: 0.9em; /* Tamanho reduzido */
-            transition: all 0.2s ease-in-out;
-            margin-top: 8px; /* Margem reduzida */
-            box-shadow: 0 3px 10px rgba(82, 183, 136, 0.2); /* Sombra menor */
-            text-shadow: none;
-        }
-
-        button:hover {
-            transform: translateY(-1px); /* Menos elevação */
-            box-shadow: 0 4px 15px rgba(82, 183, 136, 0.3); /* Sombra menor */
-        }
-        
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 5px rgba(82, 183, 136, 0.2); /* Sombra menor */
-        }
-
-        button.remove-btn {
-            background: linear-gradient(145deg, #e53935, #c62828);
-            color: white;
-            font-weight: 500;
-            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.2); /* Sombra menor */
-            font-size: 0.8em; /* Tamanho reduzido */
-            padding: 6px 10px; /* Padding reduzido */
-            margin-left: 8px; /* Margem reduzida */
-            margin-top: 0; 
-        }
-        button.remove-btn:hover {
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); /* Sombra menor */
-        }
-        button.remove-btn:active {
-            box-shadow: 0 1px 5px rgba(220, 53, 69, 0.2); /* Sombra menor */
-        }
-
-        /* Listas (Lazer, Tarefas, Manutenção, Gasolina) */
-        ul { list-style-type: none; padding-left: 0; }
-        ul li {
-            background: rgba(0, 0, 0, 0.15); 
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 12px; /* Padding reduzido */
-            border-radius: 8px; /* Menos arredondado */
-            margin-bottom: 8px; /* Margem reduzida */
-            border-left: none;
-            box-shadow: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #e0e0e0;
-            flex-wrap: wrap; 
-        }
-        ul li strong { 
-            color: #ffffff;
-            background-color: #2d6a4f; 
-            padding: 4px 8px; /* Padding reduzido */
-            border-radius: 5px; /* Menos arredondado */
-            font-size: 0.8em; /* Tamanho reduzido */
-            margin-right: 10px; /* Margem reduzida */
-        }
-        
-        ul li span {
-            flex-grow: 1;
-            margin-right: 8px; /* Margem reduzida */
-            word-break: break-word; 
-            font-size: 0.9em; /* Fonte menor nos itens */
-             width: calc(100% - 40px); /* Garante espaço para o botão */
-             margin-bottom: 5px; /* Espaço se quebrar linha */
-        }
-        
-        /* NOVO: Botão de remoção para listas <li> */
-        ul li .remove-btn-li {
-            background: linear-gradient(145deg, #e53935, #c62828);
-            color: white;
-            border: none;
-            border-radius: 50%; 
-            width: 22px; /* Tamanho reduzido */
-            height: 22px; /* Tamanho reduzido */
-            cursor: pointer;
-            font-size: 0.7em; /* Tamanho reduzido */
-            font-weight: 700;
-            line-height: 22px; /* Ajustado */
-            text-align: center;
-            padding: 0;
-            margin-left: 8px; /* Margem reduzida */
-            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2); /* Sombra menor */
-            transition: all 0.2s ease;
-            flex-shrink: 0; 
-        }
-        ul li .remove-btn-li:hover {
-            box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3); /* Sombra menor */
-            transform: scale(1.1);
-        }
-
-        /* Gráfico */
-        .grafico-container { 
-            max-width: 100%; /* Ocupa largura total no mobile */
-            margin: 20px auto; /* Margem reduzida */
-            padding: 15px; /* Padding reduzido */
-            border-radius: 12px; /* Menos arredondado */
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* --- Media Queries Adicionais --- */
-        
-        /* Telas um pouco maiores (tablets pequenos, celulares grandes em paisagem) */
-        @media (min-width: 600px) {
-            body { padding: 20px; }
-            .container { margin: 20px auto; border-radius: 20px; }
-            header { padding: 30px 20px; }
-            header h1 { font-size: 2.2em; }
-            nav { padding: 15px; }
-            nav a { padding: 12px 18px; margin: 0 5px; font-size: 1em; }
-            .month-selector-bar { padding: 20px 30px; }
-            .month-selector-bar label { font-size: 1.1em; }
-            #seletorMes { font-size: 1.1em; padding: 10px; }
-            section { padding: 25px 30px; }
-            h2 { font-size: 1.7em; }
-            h3 { font-size: 1.3em; }
-            .input-group { 
-                 flex-direction: row; /* Volta para linha */
-                 align-items: center; /* Centraliza verticalmente */
-            }
-             .input-group label { margin-bottom: 0; }
-             input[type="number"], input[type="text"], input[type="date"], input[type="time"] { 
-                 width: 200px; /* Largura original */
-                 text-align: right; /* Volta a alinhar à direita */
-                 margin-top: 0;
-             }
-            form.add-item-form { 
-                flex-direction: row; /* Volta para linha */
-            }
-            form.add-item-form input[type="text"] { flex-grow: 1; }
-            form.add-item-form input[type="number"] { width: 140px; }
-             form.add-item-form input[type="date"] { width: 150px; }
-             form.add-item-form input[type="time"] { width: 110px; }
-            .summary { padding: 25px; border-radius: 15px; }
-            .summary-item { font-size: 1.2em; }
-            .summary-item.saldo-final { font-size: 1.5em; }
-            button { padding: 12px 22px; font-size: 1em; }
-            button.remove-btn { padding: 8px 12px; font-size: 0.9em; }
-            ul li { padding: 15px; border-radius: 10px; }
-             ul li span { font-size: 1em; width: auto; margin-bottom: 0; }
-            ul li strong { font-size: 0.9em; }
-            ul li .remove-btn-li { width: 25px; height: 25px; font-size: 0.8em; line-height: 25px; }
-            .grafico-container { max-width: 600px; padding: 25px; border-radius: 15px; }
-        }
-
-        /* Telas de Desktop */
-         @media (min-width: 900px) {
-             /* Estilos originais podem ser reconfirmados aqui se necessário */
-              header h1 { font-size: 2.5em; }
-              /* ... outros ajustes finos para desktop ... */
-         }
-
+        .page-sec { display: none; animation: slideUp 0.3s; }
+        .page-sec.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Meu Organizador Financeiro</h1>
-        </header>
+<body class="theme-dark">
+
+<div id="flash-overlay"></div>
+<div class="app-overlay"></div>
+
+<!-- HEADER -->
+<header class="top-bar">
+    <div class="logo-area">
+        <div class="logo-icon">$</div>
+        <div class="app-title">Controle Financeiro</div>
+    </div>
+    <div class="controls">
+        <!-- PDF PRINT -->
+        <div class="icon-btn" id="btnPrint" onclick="gerarPDF()">
+            <i data-lucide="printer"></i>
+        </div>
+        <!-- SOM MUDO -->
+        <div class="icon-btn" id="btnMute" onclick="toggleMute()">
+            <i data-lucide="volume-2"></i>
+        </div>
+        <!-- TEMA -->
+        <div class="icon-btn" id="btnTransform" onclick="toggleTheme()">
+            <i data-lucide="zap"></i>
+        </div>
+        <input type="month" id="mesSelect">
+    </div>
+</header>
+
+<!-- CONTEÚDO -->
+<main class="main-content">
+    <div class="scroll-area">
         
-        <nav id="main-nav">
-            <a href="#principal" class="nav-link active">🏠 Principal</a>
-            <a href="#financeiro" class="nav-link">💰 Financeiro</a>
-            <a href="#compras" class="nav-link">🛒 Compras</a> 
-            <a href="#carro" class="nav-link">🚗 Carro</a>
-            <a href="#agenda" class="nav-link">📅 Agenda</a>
-        </nav>
-
-        <div class="month-selector-bar">
-            <label for="seletorMes">Selecionar Mês:</label>
-            <input type="month" id="seletorMes">
-        </div>
-
-        <!-- ================================== -->
-        <!-- PÁGINA 1: PRINCIPAL (da index.html) -->
-        <!-- ================================== -->
-        <div id="page-principal" class="page-section active">
-            <section>
-                <h2>📊 Resumo Geral do Mês</h2>
-                <div class="summary">
-                    <div class="summary-item">
-                        <span>Total de Receitas:</span>
-                        <span id="totalReceitasPrincipal" class="receita-valor">R$ 0,00</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Total de Despesas:</span>
-                        <span id="totalDespesasPrincipal" class="despesa-valor">R$ 0,00</span>
-                    </div>
-                    <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 15px 0;">
-                    <div class="summary-item saldo-final">
-                        <span>Saldo Final:</span>
-                        <span id="saldoFinalPrincipal" class="positive">R$ 0,00</span>
-                    </div>
+        <!-- HOME -->
+        <div id="page-home" class="page-sec active">
+            <div class="grid-stats">
+                <div class="z-card accent">
+                    <h3>Saldo Total</h3>
+                    <div class="val" id="dSaldo">R$ 0,00</div>
                 </div>
-            </section>
-
-            <section>
-                <h2>📈 Distribuição das Despesas</h2>
-                <!-- ATUALIZADO: ID e classe do container -->
-                <div id="graficoDespesasContainer" class="grafico-container">
-                    <canvas id="graficoDespesas"></canvas>
+                <div class="z-card green">
+                    <h3>Receitas</h3>
+                    <div class="val" id="dRec">R$ 0,00</div>
                 </div>
-            </section>
+                <div class="z-card red">
+                    <h3>Despesas</h3>
+                    <div class="val" id="dDesp">R$ 0,00</div>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <span class="chart-title">Balanço Financeiro</span>
+                <canvas id="chartHomeBar"></canvas>
+            </div>
             
-            <!-- ============================================== -->
-            <!-- NOVO: Seção para Gráfico de Cartão de Crédito -->
-            <!-- ============================================== -->
-            <section>
-                <h2>💳 Evolução da Fatura do Cartão</h2>
-                <div id="graficoCartaoContainer" class="grafico-container">
-                    <canvas id="graficoCartaoLinha"></canvas>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="chart-box" style="height: 200px;">
+                    <span class="chart-title">Categorias</span>
+                    <canvas id="chartHomeDoughnut"></canvas>
                 </div>
-            </section>
+                <div class="chart-box" style="height: 200px;">
+                    <span class="chart-title">Fluxo</span>
+                    <canvas id="chartHomeLine"></canvas>
+                </div>
+            </div>
         </div>
 
-        <!-- ======================================= -->
-        <!-- PÁGINA 2: FINANCEIRO (da financeiro.html) -->
-        <!-- ======================================= -->
-        <div id="page-financeiro" class="page-section">
-            <section>
-                <h2>💰 Resumo Financeiro</h2>
-                <div class="summary">
-                    <div class="summary-item">
-                        <span>Total de Receitas:</span>
-                        <span id="totalReceitasFinanceiro" class="receita-valor">R$ 0,00</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Total de Despesas Fixas + Extras:</span>
-                        <span id="totalDespesasFinanceiro" class="despesa-valor">R$ 0,00</span>
-                    </div>
-                </div>
-            </section>
-
-            <section>
-                <h2>✨ Receitas (Entradas)</h2>
-                <div class="input-group">
-                    <label for="salarioPaulo">Salário (Paulo Eduardo):</label>
-                    <input type="number" id="salarioPaulo" class="receita-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="salarioDiullia">Salário (Diullia):</label>
-                    <input type="number" id="salarioDiullia" class="receita-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="inss">Benefício INSS:</label>
-                    <input type="number" id="inss" class="receita-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                
-                <h3>Outras Fontes de Renda</h3>
-                <form id="formOutraRenda" class="add-item-form">
-                    <input type="text" id="outraRendaDescricao" placeholder="Descrição (Ex: Freelance)">
-                    <input type="number" id="outraRendaValor" placeholder="R$ 0,00" min="0" step="0.01">
-                    <button type="submit">+ Adicionar</button>
-                </form>
-                <div id="outrasRendasContainer"></div>
-            </section>
-
-            <section>
-                <h2>💸 Despesas Fixas (Saídas)</h2>
-                <div class="input-group">
-                    <label for="escola">Escola Crianças:</label>
-                    <input type="number" id="escola" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="agua">Conta de Água:</label>
-                    <input type="number" id="agua" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="luz">Conta de Luz:</label>
-                    <input type="number" id="luz" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="internet">Internet:</label>
-                    <input type="number" id="internet" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="financiamentoCasa">Financiamento Casa:</label>
-                    <input type="number" id="financiamentoCasa" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="financiamentoCarro">Financiamento Carro:</label>
-                    <input type="number" id="financiamentoCarro" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="seguroCarro">Seguro Carro:</label>
-                    <input type="number" id="seguroCarro" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                <div class="input-group">
-                    <label for="cartaoCredito">Cartão de Crédito (Fatura):</label>
-                    <input type="number" id="cartaoCredito" class="despesa-input" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-                
-                <h3>Outras Despesas</h3>
-                <form id="formOutraDespesa" class="add-item-form">
-                    <input type="text" id="outraDespesaDescricao" placeholder="Descrição (Ex: Presente)">
-                    <input type="number" id="outraDespesaValor" placeholder="R$ 0,00" min="0" step="0.01">
-                    <button type="submit">+ Adicionar</button>
-                </form>
-                <div id="outrasDespesasContainer"></div>
-            </section>
+        <!-- GRANA -->
+        <div id="page-grana" class="page-sec">
+            <div class="grid-stats">
+                <div class="z-card green"><h3>Receitas</h3><div class="val" id="gEntrada">R$ 0,00</div></div>
+                <div class="z-card red"><h3>A Pagar</h3><div class="val" id="gFalta">R$ 0,00</div></div>
+            </div>
+            <div class="chart-box" style="height: 200px; margin-bottom: 20px;">
+                <canvas id="chartGranaPie"></canvas>
+            </div>
+            <div id="listaTransacoes" class="trans-list"></div>
+            <div class="btn-float" onclick="abrirModalTrans()"><i data-lucide="plus"></i></div>
         </div>
 
-        <!-- =================================== -->
-        <!-- PÁGINA 3: COMPRAS (da compras.html) -->
-        <!-- =================================== -->
-        <div id="page-compras" class="page-section">
-            <section>
-                <h2>🛒 Alimentação (Supermercado)</h2>
-
-                <div class="input-group">
-                    <label for="valorTotalVA">Valor Recebido (VA):</label>
-                    <input type="number" id="valorTotalVA" placeholder="R$ 0,00" min="0" step="0.01">
-                </div>
-
-                <div class="summary" style="background-color: transparent; margin-top: 20px;">
-                    <div class="summary-item">
-                        <span>Total de Compras:</span>
-                        <span id="totalCompras" class="despesa-valor">R$ 0,00</span>
-                    </div>
-                    <hr style="border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 15px 0;">
-                    <div class="summary-item saldo-final" style="color: #28a745;">
-                        <span>Saldo Restante do Vale:</span>
-                        <span id="saldoVA" class="positive">R$ 0,00</span>
-                    </div>
-                </div>
-                
-                <h3>Lista de Compras</h3>
-                <form id="formAddItemCompra" class="add-item-form">
-                    <input type="text" id="itemCompraDescricao" placeholder="Nome do Item (Ex: Arroz)">
-                    <input type="number" id="itemCompraValor" placeholder="R$ 0,00" min="0" step="0.01">
-                    <button type="submit">+ Adicionar</button>
-                </form>
-                <ul id="listaComprasContainer"> 
-                    <!-- Itens da lista serão adicionados aqui -->
-                </ul>
-            </section>
-        </div>
-
-        <!-- ================================= -->
-        <!-- PÁGINA 4: CARRO (da carro.html) -->
-        <!-- ================================= -->
-        <div id="page-carro" class="page-section">
-            <section>
-                <h2>🚗 Manutenção do Carro</h2>
-                <form id="formManutencao" class="add-item-form">
-                    <input type="date" id="manutencaoData" style="width: 150px;">
-                    <input type="text" id="manutencaoDescricao" placeholder="Ex: Troca de Óleo, Pneu">
-                    <input type="number" id="manutencaoKm" placeholder="Próxima (KM)" style="width: 140px;">
-                    <input type="number" id="manutencaoValor" placeholder="Valor (R$)" style="width: 120px;" step="0.01">
-                    <button type="submit">+ Registrar</button>
-                </form>
-                <ul id="listaManutencao" style="margin-top: 20px;"></ul>
-            </section>
-
-            <section>
-                <h2>⛽️ Controle de Gasolina</h2>
-                <form id="formAbastecimento" class="add-item-form">
-                    <input type="date" id="gasData" style="width: 150px;">
-                    <input type="number" id="gasKmAtual" placeholder="KM Atual" style="width: 130px;">
-                    <input type="number" id="gasLitros" placeholder="Litros (L)" style="width: 120px;" step="0.01">
-                    <input type="number" id="gasValorTotal" placeholder="Valor Total (R$)" step="0.01"> <!-- Permite centavos -->
-                    <button type="submit">+ Registrar</button>
-                </form>
-                
-                <h3 style="margin-top: 20px; color: #f0f0f0;">Histórico de Abastecimento</h3>
-                <ul id="listaAbastecimento" style="margin-top: 20px;"></ul>
-            </section>
-        </div>
-
-        <!-- ================================== -->
-        <!-- PÁGINA 5: AGENDA (da agenda.html) -->
-        <!-- ================================== -->
-        <div id="page-agenda" class="page-section">
-            <section>
-                <h2>🏖️ Lazer e Agenda</h2>
-                <form id="formLazer" class="add-item-form">
-                    <input type="date" id="eventoData" style="width: 150px;">
-                    <input type="time" id="eventoHorario" style="width: 110px;">
-                    <input type="text" id="eventoDescricao" placeholder="Ex: Ir ao parque, Missa">
-                    <button type="submit">+ Agendar</button>
-                </form>
-                <ul id="listaEventos" style="margin-top: 20px;"></ul>
-            </section>
+        <!-- MERCADO -->
+        <div id="page-compras" class="page-sec">
+            <div class="z-card accent"><h3>Total Carrinho</h3><div class="val" id="totalMercado">R$ 0,00</div></div>
             
-            <section>
-                <h2>🏠 Tarefas de Casa</h2>
-                <form id="formTarefa" class="add-item-form">
-                    <input type="date" id="tarefaData" style="width: 150px;">
-                    <input type="time" id="tarefaHorario" style="width: 110px;">
-                    <input type="text" id="tarefaDescricao" placeholder="Ex: Lavar banheiros">
-                    <button type="submit">+ Agendar</button>
+            <div style="background: var(--card-bg); padding: 15px; border-radius: var(--radius); border: 1px solid var(--accent); margin-top: 20px;">
+                <form id="formMercado" style="display: flex; gap: 8px;">
+                    <input type="text" id="mItem" placeholder="Item" style="flex:2; margin:0">
+                    <input type="number" id="mQtd" placeholder="Qtd" style="flex:1; margin:0">
+                    <input type="number" id="mPreco" placeholder="R$" step="0.01" style="flex:1; margin:0">
+                    <button class="btn-z" style="width: auto; padding: 0 15px;"><i data-lucide="plus"></i></button>
                 </form>
-                <ul id="listaTarefas" style="margin-top: 20px;"></ul>
-            </section>
+            </div>
+            <div id="listaMercado" class="trans-list"></div>
+            <button class="btn-z red" style="margin-top: 20px;" onclick="limparMercado()">Limpar</button>
+        </div>
+
+        <!-- CARRO -->
+        <div id="page-carro" class="page-sec">
+            <div class="grid-stats">
+                <div class="z-card blue"><h3>Km/L</h3><div class="val" id="cConsumo">--</div></div>
+                <div class="z-card accent"><h3>Gasto Total</h3><div class="val" id="cGasto">R$ 0,00</div></div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="chart-box" style="height: 180px;"><canvas id="chartCarroPie"></canvas></div>
+                <div class="chart-box" style="height: 180px;"><canvas id="chartCarroLine"></canvas></div>
+            </div>
+            <div style="margin-top: 20px; display:flex; gap:10px;">
+                <button class="btn-z blue" onclick="toggleForm('formGasContainer')"><i data-lucide="fuel"></i></button>
+                <button class="btn-z accent" onclick="toggleForm('formManutContainer')"><i data-lucide="wrench"></i></button>
+            </div>
+            <div id="formGasContainer" style="display:none; margin-top:10px; background:var(--card-bg); padding:15px; border-radius:10px;">
+                <form id="formGas">
+                    <input type="date" id="gData" required>
+                    <input type="number" id="gKm" placeholder="KM Atual" required>
+                    <div style="display:flex; gap:10px;"><input type="number" id="gL" placeholder="Litros"><input type="number" id="gR" placeholder="Total R$"></div>
+                    <button class="btn-z">Salvar Gasolina</button>
+                </form>
+            </div>
+            <div id="formManutContainer" style="display:none; margin-top:10px; background:var(--card-bg); padding:15px; border-radius:10px;">
+                <form id="formManut">
+                    <input type="text" id="manDesc" placeholder="Descrição">
+                    <input type="number" id="manVal" placeholder="Valor R$">
+                    <button class="btn-z">Salvar Manutenção</button>
+                </form>
+            </div>
+            <div id="listaCarro" class="trans-list"></div>
+        </div>
+
+        <!-- COFRE -->
+        <div id="page-cofre" class="page-sec">
+            <!-- TELA LOGIN -->
+            <div id="vaultLogin" class="vault-container">
+                <i data-lucide="lock" style="width: 50px; height: 50px; color: var(--accent); margin-bottom: 20px;"></i>
+                <h2 style="margin-bottom: 20px;">Cofre Seguro</h2>
+                
+                <div class="pin-display">
+                    <div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div><div class="pin-dot" id="pd4"></div>
+                </div>
+
+                <div class="numpad">
+                    <div class="num-btn" onclick="typePin(1)">1</div><div class="num-btn" onclick="typePin(2)">2</div><div class="num-btn" onclick="typePin(3)">3</div>
+                    <div class="num-btn" onclick="typePin(4)">4</div><div class="num-btn" onclick="typePin(5)">5</div><div class="num-btn" onclick="typePin(6)">6</div>
+                    <div class="num-btn" onclick="typePin(7)">7</div><div class="num-btn" onclick="typePin(8)">8</div><div class="num-btn" onclick="typePin(9)">9</div>
+                    <div class="num-btn del" onclick="clearPin()">C</div><div class="num-btn" onclick="typePin(0)">0</div><div class="num-btn ok" onclick="checkPin()">OK</div>
+                </div>
+                
+                <p style="margin-top: 30px; color: var(--text-secondary); text-decoration: underline; cursor: pointer;" onclick="resetVault()">Esqueci / Resetar</p>
+            </div>
+
+            <!-- TELA CONTEÚDO -->
+            <div id="vaultContent" style="display: none;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                    <div style="display:flex; flex-direction:column;">
+                        <h3>Senhas</h3>
+                        <small style="color:var(--text-secondary); font-size:0.7em;">ID: <span id="userIdDisplay">---</span></small>
+                    </div>
+                    <button class="btn-z red" style="width: auto;" onclick="sairCofre()">Sair</button>
+                </div>
+                
+                <!-- Backup Input -->
+                <div style="margin-bottom:15px; padding:10px; border:1px solid var(--border-color); border-radius:8px;">
+                    <small>Recuperar Backup (Colar ID):</small>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="restoreIdInput" placeholder="ID Antigo" style="margin:0;">
+                        <button class="btn-z blue" style="width:auto;" onclick="restaurarBackup()">OK</button>
+                    </div>
+                </div>
+
+                <form id="formPass" style="background:var(--card-bg); padding:15px; border-radius:10px; margin-bottom:20px;">
+                    <input type="text" id="pSite" placeholder="Site/App">
+                    <input type="text" id="pUser" placeholder="Usuário">
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="pPass" placeholder="Senha" style="flex:1; margin:0">
+                        <button class="btn-z" style="width:auto">Salvar</button>
+                    </div>
+                </form>
+                <div id="listaSenhas" class="trans-list"></div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- NAV -->
+<nav class="bottom-nav">
+    <div class="nav-item active" onclick="navTo('page-home', this)"><i data-lucide="layout-grid"></i><span>Home</span></div>
+    <div class="nav-item" onclick="navTo('page-grana', this)"><i data-lucide="zap"></i><span>Grana</span></div>
+    <div class="nav-item" onclick="navTo('page-compras', this)"><i data-lucide="shopping-cart"></i><span>Compras</span></div>
+    <div class="nav-item" onclick="navTo('page-carro', this)"><i data-lucide="car"></i><span>Carro</span></div>
+    <div class="nav-item" onclick="navTo('page-cofre', this)"><i data-lucide="shield"></i><span>Cofre</span></div>
+</nav>
+
+<!-- MODAL -->
+<div id="modalTrans" class="modal">
+    <div class="modal-content">
+        <h3 style="text-align:center; color:var(--accent); margin-bottom:15px;">Lançamento</h3>
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button class="btn-z" id="btnRec" style="background:var(--card-bg); border:1px solid #fff;" onclick="setTipo('receita')">Receita</button>
+            <button class="btn-z" id="btnDes" style="background:var(--card-bg); border:1px solid #fff;" onclick="setTipo('despesa')">Despesa</button>
+        </div>
+        <input type="text" id="tDesc" placeholder="Descrição">
+        <input type="number" id="tVal" placeholder="Valor" step="0.01">
+        <input type="date" id="tData">
+        <label>Ícone:</label>
+        <div class="icon-grid" id="iconGrid"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-z" onclick="salvarTransacao()">SALVAR</button>
+            <button class="btn-z red" onclick="document.getElementById('modalTrans').classList.remove('open')">FECHAR</button>
         </div>
     </div>
+</div>
 
-    <!-- ================================== -->
-    <!-- SCRIPTS JAVASCRIPT COMBINADOS      -->
-    <!-- ================================== -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
-    <!-- Scripts do Firebase (SDKs) -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script>
+    // --- FIREBASE ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
+        authDomain: "finan1313.firebaseapp.com",
+        projectId: "finan1313",
+        storageBucket: "finan1313.firebasestorage.app",
+        messagingSenderId: "92060764433",
+        appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
     
-    <!-- Script Principal (Lógica do App) -->
-    <script>
-        // Configuração do Firebase fornecida pelo usuário
-        const firebaseConfig = {
-          apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
-          authDomain: "finan1313.firebaseapp.com",
-          projectId: "finan1313",
-          storageBucket: "finan1313.firebasestorage.app",
-          messagingSenderId: "92060764433",
-          appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
-        };
+    // SISTEMA DE ID (Para persistência)
+    let USER_ID = localStorage.getItem('dbz_z_uid');
+    if (!USER_ID) {
+        USER_ID = 'u_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
+        localStorage.setItem('dbz_z_uid', USER_ID);
+    }
+
+    // --- PDF GENERATOR ---
+    function gerarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
         
-        // Inicializa o Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // Conecta ao Firestore
+        // Título
+        doc.setFontSize(20);
+        doc.text("Relatório Financeiro Z", 14, 22);
+        doc.setFontSize(12);
+        doc.text("Mês: " + document.getElementById('mesSelect').value, 14, 30);
         
-        console.log("Firebase conectado ao projeto:", firebaseConfig.projectId);
+        // Resumo
+        const rec = document.getElementById('dRec').innerText;
+        const desp = document.getElementById('dDesp').innerText;
+        const saldo = document.getElementById('dSaldo').innerText;
+        doc.text(`Receita: ${rec} | Despesa: ${desp} | Saldo: ${saldo}`, 14, 40);
 
-        // --- NOVO: Configurações Padrão do Gráfico para Dark Mode ---
-        Chart.defaults.color = '#e0e0e0';
-        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-        
-        // --- LÓGICA DE NAVEGAÇÃO ---
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            const navLinks = document.querySelectorAll('.nav-link');
-            const pageSections = document.querySelectorAll('.page-section');
-            const seletorMes = document.getElementById('seletorMes');
-
-            // Define o valor padrão do seletor para o mês atual
-            const d = new Date();
-            const mesAtual = (d.getMonth() + 1).toString().padStart(2, '0');
-            const anoAtual = d.getFullYear();
-            seletorMes.value = `${anoAtual}-${mesAtual}`;
-            
-            // Ouvinte para quando o mês mudar
-            seletorMes.addEventListener('change', () => {
-                console.log("Mês selecionado:", getMesId());
-                // Recarrega todos os dados de todas as páginas
-                recarregarTodosDados();
-            });
-
-            function showPage(pageId) {
-                // Oculta todas as seções
-                pageSections.forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                // Mostra a seção correta
-                const activePage = document.getElementById(`page-${pageId}`);
-                if (activePage) {
-                    activePage.classList.add('active');
-                }
-                
-                // Atualiza a classe 'active' nos links
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.hash === `#${pageId}`) {
-                        link.classList.add('active');
-                    }
-                });
-                
-                // Ação especial ao carregar a página principal
-                if (pageId === 'principal') {
-                    // Recarrega os dados do Firebase para atualizar o resumo
-                    carregarDadosPrincipal();
-                }
-            }
-
-            // Adiciona ouvintes de clique aos links de navegação
-            navLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault(); // Impede o pulo da página
-                    const pageId = link.hash.substring(1); // Pega "principal" de "#principal"
-                    showPage(pageId);
-                });
-            });
-
-            // Inicializa todas as lógicas de cada "página"
-            initPrincipal();
-            initFinanceiro();
-            initCompras();
-            initCarro();
-            initAgenda();
-            
-            // Mostra a página principal por padrão
-            showPage('principal');
+        // Transações
+        let rows = [];
+        transacoes.forEach(t => {
+            rows.push([t.data, t.desc, t.tipo, "R$ " + t.val.toFixed(2), t.pago ? "Sim" : "Não"]);
         });
 
-        // Função para recarregar tudo ao mudar o mês
-        function recarregarTodosDados() {
-            // Limpa containers dinâmicos
-            document.getElementById('outrasRendasContainer').innerHTML = '';
-            document.getElementById('outrasDespesasContainer').innerHTML = '';
-            document.getElementById('listaComprasContainer').innerHTML = '';
-            document.getElementById('listaManutencao').innerHTML = ''; 
-            document.getElementById('listaAbastecimento').innerHTML = ''; // NOVO: Limpa lista de gasolina
-            document.getElementById('listaEventos').innerHTML = ''; 
-            document.getElementById('listaTarefas').innerHTML = ''; 
-            
-            // Recarrega os dados de todas as seções
-            carregarDadosPrincipal();
-            carregarDadosFinanceiro();
-            carregarDadosCompras();
-            carregarDadosCarro(); 
-            carregarDadosAgenda(); 
-        }
-        
-        // --- Funções Auxiliares Globais ---
-        function formatCurrency(value) {
-            // Garante que o valor é um número antes de formatar
-            const numberValue = parseFloat(value) || 0;
-            return numberValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-        
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const [year, month, day] = dateString.split('-');
-            return `${day}/${month}/${year}`;
-        }
-        
-        // Função para pegar o ID do mês selecionado
-        function getMesId() {
-            const seletor = document.getElementById('seletorMes');
-            if (seletor && seletor.value) {
-                return seletor.value; // Retorna "AAAA-MM"
-            }
-            
-            // Fallback para o mês atual se algo der errado
-            const d = new Date();
-            const mes = (d.getMonth() + 1).toString().padStart(2, '0');
-            const ano = d.getFullYear();
-            return `${ano}-${mes}`;
-        }
-        
-        // NOVO: Função auxiliar para obter o ID do mês anterior
-        function obterMesAnteriorId(mesId, mesesAtras = 1) {
-            const [ano, mes] = mesId.split('-').map(Number);
-            const data = new Date(ano, mes - 1, 1); // Mês no Date é 0-indexado
-            data.setMonth(data.getMonth() - mesesAtras);
-            const anoAnterior = data.getFullYear();
-            const mesAnterior = (data.getMonth() + 1).toString().padStart(2, '0');
-            return `${anoAnterior}-${mesAnterior}`;
-        }
+        doc.autoTable({
+            startY: 50,
+            head: [['Data', 'Descrição', 'Tipo', 'Valor', 'Pago']],
+            body: rows,
+            theme: 'grid',
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [255, 126, 0] } // Laranja Goku
+        });
 
-        // --- Lógica da Página Principal (index.html) ---
-        
-        function initPrincipal() {
-            // Esta função é chamada no DOMContentLoaded
-            carregarDadosPrincipal();
+        doc.save(`Relatorio_Financeiro_${document.getElementById('mesSelect').value}.pdf`);
+    }
+
+    // --- AUDIO SYSTEM ---
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let ctx = new AudioCtx();
+    let isMuted = false;
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        const icon = isMuted ? 'volume-x' : 'volume-2';
+        document.getElementById('btnMute').innerHTML = `<i data-lucide="${icon}"></i>`;
+        lucide.createIcons();
+    }
+
+    function playSound(type) {
+        if (isMuted) return;
+        if (ctx.state === 'suspended') ctx.resume();
+        const now = ctx.currentTime;
+
+        if (type === 'click') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now); osc.stop(now + 0.1);
+        } 
+        else if (type === 'ssj') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, now);
+            osc.frequency.exponentialRampToValueAtTime(800, now + 1.5); 
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0.5, now + 1.0);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 2.5);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(now); osc.stop(now + 2.5);
+
+            // Aura Noise
+            const bufferSize = ctx.sampleRate * 2.5; 
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'lowpass';
+            noiseFilter.frequency.setValueAtTime(400, now);
+            noiseFilter.frequency.linearRampToValueAtTime(1500, now + 1.0); 
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.1, now);
+            noiseGain.gain.linearRampToValueAtTime(0.8, now + 1.0);
+            noiseGain.gain.linearRampToValueAtTime(0, now + 2.5);
+            noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(ctx.destination);
+            noise.start(now);
         }
-        
-        // ATUALIZADO: Carrega todos os totais e histórico do cartão
-        async function carregarDadosPrincipal() {
-            const mesId = getMesId(); // Usa o mês selecionado
-            const docRef = db.collection("financas").doc(mesId);
-            
-            try {
-                const docSnap = await docRef.get();
-                let totalReceitas = 0;
-                let totalDespesasFixas = 0; // Despesas da pág. Financeiro
-                let totalCompras = 0;
-                let totalGasolina = 0; 
-                let totalManutencao = 0; 
-
-                if (docSnap.exists) { 
-                    const dados = docSnap.data();
-                    totalReceitas = dados.totalReceitas || 0;
-                    totalDespesasFixas = dados.totalDespesasFixas || 0; 
-                    totalCompras = dados.totalCompras || 0;
-                    totalGasolina = dados.totalGasolina || 0; 
-                    totalManutencao = dados.totalManutencao || 0; 
-                } else {
-                    console.log(`Nenhum documento encontrado para ${mesId}, iniciando do zero.`);
-                }
-
-                const totalDespesasGeral = totalDespesasFixas + totalCompras + totalGasolina + totalManutencao;
-                const saldoFinal = totalReceitas - totalDespesasGeral;
-
-                // Atualiza o Resumo
-                document.getElementById('totalReceitasPrincipal').innerText = formatCurrency(totalReceitas);
-                document.getElementById('totalDespesasPrincipal').innerText = formatCurrency(totalDespesasGeral);
-                document.getElementById('saldoFinalPrincipal').innerText = formatCurrency(saldoFinal);
-
-                const saldoEl = document.getElementById('saldoFinalPrincipal');
-                if (saldoFinal >= 0) {
-                    saldoEl.classList.remove('negative');
-                    saldoEl.classList.add('positive');
-                } else {
-                    saldoEl.classList.remove('positive');
-                    saldoEl.classList.add('negative');
-                }
-                
-                // ATUALIZADO: Gráfico agora exclui gasolina
-                gerarGraficoDespesas(totalDespesasFixas, totalCompras, totalManutencao);
-                
-                // NOVO: Carrega e exibe o histórico do cartão
-                carregarEExibirHistoricoCartao();
-                
-            } catch (error) {
-                console.error("Erro ao carregar dados principais:", error);
-            }
+        else if (type === 'tap') {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(1200, now);
+            gain.gain.setValueAtTime(0.05, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+            osc.start(now); osc.stop(now + 0.05);
         }
+    }
 
-        // ATUALIZADO: Gráfico de Rosca (Doughnut) com 3 categorias
-        function gerarGraficoDespesas(despesasFixas, compras, manutencao) {
-            const ctx = document.getElementById('graficoDespesas').getContext('2d');
-            if (window.myPieChart) {
-                window.myPieChart.destroy();
-            }
-            window.myPieChart = new Chart(ctx, {
-                type: 'doughnut', 
-                data: {
-                    labels: ['Despesas Fixas', 'Compras', 'Manutenção'], // Gasolina removida
-                    datasets: [{
-                        data: [
-                            despesasFixas > 0 ? despesasFixas : 0, 
-                            compras > 0 ? compras : 0,
-                            // gasolina > 0 ? gasolina : 0, // Removido
-                            manutencao > 0 ? manutencao : 0
-                        ],
-                        backgroundColor: [
-                            '#dc3545', // Vermelho (Fixas)
-                            '#ffc107', // Amarelo (Compras)
-                           // '#fd7e14', // Laranja (Gasolina) - Removido
-                            '#6f42c1'  // Roxo (Manutenção)
-                        ],
-                        borderColor: 'rgba(0, 0, 0, 0.2)', // Borda escura
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Permite ajustar altura/largura
-                    cutout: '60%', 
-                    plugins: {
-                        legend: { 
-                            position: 'top',
-                            labels: {
-                                color: '#e0e0e0' 
-                            }
-                        },
-                        title: { 
-                            display: true, 
-                            text: 'Distribuição das Saídas (Exceto Gasolina)', // Título atualizado
-                            color: '#ffffff' 
-                        }
-                    }
-                }
-            });
+    // --- LOGICA DE TEMAS ---
+    let currentTheme = 0; // 0: Dark, 1: Light, 2: SSJ
+    const themes = ['theme-dark', 'theme-light', 'theme-ssj'];
+
+    function toggleTheme() {
+        document.body.classList.remove(themes[currentTheme]);
+        currentTheme = (currentTheme + 1) % 3;
+        const newTheme = themes[currentTheme];
+        playSound('click');
+
+        if (newTheme === 'theme-ssj') {
+            document.body.classList.add('transforming');
+            playSound('ssj');
+            setTimeout(() => {
+                document.body.classList.remove('transforming');
+                document.body.classList.add(newTheme);
+            }, 500); 
+        } else {
+            document.body.classList.add(newTheme);
         }
-        
-        // =============================================== //
-        // NOVO: Funções para o Gráfico de Cartão de Crédito //
-        // =============================================== //
-        
-        async function carregarEExibirHistoricoCartao() {
-            const mesIdAtual = getMesId();
-            const mesesParaBuscar = 6; // Quantos meses no histórico
-            const idsDosMeses = [];
-            const labelsGrafico = [];
-            const dadosGrafico = [];
+        setTimeout(refreshAllCharts, 600);
+    }
 
-            // Monta a lista de IDs dos meses (do mais antigo para o atual)
-            for (let i = mesesParaBuscar - 1; i >= 0; i--) {
-                const mesId = obterMesAnteriorId(mesIdAtual, i);
-                idsDosMeses.push(mesId);
-                labelsGrafico.push(mesId); // Usa o ID como label inicial
-            }
-            
-            console.log("Buscando histórico do cartão para:", idsDosMeses);
+    // --- GLOBALS ---
+    let transacoes = [], mercadoList = [], carroList = [];
+    let tipoAtual = 'receita';
+    let iconeAtual = 'zap';
+    let charts = {};
+    let pinBuffer = "";
 
-            try {
-                // Busca os dados de todos os meses em paralelo
-                const promises = idsDosMeses.map(id => db.collection("financas").doc(id).get());
-                const snapshots = await Promise.all(promises);
+    const icones = ['zap','droplet','wifi','home','smartphone','gamepad-2','coffee','shopping-cart','car','bus','gift','heart','music','book','briefcase','star','dollar-sign','lock','anchor','aperture','award','battery-charging','bell','camera','crown','diamond','dumbbell'];
 
-                // Processa os resultados
-                snapshots.forEach(docSnap => {
-                    let valorCartao = 0;
-                    if (docSnap.exists) {
-                        const dados = docSnap.data();
-                        // Busca o valor salvo como 'cartaoCredito'
-                        valorCartao = dados.cartaoCredito || 0; 
-                    }
-                    dadosGrafico.push(valorCartao);
-                });
-                
-                console.log("Dados do cartão:", dadosGrafico);
-                gerarGraficoCartao(labelsGrafico, dadosGrafico);
-
-            } catch (error) {
-                console.error("Erro ao carregar histórico do cartão:", error);
-                // Limpa o gráfico em caso de erro
-                gerarGraficoCartao([], []); 
-            }
-        }
-
-        function gerarGraficoCartao(labels, data) {
-            const ctx = document.getElementById('graficoCartaoLinha').getContext('2d');
-            if (window.myLineChart) {
-                window.myLineChart.destroy();
-            }
-            window.myLineChart = new Chart(ctx, {
-                type: 'line', // Tipo Linha
-                data: {
-                    labels: labels, // Ex: ["2025-05", "2025-06", ...]
-                    datasets: [{
-                        label: 'Fatura Cartão (R$)',
-                        data: data,
-                        fill: true, // Preenche a área abaixo da linha
-                        borderColor: '#52b788', // Verde
-                        backgroundColor: 'rgba(82, 183, 136, 0.2)', // Verde transparente
-                        tension: 0.3, // Curva suave
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#52b788',
-                        pointHoverRadius: 7,
-                        pointRadius: 5,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false, // Permite ajustar altura/largura
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                // Formata o eixo Y como moeda
-                                callback: function(value, index, values) {
-                                    return formatCurrency(value);
-                                }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }, // Oculta a legenda padrão
-                        title: {
-                            display: true,
-                            text: 'Gasto Mensal - Cartão de Crédito (Últimos 6 Meses)',
-                            color: '#ffffff'
-                        },
-                         tooltip: { // Formata o tooltip
-                             callbacks: {
-                                 label: function(context) {
-                                     let label = context.dataset.label || '';
-                                     if (label) {
-                                         label += ': ';
-                                     }
-                                     if (context.parsed.y !== null) {
-                                         label += formatCurrency(context.parsed.y);
-                                     }
-                                     return label;
-                                 }
-                             }
-                         }
-                    }
-                }
-            });
-        }
+    window.onload = () => {
+        lucide.createIcons();
+        document.getElementById('mesSelect').value = new Date().toISOString().slice(0, 7);
         
-        // --- Lógica da Página Financeiro (financeiro.html) ---
-        
-        function initFinanceiro() {
-            carregarDadosFinanceiro();
-            
-            // ATUALIZADO: Captura o submit do formulário de Renda
-            document.getElementById('formOutraRenda').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const descricaoInput = document.getElementById('outraRendaDescricao');
-                const valorInput = document.getElementById('outraRendaValor');
-                
-                const descricao = descricaoInput.value;
-                const valor = parseFloat(valorInput.value) || 0;
-                
-                if (!descricao || valor <= 0) {
-                    alert('Preencha a descrição e um valor válido.');
-                    return;
-                }
-                
-                criarItemRendaUI({ descricao, valor }); // Adiciona na UI
-                calcularTudoFinanceiro(); // Salva totais E a lista
-                
-                // Limpa o formulário
-                descricaoInput.value = '';
-                valorInput.value = '';
-            });
-            
-            // ATUALIZADO: Captura o submit do formulário de Despesa
-            document.getElementById('formOutraDespesa').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const descricaoInput = document.getElementById('outraDespesaDescricao');
-                const valorInput = document.getElementById('outraDespesaValor');
-                
-                const descricao = descricaoInput.value;
-                const valor = parseFloat(valorInput.value) || 0;
-                
-                if (!descricao || valor <= 0) {
-                    alert('Preencha a descrição e um valor válido.');
-                    return;
-                }
-                
-                criarItemDespesaUI({ descricao, valor }); // Adiciona na UI
-                calcularTudoFinanceiro(); // Salva totais E a lista
-                
-                // Limpa o formulário
-                descricaoInput.value = '';
-                valorInput.value = '';
-            });
-            
-            // Adiciona ouvintes aos inputs fixos APENAS uma vez
-             document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
-                 // Garante que o ouvinte só seja adicionado uma vez
-                 if(!input.hasAttribute('data-listener-added')) {
-                    input.addEventListener('input', calcularTudoFinanceiro);
-                    input.setAttribute('data-listener-added', 'true');
-                 }
-            });
-        }
-        
-        // ATUALIZADO: Cria o item "fixo" de Renda na UI
-        function criarItemRendaUI(item) {
-            const container = document.getElementById('outrasRendasContainer');
-            const newItem = document.createElement('div');
-            newItem.classList.add('fixed-item'); // Mudei a classe
-            newItem.innerHTML = `
-                <span>${item.descricao}</span>
-                <span class="receita-valor">${formatCurrency(item.valor)}</span>
-                <button class="remove-btn-li">X</button>
-            `;
-            
-            // Adiciona dados ao elemento para fácil leitura
-            newItem.dataset.descricao = item.descricao;
-            newItem.dataset.valor = item.valor;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                container.removeChild(newItem);
-                calcularTudoFinanceiro(); // Recalcula e salva tudo
-            });
-            container.appendChild(newItem);
-        }
-        
-        // ATUALIZADO: Cria o item "fixo" de Despesa na UI
-        function criarItemDespesaUI(item) {
-            const container = document.getElementById('outrasDespesasContainer');
-            const newItem = document.createElement('div');
-            newItem.classList.add('fixed-item'); // Mudei a classe
-            newItem.innerHTML = `
-                <span>${item.descricao}</span>
-                <span class="despesa-valor">${formatCurrency(item.valor)}</span>
-                <button class="remove-btn-li">X</button>
-            `;
-            
-            // Adiciona dados ao elemento para fácil leitura
-            newItem.dataset.descricao = item.descricao;
-            newItem.dataset.valor = item.valor;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                container.removeChild(newItem);
-                calcularTudoFinanceiro(); // Recalcula e salva tudo
-            });
-            container.appendChild(newItem);
-        }
-
-        // ATUALIZADO: Calcula e Salva TUDO (Totais e Listas)
-        async function calcularTudoFinanceiro() {
-            let totalReceitas = 0;
-            let totalDespesasFixas = 0; // Nome alterado para clareza
-            
-            let dadosParaSalvar = {
-                outrasRendas: [],
-                outrasDespesas: []
+        // Render Icons
+        const ig = document.getElementById('iconGrid');
+        icones.forEach(ic => {
+            const d = document.createElement('div'); d.className = 'icon-opt';
+            d.innerHTML = `<i data-lucide="${ic}"></i>`;
+            d.onclick = () => {
+                document.querySelectorAll('.icon-opt').forEach(x => x.classList.remove('selected'));
+                d.classList.add('selected'); iconeAtual = ic; playSound('tap');
             };
+            ig.appendChild(d);
+        });
 
-            // Soma Receitas Fixas
-            document.querySelectorAll('#page-financeiro .receita-input').forEach(input => {
-                const valor = parseFloat(input.value) || 0;
-                totalReceitas += valor;
-                if (input.id) dadosParaSalvar[input.id] = valor; 
-            });
-            
-            // Soma Rendas Extras (lendo dos itens "fixos")
-            document.querySelectorAll('#outrasRendasContainer .fixed-item').forEach(item => {
-                const descricao = item.dataset.descricao;
-                const valor = parseFloat(item.dataset.valor) || 0;
-                totalReceitas += valor;
-                dadosParaSalvar.outrasRendas.push({ descricao, valor });
-            });
+        document.getElementById('mesSelect').addEventListener('change', carregarDados);
+        carregarDados();
+    };
 
-            // Soma Despesas Fixas
-            document.querySelectorAll('#page-financeiro .despesa-input').forEach(input => {
-                const valor = parseFloat(input.value) || 0;
-                totalDespesasFixas += valor;
-                if (input.id) dadosParaSalvar[input.id] = valor;
-            });
-            
-            // Soma Despesas Extras (lendo dos itens "fixos")
-            document.querySelectorAll('#outrasDespesasContainer .fixed-item').forEach(item => {
-                const descricao = item.dataset.descricao;
-                const valor = parseFloat(item.dataset.valor) || 0;
-                totalDespesasFixas += valor;
-                dadosParaSalvar.outrasDespesas.push({ descricao, valor });
-            });
+    function navTo(pageId, el) {
+        playSound('click');
+        document.querySelectorAll('.page-sec').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        el.classList.add('active');
+        
+        if(pageId==='page-cofre') sairCofre();
+        refreshAllCharts();
+    }
 
-            // Atualiza o Resumo da página
-            document.getElementById('totalReceitasFinanceiro').innerText = formatCurrency(totalReceitas);
-            document.getElementById('totalDespesasFinanceiro').innerText = formatCurrency(totalDespesasFixas);
+    function getDocRef() { return db.collection('users').doc(USER_ID).collection('meses').doc(document.getElementById('mesSelect').value); }
 
-            // Salva no Firebase
-            const mesId = getMesId();
-            try {
-                dadosParaSalvar.totalReceitas = totalReceitas;
-                dadosParaSalvar.totalDespesasFixas = totalDespesasFixas; // Nome atualizado
-                
-                // Salva o valor específico do cartão de crédito para o gráfico histórico
-                const valorCartao = parseFloat(document.getElementById('cartaoCredito')?.value) || 0;
-                dadosParaSalvar.cartaoCredito = valorCartao;
-                
-                await db.collection("financas").doc(mesId).set(dadosParaSalvar, { merge: true });
-                console.log("Dados financeiros salvos!", mesId);
-                
-                // Atualiza o gráfico principal
-                carregarDadosPrincipal(); 
-                
-            } catch (error) {
-                console.error("Erro ao salvar dados financeiros:", error);
-            }
+    async function carregarDados() {
+        const doc = await getDocRef().get();
+        if(doc.exists) {
+            const d = doc.data();
+            transacoes = d.lancamentos || [];
+            mercadoList = d.mercado || [];
+            carroList = d.carro || [];
+        } else {
+            transacoes = []; mercadoList = []; carroList = [];
+        }
+        renderAll();
+    }
+
+    function renderAll() {
+        renderTransacoes();
+        renderMercadoList();
+        renderCarroList();
+        refreshAllCharts();
+    }
+
+    // --- GRANA ---
+    function setTipo(t) {
+        playSound('tap');
+        tipoAtual = t;
+        const bR = document.getElementById('btnRec'), bD = document.getElementById('btnDes');
+        if(t==='receita') { bR.style.background='#22c55e'; bR.style.color='#fff'; bD.style.background='rgba(0,0,0,0.2)'; }
+        else { bD.style.background='#ef4444'; bD.style.color='#fff'; bR.style.background='rgba(0,0,0,0.2)'; }
+    }
+
+    function abrirModalTrans() { playSound('click'); document.getElementById('modalTrans').classList.add('open'); }
+
+    async function salvarTransacao() {
+        const desc = document.getElementById('tDesc').value, val = parseFloat(document.getElementById('tVal').value);
+        if(!desc || !val) return;
+        playSound('ssj'); 
+        transacoes.push({ id: Date.now(), tipo: tipoAtual, desc, val, data: document.getElementById('tData').value, icon: iconeAtual, pago: false });
+        await getDocRef().set({ lancamentos: transacoes }, { merge: true });
+        document.getElementById('modalTrans').classList.remove('open');
+        renderTransacoes();
+    }
+
+    async function togglePago(id) {
+        playSound('tap');
+        const idx = transacoes.findIndex(t => t.id === id);
+        if(idx > -1) { transacoes[idx].pago = !transacoes[idx].pago; await getDocRef().update({ lancamentos: transacoes }); renderTransacoes(); }
+    }
+
+    async function delItem(arr, id) {
+        if(!confirm('Excluir?')) return;
+        if(arr==='transacoes') transacoes=transacoes.filter(t=>t.id!==id);
+        else if(arr==='mercado') mercadoList.splice(id,1);
+        else carroList.splice(id,1);
+        await getDocRef().set({ lancamentos:transacoes, mercado:mercadoList, carro:carroList }, {merge:true});
+        renderAll();
+    }
+
+    function renderTransacoes() {
+        const div = document.getElementById('listaTransacoes'); div.innerHTML='';
+        let rec=0, desp=0, pago=0;
+        transacoes.sort((a,b)=>new Date(a.data)-new Date(b.data));
+        transacoes.forEach(t => {
+            if(t.tipo==='receita') rec+=t.val;
+            else { desp+=t.val; if(t.pago) pago+=t.val; }
+            div.innerHTML += `
+            <div class="trans-item ${t.tipo==='receita'?'receita':(t.pago?'pago':'despesa')}">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i data-lucide="${t.icon}"></i>
+                    <div><strong>${t.desc}</strong><br><small>${t.data||''}</small></div>
+                </div>
+                <div style="text-align:right">
+                    <div>R$ ${t.val.toFixed(2)}</div>
+                    ${t.tipo==='despesa' ? `<i data-lucide="${t.pago?'check-circle':'circle'}" onclick="togglePago(${t.id})" style="cursor:pointer; color:${t.pago?'#22c55e':'#fff'}"></i>` : ''}
+                    <i data-lucide="trash-2" onclick="delItem('transacoes',${t.id})" style="cursor:pointer; margin-left:8px; color:#ef4444"></i>
+                </div>
+            </div>`;
+        });
+        document.getElementById('gEntrada').innerText=`R$ ${rec.toFixed(2)}`;
+        document.getElementById('gFalta').innerText=`R$ ${(desp-pago).toFixed(2)}`;
+        // Home
+        document.getElementById('dRec').innerText=`R$ ${rec.toFixed(2)}`;
+        document.getElementById('dDesp').innerText=`R$ ${desp.toFixed(2)}`;
+        document.getElementById('dSaldo').innerText=`R$ ${(rec-pago).toFixed(2)}`;
+        lucide.createIcons();
+    }
+
+    // --- MERCADO ---
+    document.getElementById('formMercado').onsubmit = async (e) => {
+        e.preventDefault();
+        mercadoList.push({ item: document.getElementById('mItem').value, qtd: document.getElementById('mQtd').value, preco: document.getElementById('mPreco').value });
+        await getDocRef().update({ mercado: mercadoList }); renderMercadoList(); e.target.reset();
+    };
+    function renderMercadoList() {
+        const div = document.getElementById('listaMercado'); div.innerHTML=''; let total=0;
+        mercadoList.forEach((i, idx) => {
+            let sub = i.qtd*i.preco; total+=sub;
+            div.innerHTML += `<div class="trans-item"><div>${i.qtd}x ${i.item}</div><div>R$ ${sub.toFixed(2)} <i data-lucide="trash-2" onclick="delItem('mercado',${idx})"></i></div></div>`;
+        });
+        document.getElementById('totalMercado').innerText=`R$ ${total.toFixed(2)}`;
+        lucide.createIcons();
+    }
+    async function limparMercado() { if(confirm('Limpar?')) { mercadoList=[]; await getDocRef().update({mercado:[]}); renderMercadoList(); } }
+
+    // --- CARRO ---
+    function toggleForm(id) { document.getElementById(id).style.display = document.getElementById(id).style.display==='none'?'block':'none'; }
+    document.getElementById('formGas').onsubmit = async(e) => {
+        e.preventDefault();
+        carroList.push({ type:'gas', data: document.getElementById('gData').value, km: document.getElementById('gKm').value, litros: document.getElementById('gL').value, valor: parseFloat(document.getElementById('gR').value) });
+        await saveCar(); e.target.reset(); toggleForm('formGasContainer');
+    };
+    document.getElementById('formManut').onsubmit = async(e) => {
+        e.preventDefault();
+        carroList.push({ type:'man', desc: document.getElementById('manDesc').value, valor: parseFloat(document.getElementById('manVal').value) });
+        await saveCar(); e.target.reset(); toggleForm('formManutContainer');
+    };
+    async function saveCar() { await getDocRef().update({ carro: carroList }); renderCarroList(); }
+    function renderCarroList() {
+        const div = document.getElementById('listaCarro'); div.innerHTML=''; let total=0, gas=[];
+        carroList.forEach((i, idx) => {
+            total+=i.valor; if(i.type==='gas') gas.push(i);
+            div.innerHTML += `<div class="trans-item"><div>${i.type==='gas'?'⛽ '+i.km+'km':'🔧 '+i.desc}</div><div>R$ ${i.valor.toFixed(2)} <i data-lucide="trash-2" onclick="delItem('carro',${idx})"></i></div></div>`;
+        });
+        document.getElementById('cGasto').innerText=`R$ ${total.toFixed(2)}`;
+        gas.sort((a,b)=>a.km-b.km);
+        if(gas.length>1) document.getElementById('cConsumo').innerText = ((gas[gas.length-1].km - gas[gas.length-2].km)/gas[gas.length-1].litros).toFixed(1);
+        lucide.createIcons();
+    }
+
+    // --- GRÁFICOS ---
+    function destroyChart(id) { if(charts[id]) charts[id].destroy(); }
+    
+    function refreshAllCharts() {
+        const textColor = document.body.classList.contains('theme-light') ? '#333' : '#fff';
+        Chart.defaults.color = textColor;
+        Chart.defaults.font.family = "'Nunito', sans-serif";
+        
+        // 1. Home Bar (Rec vs Desp)
+        let rec=0, desp=0;
+        transacoes.forEach(t => t.tipo==='receita'?rec+=t.val:desp+=t.val);
+        destroyChart('homeBar');
+        if(document.getElementById('chartHomeBar')) {
+            charts.homeBar = new Chart(document.getElementById('chartHomeBar'), {
+                type: 'bar', data: { labels: ['Receita', 'Despesa'], datasets: [{ data: [rec, desp], backgroundColor: ['#22c55e', '#ef4444'], borderRadius: 8 }] },
+                options: { plugins: { legend: {display:false} }, scales: { y: { ticks: { color: textColor } }, x: { ticks: { color: textColor } } } }
+            });
         }
 
-        // ATUALIZADO: Carrega dados E listas "fixas"
-        async function carregarDadosFinanceiro() {
-            const mesId = getMesId();
-            const docRef = db.collection("financas").doc(mesId);
-
-            // Limpa os campos fixos
-            document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
-                input.value = '';
-                // Não remove ouvintes aqui, eles são adicionados uma vez no initFinanceiro
-            });
-            // Limpa containers dinâmicos
-            document.getElementById('outrasRendasContainer').innerHTML = '';
-            document.getElementById('outrasDespesasContainer').innerHTML = '';
-
-            try {
-                const docSnap = await docRef.get();
-                if (docSnap.exists) { 
-                    const dados = docSnap.data();
-                    // Preenche os campos fixos
-                    document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
-                        if (input.id && dados[input.id] !== undefined) {
-                            input.value = dados[input.id];
-                        }
-                    });
-                    
-                    if (dados.outrasRendas && Array.isArray(dados.outrasRendas)) {
-                        dados.outrasRendas.forEach(item => criarItemRendaUI(item));
-                    }
-                    
-                    if (dados.outrasDespesas && Array.isArray(dados.outrasDespesas)) {
-                        dados.outrasDespesas.forEach(item => criarItemDespesaUI(item));
-                    }
-                }
-                // Adiciona ouvintes aos inputs fixos APENAS se ainda não tiverem sido adicionados
-                // (Isso evita adicionar múltiplos ouvintes ao trocar de mês)
-                 if(!document.getElementById('salarioPaulo').hasAttribute('data-listener-added')) {
-                     document.querySelectorAll('#page-financeiro .receita-input, #page-financeiro .despesa-input').forEach(input => {
-                        input.addEventListener('input', calcularTudoFinanceiro);
-                        input.setAttribute('data-listener-added', 'true'); // Marca que o ouvinte foi adicionado
-                    });
-                 }
-                
-                calcularTudoFinanceiro(); // Calcula ao carregar
-                
-            } catch (error) {
-                console.error("Erro ao carregar dados financeiros:", error);
-            }
-        }
-        
-        // --- Lógica da Página Compras (compras.html) ---
-        
-        function initCompras() {
-            carregarDadosCompras();
-            
-            // ATUALIZADO: Captura o submit do formulário
-            document.getElementById('formAddItemCompra').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const descricaoInput = document.getElementById('itemCompraDescricao');
-                const valorInput = document.getElementById('itemCompraValor');
-                
-                const descricao = descricaoInput.value;
-                const valor = parseFloat(valorInput.value) || 0;
-
-                if (!descricao || valor <= 0) {
-                    alert('Preencha a descrição e um valor válido.');
-                    return;
-                }
-                
-                criarItemCompraUI({ descricao, valor }); // Adiciona na UI
-                // calcularAlimentacao(); // Salva totais - Removido, chamado por salvarListaCompras
-                salvarListaCompras(); // Salva a lista
-                
-                descricaoInput.value = '';
-                valorInput.value = '';
-            });
-            
-             // Garante que o ouvinte só seja adicionado uma vez
-             const inputVA = document.getElementById('valorTotalVA');
-             if(!inputVA.hasAttribute('data-listener-added')) {
-                inputVA.addEventListener('input', calcularAlimentacao);
-                inputVA.setAttribute('data-listener-added', 'true');
-             }
-        }
-        
-        // ATUALIZADO: Cria o item de Compra na UI (agora é <li>)
-        function criarItemCompraUI(item = { descricao: '', valor: 0 }) {
-            const container = document.getElementById('listaComprasContainer');
-            const newItem = document.createElement('li'); // Mudei para <li>
-            newItem.innerHTML = `
-                <span><strong>${item.descricao}</strong> - ${formatCurrency(item.valor)}</span>
-                <button class="remove-btn-li">X</button>
-            `;
-            
-            // Adiciona dados ao elemento
-            newItem.dataset.descricao = item.descricao;
-            newItem.dataset.valor = item.valor;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                container.removeChild(newItem);
-                // calcularAlimentacao(); // Recalcula e salva o total - Removido, chamado por salvarListaCompras
-                salvarListaCompras(); // Salva a lista atualizada
-            });
-            container.appendChild(newItem);
-        }
-        
-        // ATUALIZADO: Salva a lista de compras E recalcula/salva o total
-        async function salvarListaCompras() {
-            const mesId = getMesId();
-            let listaCompras = [];
-            let totalCompras = 0; // Recalcula o total aqui
-            
-            document.querySelectorAll('#listaComprasContainer li').forEach(item => {
-                const valorItem = parseFloat(item.dataset.valor) || 0;
-                listaCompras.push({
-                    descricao: item.dataset.descricao,
-                    valor: valorItem
-                });
-                totalCompras += valorItem; // Soma ao total
-            });
-            
-             // Atualiza o total na UI
-            document.getElementById('totalCompras').innerText = formatCurrency(totalCompras);
-            const valorVA = parseFloat(document.getElementById('valorTotalVA').value) || 0;
-            document.getElementById('saldoVA').innerText = formatCurrency(valorVA - totalCompras);
-            
-            try {
-                await db.collection("financas").doc(mesId).set({ 
-                    listaCompras: listaCompras,
-                    totalCompras: totalCompras, // Salva o total recalculado
-                    valorTotalVA: valorVA // Salva o valor do VA junto
-                 }, { merge: true });
-                console.log("Lista e total de compras salvos!", mesId);
-                carregarDadosPrincipal(); // Atualiza gráfico
-            } catch (error) {
-                console.error("Erro ao salvar lista de compras:", error);
-            }
-        }
-        
-        // ATUALIZADO: Calcula o total E salva os totais (apenas quando o VA muda)
-        async function calcularAlimentacao() {
-             let totalCompras = 0;
-             document.querySelectorAll('#listaComprasContainer li').forEach(item => {
-                totalCompras += parseFloat(item.dataset.valor) || 0;
-            });
-            const valorVA = parseFloat(document.getElementById('valorTotalVA').value) || 0;
-            const saldoVA = valorVA - totalCompras;
-
-            // Atualiza o resumo
-            document.getElementById('totalCompras').innerText = formatCurrency(totalCompras);
-            document.getElementById('saldoVA').innerText = formatCurrency(saldoVA);
-
-            // Salva no Firebase APENAS o valor do VA e o total (a lista é salva separadamente)
-            const mesId = getMesId();
-            try {
-                await db.collection("financas").doc(mesId).set({
-                    totalCompras: totalCompras, // Garante que o total está certo
-                    valorTotalVA: valorVA
-                }, { merge: true });
-                console.log("Dados de compras (VA/Total) salvos!", mesId);
-                
-                carregarDadosPrincipal(); // Atualiza gráfico
-                
-            } catch (error) {
-                console.error("Erro ao salvar dados de compras:", error);
-            }
-        }
-        
-        // ATUALIZADO: Carrega dados E a lista
-        async function carregarDadosCompras() {
-            const mesId = getMesId();
-            const docRef = db.collection("financas").doc(mesId);
-
-            // Limpa o campo
-            const inputVA = document.getElementById('valorTotalVA');
-            inputVA.value = '';
-            // Garante que o ouvinte só seja adicionado uma vez
-            if(!inputVA.hasAttribute('data-listener-added')) {
-                inputVA.addEventListener('input', calcularAlimentacao);
-                inputVA.setAttribute('data-listener-added', 'true');
-            }
-
-
-            // Limpa a lista de compras
-            document.getElementById('listaComprasContainer').innerHTML = '';
-            
-            try {
-                const docSnap = await docRef.get();
-                if (docSnap.exists) { 
-                    const dados = docSnap.data();
-                    if(dados.valorTotalVA !== undefined) {
-                        inputVA.value = dados.valorTotalVA; // Usa o inputVA diretamente
-                    }
-                    
-                    if (dados.listaCompras && Array.isArray(dados.listaCompras)) {
-                        dados.listaCompras.forEach(item => criarItemCompraUI(item));
-                    }
-                }
-                
-                calcularAlimentacao(); // Calcula os totais
-                
-            } catch (error) {
-                console.error("Erro ao carregar dados de compras:", error);
-            }
-        }
-
-        // --- Lógica da Página Carro (carro.html) ---
-        
-        function initCarro() {
-            carregarDadosCarro(); 
-            
-            // ATUALIZADO: Captura o submit de Abastecimento
-            document.getElementById('formAbastecimento').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const item = {
-                    data: document.getElementById('gasData').value,
-                    kmAtual: parseFloat(document.getElementById('gasKmAtual').value) || 0,
-                    litros: parseFloat(document.getElementById('gasLitros').value) || 0,
-                    valorTotal: parseFloat(document.getElementById('gasValorTotal').value) || 0
-                };
-                
-                if (!item.data || item.kmAtual <= 0 || item.litros <= 0 || item.valorTotal <= 0) {
-                    alert('Preencha todos os campos de abastecimento com valores válidos.');
-                    return;
-                }
-                
-                salvarListaAbastecimento(item); // Salva no Firebase (já chama carregarDadosCarro)
-                document.getElementById('formAbastecimento').reset();
-            });
-            
-            // ATUALIZADO: Captura o submit de Manutenção
-            document.getElementById('formManutencao').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const item = {
-                    data: document.getElementById('manutencaoData').value,
-                    descricao: document.getElementById('manutencaoDescricao').value,
-                    km: document.getElementById('manutencaoKm').value,
-                    valor: parseFloat(document.getElementById('manutencaoValor').value) || 0 // NOVO
-                };
-                
-                if (!item.data || !item.descricao) {
-                    alert('Preencha pelo menos a data e a descrição da manutenção.');
-                    return;
-                }
-                
-                // Não precisa chamar criarItemManutencaoUI aqui, pois salvarListaManutencao recarrega
-                salvarListaManutencao(item); // Salva no Firebase
-                document.getElementById('formManutencao').reset();
-            });
-        }
-        
-        // ATUALIZADO: Cria item de Manutenção na UI
-        function criarItemManutencaoUI(item) {
-            const lista = document.getElementById('listaManutencao');
-            const newItem = document.createElement('li');
-            let alertaKm = item.km ? `(Alerta p/ ${item.km} KM)` : '';
-            let valorInfo = item.valor > 0 ? ` - ${formatCurrency(item.valor)}` : ''; // NOVO
-            
-            newItem.innerHTML = `
-                <span><strong>${formatDate(item.data)}</strong> - ${item.descricao} ${alertaKm}${valorInfo}</span>
-                <button class="remove-btn-li">X</button>
-            `;
-            
-            // Adiciona dados para facilitar salvar/remover
-            newItem.dataset.data = item.data;
-            newItem.dataset.descricao = item.descricao;
-            newItem.dataset.km = item.km || '';
-            newItem.dataset.valor = item.valor || 0;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                lista.removeChild(newItem);
-                salvarListaManutencao(); // Salva a lista atualizada
-            });
-            
-            lista.appendChild(newItem);
-        }
-        
-        // ATUALIZADO: Salva a lista de Manutenção E o total
-        async function salvarListaManutencao(novoItem = null) { // Aceita novo item
-            const mesId = getMesId();
-            const itens = [];
-            let totalManutencao = 0; 
-            
-            // Lê da UI
-            document.querySelectorAll('#listaManutencao li').forEach(li => {
-               const item = {
-                   data: li.dataset.data,
-                   descricao: li.dataset.descricao,
-                   km: li.dataset.km,
-                   valor: parseFloat(li.dataset.valor) || 0
-               };
-               // Evita adicionar o novo item duas vezes se ele já estiver na UI
-               if(!novoItem || item.data !== novoItem.data || item.descricao !== novoItem.descricao) {
-                  itens.push(item);
-                  totalManutencao += item.valor; 
-               }
-            });
-            
-            // Adiciona novo item se houver
-             if(novoItem) { 
-                itens.push(novoItem);
-                totalManutencao += novoItem.valor;
-            }
-            
-             // Reordena por data 
-            itens.sort((a, b) => new Date(a.data) - new Date(b.data));
-            
-            try {
-                await db.collection("financas").doc(mesId).set({ 
-                    listaManutencao: itens,
-                    totalManutencao: totalManutencao 
-                }, { merge: true });
-                console.log("Lista de manutenção salva!", mesId);
-                carregarDadosCarro(); // Recarrega para mostrar ordenado
-                carregarDadosPrincipal(); // Atualiza o resumo
-            } catch (error) {
-                console.error("Erro ao salvar lista de manutenção:", error);
-            }
-        }
-        
-        // ATUALIZADO: Cria item de Abastecimento na UI
-        function criarItemAbastecimentoUI(item, consumo = 0) {
-            const lista = document.getElementById('listaAbastecimento');
-            const newItem = document.createElement('li');
-            let consumoInfo = '';
-             if (consumo > 0) {
-                consumoInfo = `(<span style="color: ${consumo >= 10 ? '#28a745' : '#ffc107'};">${consumo.toFixed(2)} KM/L</span>)`; // Cor condicional
-            } else if (consumo === 0 && ultimoKmAnterior > 0) { // Só mostra se tiver KM anterior
-                 consumoInfo = '(Primeiro registro do mês)'; // Mantido
-            } else if (consumo === 0 && ultimoKmAnterior === 0) {
-                 consumoInfo = '(Referência anterior não encontrada)';
-            } else { // consumo < 0 indica erro de KM
-                 consumoInfo = '<span style="color: #dc3545;">(KM inválido!)</span>';
-            }
-            
-            newItem.innerHTML = `
-                <span><strong>${formatDate(item.data)}</strong> - ${formatCurrency(item.valorTotal)} / ${item.litros}L - ${item.kmAtual} KM ${consumoInfo}</span>
-                <button class="remove-btn-li">X</button>
-            `;
-            
-            // Adiciona dados para facilitar
-            newItem.dataset.data = item.data;
-            newItem.dataset.kmAtual = item.kmAtual;
-            newItem.dataset.litros = item.litros;
-            newItem.dataset.valorTotal = item.valorTotal;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                lista.removeChild(newItem);
-                salvarListaAbastecimento(); // Salva a lista atualizada (sem o item novo)
-            });
-            
-            // Adiciona no INÍCIO da lista (mais recente primeiro)
-            lista.prepend(newItem);
-        }
-        
-        // ATUALIZADO: Salva a lista de Abastecimento E o total
-        async function salvarListaAbastecimento(novoItem = null) {
-            const mesId = getMesId();
-            const itens = [];
-            let totalGasolina = 0;
-            
-            // Lê todos os itens da UI (exceto o novo, se houver)
-            document.querySelectorAll('#listaAbastecimento li').forEach(li => {
-                // Lê do final para o começo da lista visual (prepend)
-                const item = {
-                   data: li.dataset.data,
-                   kmAtual: parseFloat(li.dataset.kmAtual),
-                   litros: parseFloat(li.dataset.litros),
-                   valorTotal: parseFloat(li.dataset.valorTotal)
-                };
-                 // Verifica se o item já existe (evita duplicar ao salvar)
-                if (!novoItem || (item.data !== novoItem.data || item.kmAtual !== novoItem.kmAtual)) {
-                   itens.push(item);
-                   totalGasolina += item.valorTotal;
+        // 2. Home Doughnut (Cats)
+        let cats={};
+        transacoes.forEach(t => { if(t.tipo==='despesa') cats[t.icon] = (cats[t.icon]||0)+t.val; });
+        destroyChart('homePie');
+        if(document.getElementById('chartHomeDoughnut')) {
+            charts.homePie = new Chart(document.getElementById('chartHomeDoughnut'), {
+                type: 'doughnut', 
+                data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#ff7e00','#2855ff','#ffee00','#00e676','#d500f9'] }] },
+                options: { 
+                    plugins: { 
+                        legend: { position:'bottom', labels: { usePointStyle: true, padding: 15 } } 
+                    },
+                    layout: { padding: { top: 20 } }
                 }
             });
-            
-            // Adiciona o novo item (se houver)
-            if (novoItem) {
-                itens.push(novoItem);
-                totalGasolina += novoItem.valorTotal;
-            }
-            
-            // Reordena por data e KM (importante para o cálculo do consumo)
-            itens.sort((a, b) => {
-                if (a.data === b.data) return a.kmAtual - b.kmAtual;
-                return new Date(a.data) - new Date(b.data);
-            });
-            
-            try {
-                await db.collection("financas").doc(mesId).set({ 
-                    listaAbastecimento: itens,
-                    totalGasolina: totalGasolina 
-                }, { merge: true });
-                console.log("Lista de abastecimento salva!", mesId);
-                
-                // Recarrega os dados do carro para mostrar o consumo correto
-                carregarDadosCarro();
-                carregarDadosPrincipal(); // Atualiza o resumo
-                
-            } catch (error) {
-                console.error("Erro ao salvar lista de abastecimento:", error);
-            }
-        }
-        
-        let ultimoKmAnterior = 0; // Variável global para guardar o último KM do mês anterior
-        
-        // ATUALIZADO: Carrega a lista de Manutenção e Gasolina
-        async function carregarDadosCarro() {
-            const mesId = getMesId();
-            const docRef = db.collection("financas").doc(mesId);
-            
-            document.getElementById('listaManutencao').innerHTML = ''; // Limpa a lista
-            document.getElementById('listaAbastecimento').innerHTML = ''; // Limpa a lista
-            
-            ultimoKmAnterior = 0; // Reseta a variável global
-            
-            try {
-                // Busca KM do mês anterior PRIMEIRO e FORA do IF principal
-                const mesAnteriorId = obterMesAnteriorId(mesId);
-                const docAnteriorSnap = await db.collection("financas").doc(mesAnteriorId).get();
-                if (docAnteriorSnap.exists) {
-                    const dadosAnteriores = docAnteriorSnap.data();
-                    if (dadosAnteriores.listaAbastecimento && dadosAnteriores.listaAbastecimento.length > 0) {
-                        const ultimoAbastecimentoAnterior = [...dadosAnteriores.listaAbastecimento].sort((a, b) => { // Cria cópia para não alterar original
-                            if (a.data === b.data) return a.kmAtual - b.kmAtual;
-                            return new Date(a.data) - new Date(b.data);
-                        }).pop();
-                        ultimoKmAnterior = ultimoAbastecimentoAnterior.kmAtual;
-                        console.log(`Último KM do mês anterior (${mesAnteriorId}): ${ultimoKmAnterior}`);
-                    }
-                }
-
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    const dados = docSnap.data();
-                    
-                    // Carrega Manutenção (ordenado por data)
-                    if (dados.listaManutencao && Array.isArray(dados.listaManutencao)) {
-                        const listaManutencaoOrd = [...dados.listaManutencao].sort((a,b) => new Date(a.data) - new Date(b.data)); // Cria cópia
-                        listaManutencaoOrd.forEach(item => criarItemManutencaoUI(item));
-                    }
-                    
-                    // Carrega Abastecimento e calcula consumo
-                    if (dados.listaAbastecimento && Array.isArray(dados.listaAbastecimento)) {
-                        const listaAbastecimentoOrd = [...dados.listaAbastecimento].sort((a, b) => { // Cria cópia
-                            if (a.data === b.data) return a.kmAtual - b.kmAtual;
-                            return new Date(a.data) - new Date(b.data);
-                        });
-                        
-                        for (let i = 0; i < listaAbastecimentoOrd.length; i++) {
-                            const item = listaAbastecimentoOrd[i];
-                            let consumo = 0;
-                            let kmAnteriorReal = 0; 
-
-                            if (i === 0) {
-                                kmAnteriorReal = ultimoKmAnterior; // Usa o KM buscado anteriormente
-                            } else {
-                                kmAnteriorReal = listaAbastecimentoOrd[i-1].kmAtual;
-                            }
-
-                            if (kmAnteriorReal > 0 && item.kmAtual > kmAnteriorReal) { 
-                                const kmRodados = item.kmAtual - kmAnteriorReal;
-                                if (item.litros > 0) {
-                                    consumo = kmRodados / item.litros;
-                                }
-                            } else if (kmAnteriorReal > 0 && item.kmAtual <= kmAnteriorReal) {
-                                consumo = -1; // Sinaliza erro de KM
-                            }
-                            
-                            criarItemAbastecimentoUI(item, consumo);
-                        }
-                    }
-                } else {
-                     console.log(`Nenhum documento encontrado para ${mesId}.`);
-                     // Mesmo sem dados do mês atual, mostra o primeiro item com base no mês anterior (se houver)
-                     // Isso pode ser ajustado conforme a preferência
-                }
-            } catch (error) {
-                console.error("Erro ao carregar listas do carro:", error);
-            }
-        }
-        
-        // --- Lógica da Página Agenda (agenda.html) ---
-        
-        function initAgenda() {
-            carregarDadosAgenda(); 
-            
-            // ADICIONAR EVENTO DE LAZER
-            document.getElementById('formLazer').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const item = {
-                    data: document.getElementById('eventoData').value,
-                    horario: document.getElementById('eventoHorario').value, // NOVO
-                    descricao: document.getElementById('eventoDescricao').value
-                };
-                if (!item.data || !item.descricao) {
-                    alert('Preencha pelo menos a data e a descrição.');
-                    return;
-                }
-                criarItemLazerUI(item);
-                document.getElementById('formLazer').reset();
-                salvarListasAgenda(); 
-            });
-            
-            // ADICIONAR TAREFA DE CASA
-            document.getElementById('formTarefa').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const item = {
-                    data: document.getElementById('tarefaData').value,
-                    horario: document.getElementById('tarefaHorario').value, // NOVO
-                    descricao: document.getElementById('tarefaDescricao').value
-                };
-                if (!item.data || !item.descricao) {
-                    alert('Preencha pelo menos a data e a descrição.');
-                    return;
-                }
-                criarItemTarefaUI(item);
-                document.getElementById('formTarefa').reset();
-                salvarListasAgenda(); 
-            });
-        }
-        
-        // ATUALIZADO: Cria item de Lazer na UI (com horário)
-        function criarItemLazerUI(item) {
-            const lista = document.getElementById('listaEventos');
-            const newItem = document.createElement('li');
-            let horarioInfo = item.horario ? `às ${item.horario}` : ''; // NOVO
-            
-            newItem.innerHTML = `
-                <span><strong>${formatDate(item.data)}</strong> ${horarioInfo} - ${item.descricao}</span>
-                <button class="remove-btn-li">X</button>
-            `;
-            
-            // Adiciona dados
-            newItem.dataset.data = item.data;
-            newItem.dataset.horario = item.horario || '';
-            newItem.dataset.descricao = item.descricao;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                lista.removeChild(newItem);
-                salvarListasAgenda(); // Salva a lista atualizada
-            });
-            
-            lista.appendChild(newItem);
-        }
-        
-        // ATUALIZADO: Cria item de Tarefa na UI (com horário)
-        function criarItemTarefaUI(item) {
-            const lista = document.getElementById('listaTarefas');
-            const newItem = document.createElement('li');
-            let horarioInfo = item.horario ? `às ${item.horario}` : ''; // NOVO
-            
-            newItem.innerHTML = `
-                <span><strong>${formatDate(item.data)}</strong> ${horarioInfo} - ${item.descricao}</span>
-                <button class="remove-btn-li">X</button>
-            `;
-            
-            // Adiciona dados
-            newItem.dataset.data = item.data;
-            newItem.dataset.horario = item.horario || '';
-            newItem.dataset.descricao = item.descricao;
-            
-            newItem.querySelector('.remove-btn-li').addEventListener('click', () => {
-                lista.removeChild(newItem);
-                salvarListasAgenda(); // Salva a lista atualizada
-            });
-            
-            lista.appendChild(newItem);
-        }
-        
-        // ATUALIZADO: Salva AMBAS as listas da Agenda (com horário)
-        async function salvarListasAgenda() {
-            const mesId = getMesId();
-            let listaEventos = [];
-            let listaTarefas = [];
-            
-            document.querySelectorAll('#listaEventos li').forEach(li => {
-                listaEventos.push({ 
-                    data: li.dataset.data, 
-                    horario: li.dataset.horario,
-                    descricao: li.dataset.descricao 
-                });
-            });
-            
-            document.querySelectorAll('#listaTarefas li').forEach(li => {
-                listaTarefas.push({ 
-                    data: li.dataset.data, 
-                    horario: li.dataset.horario,
-                    descricao: li.dataset.descricao 
-                });
-            });
-             // Reordena por data e hora
-            listaEventos.sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
-            listaTarefas.sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00')));
-            
-            try {
-                await db.collection("financas").doc(mesId).set({ 
-                    listaEventos: listaEventos,
-                    listaTarefas: listaTarefas
-                }, { merge: true });
-                console.log("Listas da agenda salvas!", mesId);
-            } catch (error) {
-                console.error("Erro ao salvar listas da agenda:", error);
-            }
-        }
-        
-        // ATUALIZADO: Carrega AMBAS as listas da Agenda (com horário)
-        async function carregarDadosAgenda() {
-            const mesId = getMesId();
-            const docRef = db.collection("financas").doc(mesId);
-            
-            document.getElementById('listaEventos').innerHTML = ''; // Limpa a lista
-            document.getElementById('listaTarefas').innerHTML = ''; // Limpa a lista
-            
-            try {
-                const docSnap = await docRef.get();
-                if (docSnap.exists) {
-                    const dados = docSnap.data();
-                     // Ordena antes de exibir
-                    if (dados.listaEventos && Array.isArray(dados.listaEventos)) {
-                        const listaEventosOrd = [...dados.listaEventos].sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00'))); // Cria cópia
-                        listaEventosOrd.forEach(item => criarItemLazerUI(item));
-                    }
-                    if (dados.listaTarefas && Array.isArray(dados.listaTarefas)) {
-                        const listaTarefasOrd = [...dados.listaTarefas].sort((a, b) => new Date(a.data + 'T' + (a.horario || '00:00')) - new Date(b.data + 'T' + (b.horario || '00:00'))); // Cria cópia
-                        listaTarefasOrd.forEach(item => criarItemTarefaUI(item));
-                    }
-                }
-            } catch (error) {
-                console.error("Erro ao carregar listas da agenda:", error);
-            }
         }
 
-    </script>
+        // 3. Grana Pie (Pago/Pendente)
+        let pago=0, pendente=0;
+        transacoes.forEach(t => { if(t.tipo==='despesa') t.pago ? pago+=t.val : pendente+=t.val; });
+        destroyChart('granaPie');
+        if(document.getElementById('chartGranaPie')) {
+            charts.granaPie = new Chart(document.getElementById('chartGranaPie'), {
+                type: 'pie', data: { labels: ['Pago', 'Pendente'], datasets: [{ data: [pago, pendente], backgroundColor: ['#2855ff', '#ef4444'] }] },
+                options: { plugins: { legend: { labels: { usePointStyle: true } } } }
+            });
+        }
+
+        // 5. Carro Line
+        let gasLogs = carroList.filter(x=>x.type==='gas').sort((a,b)=>new Date(a.data)-new Date(b.data));
+        destroyChart('carroLine');
+        if(document.getElementById('chartCarroLine')) {
+            charts.carroLine = new Chart(document.getElementById('chartCarroLine'), {
+                type: 'line', data: { labels: gasLogs.map(g=>g.data), datasets: [{ label: 'R$', data: gasLogs.map(g=>g.valor), borderColor: '#ffee00', pointStyle: 'circle' }] },
+                options: { plugins: { legend: {display:false} }, scales: { x: {display:false}, y: { ticks: { color: textColor } } } }
+            });
+        }
+    }
+
+    // --- COFRE PIN ---
+    function typePin(n) {
+        if(pinBuffer.length < 4) {
+            playSound('tap');
+            pinBuffer += n;
+            updatePinDots();
+        }
+    }
+    function clearPin() { pinBuffer = ""; updatePinDots(); playSound('tap'); }
+    function updatePinDots() {
+        for(let i=1; i<=4; i++) {
+            const d = document.getElementById('pd'+i);
+            if(i <= pinBuffer.length) d.classList.add('filled');
+            else d.classList.remove('filled');
+        }
+    }
+    function checkPin() {
+        const saved = localStorage.getItem('dbz_vault_pin');
+        if(!saved) { if(pinBuffer.length===4) { localStorage.setItem('dbz_vault_pin', pinBuffer); entrarCofre(); } }
+        else { if(pinBuffer===saved) entrarCofre(); else { alert('PIN ERRADO!'); clearPin(); } }
+    }
+    function entrarCofre() { 
+        playSound('ssj');
+        document.getElementById('vaultLogin').style.display='none'; 
+        document.getElementById('vaultContent').style.display='block'; 
+        document.getElementById('userIdDisplay').innerText = USER_ID;
+        carregarSenhas(); clearPin(); 
+    }
+    function sairCofre() { 
+        document.getElementById('vaultLogin').style.display='flex'; 
+        document.getElementById('vaultContent').style.display='none'; 
+        clearPin(); 
+    }
+    function resetVault() {
+        if(confirm('Resetar PIN?')) { localStorage.removeItem('dbz_vault_pin'); clearPin(); alert('Crie novo PIN'); }
+    }
+    function restaurarBackup() {
+        const oldID = document.getElementById('restoreIdInput').value.trim();
+        if(oldID && confirm('Isso carregará dados do ID: ' + oldID)) {
+            USER_ID = oldID;
+            localStorage.setItem('dbz_z_uid', USER_ID);
+            document.getElementById('userIdDisplay').innerText = USER_ID;
+            carregarDados();
+            alert('Dados carregados! (Pode ser necessário recarregar a página)');
+        }
+    }
+    
+    async function carregarSenhas() {
+        const doc = await db.collection('users').doc(USER_ID).collection('vault').doc('data').get();
+        const lista = doc.exists ? (doc.data().itens || []) : [];
+        const div = document.getElementById('listaSenhas'); div.innerHTML='';
+        lista.forEach((i, idx) => {
+            div.innerHTML += `<div class="trans-item"><div><strong>${i.site}</strong><br><small>${i.user}</small></div><div><span style="filter:blur(5px)" onclick="this.style.filter='none'">${i.pass}</span> <i data-lucide="trash-2" onclick="delSenha(${idx})" style="margin-left:10px; cursor:pointer"></i></div></div>`;
+        });
+        lucide.createIcons();
+    }
+    document.getElementById('formPass').onsubmit = async (e) => {
+        e.preventDefault();
+        const doc = await db.collection('users').doc(USER_ID).collection('vault').doc('data').get();
+        let lista = doc.exists ? (doc.data().itens || []) : [];
+        lista.push({ site: document.getElementById('pSite').value, user: document.getElementById('pUser').value, pass: document.getElementById('pPass').value });
+        await db.collection('users').doc(USER_ID).collection('vault').doc('data').set({ itens: lista });
+        e.target.reset(); carregarSenhas();
+    };
+    async function delSenha(idx) {
+        if(confirm('Apagar?')) {
+            const doc = await db.collection('users').doc(USER_ID).collection('vault').doc('data').get();
+            let lista = doc.data().itens; lista.splice(idx, 1);
+            await db.collection('users').doc(USER_ID).collection('vault').doc('data').set({ itens: lista });
+            carregarSenhas();
+        }
+    }
+</script>
 </body>
 </html>
-
