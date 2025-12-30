@@ -767,37 +767,10 @@
         #confirm-modal {
             display: none;
         }
-
-        /* DEBUG CONSOLE */
-        #debug-console {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 30%;
-            background: rgba(0, 0, 0, 0.9);
-            color: #0f0;
-            font-family: monospace;
-            font-size: 10px;
-            z-index: 999999;
-            overflow-y: scroll;
-            padding: 5px;
-            pointer-events: none;
-            display: none;
-            text-align: left;
-        }
-
-        #debug-console.show {
-            display: block;
-            pointer-events: auto;
-        }
     </style>
 </head>
 
 <body class="theme-dark">
-    <div id="debug-console">
-        <strong>DEBUG CONSOLE (MIT App Inventor Mode)</strong><br>
-    </div>
 
     <div id="flash-overlay"></div>
     <div class="app-overlay"></div>
@@ -1097,20 +1070,8 @@
     <script>
         // --- 1. CONFIGURAÇÃO E GLOBAIS ---
 
-        // DEBUGGER OVERLAY
-        window.onerror = function (msg, url, line) {
-            var d = document.getElementById('debug-console');
-            if (d) {
-                d.classList.add('show');
-                d.innerHTML += '<p style="color:#ff5555; margin:2px 0; border-bottom:1px solid #330000;">ERROR: ' + msg + ' <br>Line: ' + line + '</p>';
-            }
-        };
+        // Log seguro (Console apenas)
         function safeLog(msg) {
-            var d = document.getElementById('debug-console');
-            if (d) {
-                d.classList.add('show');
-                d.innerHTML += '<p style="color:#aaffaa; margin:1px 0;">> ' + msg + '</p>';
-            }
             console.log(msg);
         }
         safeLog("Iniciando App...");
