@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Controle Financeiro</title>
-    
+
     <!-- Bibliotecas Externas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
+
     <!-- Firebase (Compat v9) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -25,733 +26,1381 @@
 
         /* --- ANIMAÇÃO SSJ --- */
         @keyframes shakeHard {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            10% { transform: translate(-5px, -5px) rotate(-1deg); }
-            20% { transform: translate(5px, 5px) rotate(1deg); }
-            30% { transform: translate(-5px, 5px) rotate(0deg); }
-            40% { transform: translate(5px, -5px) rotate(1deg); }
-            50% { transform: translate(-5px, 0px) rotate(-1deg); }
-            60% { transform: translate(5px, 0px) rotate(0deg); }
-            100% { transform: translate(0, 0) rotate(0deg); }
-        }
-        @keyframes flashBang {
-            0% { opacity: 0; }
-            10% { opacity: 1; background: #fff; }
-            30% { opacity: 0.8; background: #ffff00; } /* Amarelo Raio */
-            50% { opacity: 0.9; background: #fff; }
-            100% { opacity: 0; }
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            10% {
+                transform: translate(-5px, -5px) rotate(-1deg);
+            }
+
+            20% {
+                transform: translate(5px, 5px) rotate(1deg);
+            }
+
+            30% {
+                transform: translate(-5px, 5px) rotate(0deg);
+            }
+
+            40% {
+                transform: translate(5px, -5px) rotate(1deg);
+            }
+
+            50% {
+                transform: translate(-5px, 0px) rotate(-1deg);
+            }
+
+            60% {
+                transform: translate(5px, 0px) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
         }
 
-        body.transforming { animation: shakeHard 0.2s infinite; }
-        #flash-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 99999; opacity: 0; }
-        body.transforming #flash-overlay { animation: flashBang 2s ease-out; }
+        @keyframes flashBang {
+            0% {
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+                background: #fff;
+            }
+
+            30% {
+                opacity: 0.8;
+                background: #ffff00;
+            }
+
+            /* Amarelo Raio */
+            50% {
+                opacity: 0.9;
+                background: #fff;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body.transforming {
+            animation: shakeHard 0.2s infinite;
+        }
+
+        #flash-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 99999;
+            opacity: 0;
+        }
+
+        body.transforming #flash-overlay {
+            animation: flashBang 2s ease-out;
+        }
 
         /* --- TEMAS E FUNDO --- */
         body {
             background-color: #1a2035;
             background-image: url('https://i.pinimg.com/736x/69/68/3f/69683f67bbde5da0e76957fa8c2f28a5.jpg');
-            background-size: cover; 
+            background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            color: #fff; font-family: var(--font-main);
-            margin: 0; padding: 0; height: 100vh; width: 100vw;
-            overflow: hidden; display: flex; flex-direction: column;
-            position: absolute; inset: 0;
-            --overlay: rgba(13, 15, 20, 0.9); 
-            --card: rgba(30, 35, 50, 0.95); 
-            --accent: #ff7e00; 
-            --border: rgba(255,255,255,0.1);
+            color: #fff;
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            inset: 0;
+            --overlay: rgba(13, 15, 20, 0.9);
+            --card: rgba(30, 35, 50, 0.95);
+            --accent: #ff7e00;
+            --border: rgba(255, 255, 255, 0.1);
         }
 
         body.theme-light {
             background-image: url('https://wallpapers.com/images/hd/dbz-son-goku-transformations-9llax3evn2xks53i.jpg');
-            color: #1e293b; --overlay: rgba(255,255,255,0.9); --card: #fff; --border: #e2e8f0;
+            color: #1e293b;
+            --overlay: rgba(255, 255, 255, 0.9);
+            --card: #fff;
+            --border: #e2e8f0;
         }
+
         body.theme-ssj {
             background-image: url('https://preview.redd.it/ihv076kym8q61.jpg?width=1080&crop=smart&auto=webp&s=d9480d7530ae38848bac72962f28a545d05c89db');
-            color: #fffbeb; --overlay: rgba(40, 30, 0, 0.8); --card: rgba(60, 40, 0, 0.9); --border: #fbbf24; --accent: #fbbf24;
+            color: #fffbeb;
+            --overlay: rgba(40, 30, 0, 0.8);
+            --card: rgba(60, 40, 0, 0.9);
+            --border: #fbbf24;
+            --accent: #fbbf24;
         }
-        
-        .app-overlay { position: absolute; inset: 0; background: var(--overlay); z-index: 0; pointer-events: none; }
+
+        .app-overlay {
+            position: absolute;
+            inset: 0;
+            background: var(--overlay);
+            z-index: 0;
+            pointer-events: none;
+        }
 
         /* --- HEADER --- */
         .top-bar {
-            height: 60px; display: flex; justify-content: space-between; align-items: center;
-            padding: 0 15px; z-index: 20; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border); flex-shrink: 0;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
-        .logo { font-family: var(--font-title); font-weight: 800; font-size: 1.1em; color: var(--accent); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-        .logo span { background: var(--accent); color: #fff; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid #fff; }
 
-        .controls { display: flex; gap: 8px; align-items: center; }
-        .icon-btn { width: 34px; height: 34px; background: var(--card); border: 1px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent); z-index: 21; }
-        .icon-btn svg { width: 18px; height: 18px; }
-        
+        .logo {
+            font-family: var(--font-title);
+            font-weight: 800;
+            font-size: 1.1em;
+            color: var(--accent);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            background: var(--accent);
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            background: var(--card);
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--accent);
+            z-index: 21;
+        }
+
+        .icon-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
         input[type="month"] {
-            background: rgba(255,255,255,0.1); border: 1px solid var(--accent); border-radius: 8px;
-            padding: 4px 8px; color: inherit; font-family: var(--font-title); font-weight: 700;
-            width: auto; font-size: 0.8em; text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 4px 8px;
+            color: inherit;
+            font-family: var(--font-title);
+            font-weight: 700;
+            width: auto;
+            font-size: 0.8em;
+            text-transform: uppercase;
         }
 
         /* --- CONTENT --- */
-        .main-content { flex-grow: 1; position: relative; z-index: 10; overflow: hidden; padding-bottom: 80px; display: flex; flex-direction: column; }
-        .scroll-area { flex-grow: 1; overflow-y: auto; padding: 15px; }
+        .main-content {
+            flex-grow: 1;
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+            padding-bottom: 80px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scroll-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
 
         /* Cards */
-        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .card { background: var(--card); padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .card h3 { margin: 0 0 5px 0; font-size: 0.6em; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; }
-        .card .val { font-size: 0.85em; font-weight: 800; word-break: break-all; }
-        .c-orange { color: #ff7e00; border-top: 3px solid #ff7e00; }
-        .c-green { color: #10b981; border-top: 3px solid #10b981; }
-        .c-red { color: #ef4444; border-top: 3px solid #ef4444; }
-        .c-blue { color: #3b82f6; border-top: 3px solid #3b82f6; }
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 10px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin: 0 0 5px 0;
+            font-size: 0.6em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 1px;
+        }
+
+        .card .val {
+            font-size: 0.85em;
+            font-weight: 800;
+            word-break: break-all;
+        }
+
+        .c-orange {
+            color: #ff7e00;
+            border-top: 3px solid #ff7e00;
+        }
+
+        .c-green {
+            color: #10b981;
+            border-top: 3px solid #10b981;
+        }
+
+        .c-red {
+            color: #ef4444;
+            border-top: 3px solid #ef4444;
+        }
+
+        .c-blue {
+            color: #3b82f6;
+            border-top: 3px solid #3b82f6;
+        }
 
         /* GRID DE TRANSAÇÕES */
         .section-title {
-            font-family: var(--font-title); font-size: 0.9em; margin: 15px 0 5px 0; 
-            color: var(--accent); text-transform: uppercase; letter-spacing: 1px;
-            border-bottom: 1px solid var(--border); padding-bottom: 5px;
+            font-family: var(--font-title);
+            font-size: 0.9em;
+            margin: 15px 0 5px 0;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
         }
+
         .cards-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
-        
-        .trans-card { 
-            background: var(--card); padding: 10px; border-radius: 10px; 
-            display: flex; flex-direction: column; justify-content: space-between;
-            border: 1px solid var(--border); position: relative;
-            animation: slideIn 0.3s ease-out; height: 100px;
+
+        .trans-card {
+            background: var(--card);
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+            height: 100px;
         }
-        .trans-card.receita { border-top: 3px solid #10b981; }
-        .trans-card.despesa { border-top: 3px solid #ef4444; }
-        .trans-card.paid { opacity: 0.6; border-top-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
-        
-        .tc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-        .tc-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--accent); }
-        .tc-val { font-weight: 800; font-size: 1.1em; margin-top: auto; }
-        .tc-desc { font-size: 0.8em; line-height: 1.1; margin-bottom: 2px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .tc-date { font-size: 0.65em; opacity: 0.7; }
-        
-        .tc-actions { position: absolute; bottom: 8px; right: 8px; display: flex; gap: 8px; }
-        .btn-action { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; background: rgba(0,0,0,0.2); }
-        .btn-check { color: #10b981; border: 1px solid #10b981; }
-        .btn-check.active { background: #10b981; color: #fff; }
-        .btn-trash { color: #ef4444; border: 1px solid #ef4444; }
+
+        .trans-card.receita {
+            border-top: 3px solid #10b981;
+        }
+
+        .trans-card.despesa {
+            border-top: 3px solid #ef4444;
+        }
+
+        .trans-card.paid {
+            opacity: 0.6;
+            border-top-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .tc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+
+        .tc-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+
+        .tc-val {
+            font-weight: 800;
+            font-size: 1.1em;
+            margin-top: auto;
+        }
+
+        .tc-desc {
+            font-size: 0.8em;
+            line-height: 1.1;
+            margin-bottom: 2px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tc-date {
+            font-size: 0.65em;
+            opacity: 0.7;
+        }
+
+        .tc-actions {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-check {
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .btn-check.active {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .btn-trash {
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
 
         /* Listas Simples */
-        .list-item { 
-            background: var(--card); margin-bottom: 8px; padding: 10px; border-radius: 10px; 
-            display: flex; justify-content: space-between; align-items: center;
-            border-left: 4px solid transparent; border-bottom: 1px solid var(--border);
+        .list-item {
+            background: var(--card);
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid transparent;
+            border-bottom: 1px solid var(--border);
         }
-        .list-item.out { border-left-color: #ef4444; }
-        
+
+        .list-item.out {
+            border-left-color: #ef4444;
+        }
+
         /* --- NAV FLUTUANTE --- */
         .bottom-nav {
-            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
-            width: 95%; max-width: 400px; background: rgba(26, 32, 53, 0.95);
-            border-radius: 40px; padding: 5px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5); border: 2px solid var(--accent);
-            z-index: 9999; height: 65px;
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 400px;
+            background: rgba(26, 32, 53, 0.95);
+            border-radius: 40px;
+            padding: 5px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--accent);
+            z-index: 9999;
+            height: 65px;
         }
+
         .nav-btn {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 45px; height: 45px; border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             background: radial-gradient(circle at 30% 30%, #fb923c, #c2410c);
-            border: 2px solid #7c2d12; color: #7c2d12;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            border: 2px solid #7c2d12;
+            color: #7c2d12;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
             cursor: pointer;
         }
-        .nav-btn::after { content: ''; position: absolute; top: 5px; left: 5px; width: 12px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4); transform: rotate(-45deg); pointer-events: none; }
-        .nav-btn svg { width: 20px; height: 20px; stroke-width: 2.5; z-index: 2; pointer-events: none; }
-        
+
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 12px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: rotate(-45deg);
+            pointer-events: none;
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2.5;
+            z-index: 2;
+            pointer-events: none;
+        }
+
         .nav-btn.active {
             transform: translateY(-15px) scale(1.15);
             background: radial-gradient(circle at 30% 30%, #fcd34d, #f59e0b);
-            border-color: #fff; color: #b45309;
-            box-shadow: 0 0 15px #fbbf24; z-index: 10000;
+            border-color: #fff;
+            color: #b45309;
+            box-shadow: 0 0 15px #fbbf24;
+            z-index: 10000;
         }
-        .nav-btn span { 
-            position: absolute; bottom: -14px; font-size: 0.55em; font-weight: 900; 
-            color: #fff; text-shadow: 0 2px 2px #000; opacity: 0; transition: 0.2s;
-            white-space: nowrap; text-transform: uppercase; font-family: var(--font-title);
+
+        .nav-btn span {
+            position: absolute;
+            bottom: -14px;
+            font-size: 0.55em;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 2px 2px #000;
+            opacity: 0;
+            transition: 0.2s;
+            white-space: nowrap;
+            text-transform: uppercase;
+            font-family: var(--font-title);
             pointer-events: none;
         }
-        .nav-btn.active span { opacity: 1; bottom: -18px; }
+
+        .nav-btn.active span {
+            opacity: 1;
+            bottom: -18px;
+        }
 
         /* --- MODAL --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-        .modal.open { display: flex; }
-        .modal-box { background: var(--card); width: 90%; max-width: 350px; padding: 20px; border-radius: 16px; border: 2px solid var(--accent); max-height: 85vh; overflow-y: auto; z-index: 201; }
-        
-        .modal-box::-webkit-scrollbar { display: none; }
-        .modal-box { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .full-btn { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-weight: 800; margin-top: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; font-family: var(--font-title); }
-        .full-btn.red { background: #ef4444; }
-        .full-btn.pdf { background: #ef4444; margin-bottom: 20px; font-size: 0.9em; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
 
-        input, select { width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: inherit; margin-bottom: 8px; font-weight: 600; box-sizing: border-box; }
-        
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--card);
+            width: 90%;
+            max-width: 350px;
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid var(--accent);
+            max-height: 85vh;
+            overflow-y: auto;
+            z-index: 201;
+        }
+
+        .modal-box::-webkit-scrollbar {
+            display: none;
+        }
+
+        .modal-box {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .full-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            margin-top: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            font-family: var(--font-title);
+        }
+
+        .full-btn.red {
+            background: #ef4444;
+        }
+
+        .full-btn.pdf {
+            background: #ef4444;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: inherit;
+            margin-bottom: 8px;
+            font-weight: 600;
+            box-sizing: border-box;
+        }
+
         /* Ajuste para inputs de data */
         input[type="date"] {
             font-family: var(--font-main);
             text-transform: uppercase;
         }
 
-        .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 10px 0; max-height: 200px; overflow-y: auto; padding-right: 5px; }
-        .icon-grid::-webkit-scrollbar { display: none; }
-        .icon-opt { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .icon-opt.selected { background: var(--accent); color: #fff; border-color: #fff; }
-        .icon-opt svg { width: 20px; height: 20px; pointer-events: none; }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
 
-        .page { display: none; width: 100%; }
-        .page.active { display: block; animation: slideIn 0.3s; }
-        .chart-container { height: 200px; background: rgba(0,0,0,0.1); border-radius: 12px; padding: 10px; margin-bottom: 15px; border: 1px solid var(--border); }
-        .fab { position: fixed; bottom: 90px; right: 20px; width: 55px; height: 55px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; border: 3px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.4); z-index: 90; cursor: pointer; }
+        .icon-grid::-webkit-scrollbar {
+            display: none;
+        }
 
-        .type-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; opacity: 0.4; transition: 0.2s; }
-        .type-btn.active { opacity: 1; transform: scale(1.05); }
+        .icon-opt {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .icon-opt.selected {
+            background: var(--accent);
+            color: #fff;
+            border-color: #fff;
+        }
+
+        .icon-opt svg {
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+        }
+
+        .page.active {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+
+        .chart-container {
+            height: 200px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            z-index: 90;
+            cursor: pointer;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: 0.2s;
+        }
+
+        .type-btn.active {
+            opacity: 1;
+            transform: scale(1.05);
+        }
 
         /* NUMPAD */
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 250px; margin: 20px auto; }
-        .num-btn {
-            background: var(--card); border: 1px solid var(--border);
-            height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2em; font-weight: bold; cursor: pointer;
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 250px;
+            margin: 20px auto;
         }
-        .num-btn:active { background: var(--accent); color: #fff; }
-        .num-btn.ok { background: var(--accent); color: #fff; }
-        .num-btn.del { background: #ef4444; color: #fff; }
 
-        .pin-display { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .pin-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--accent); transition: 0.2s; }
-        .pin-dot.filled { background: var(--accent); box-shadow: 0 0 10px var(--accent); transform: scale(1.2); }
+        .num-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .num-btn:active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .num-btn.ok {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .num-btn.del {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .pin-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .pin-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            transition: 0.2s;
+        }
+
+        .pin-dot.filled {
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            transform: scale(1.2);
+        }
 
         /* Confirm Modal Customizado */
-        #confirm-modal { display: none; }
+        #confirm-modal {
+            display: none;
+        }
+
+        /* DEBUG CONSOLE */
+        #debug-console {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: rgba(0, 0, 0, 0.9);
+            color: #0f0;
+            font-family: monospace;
+            font-size: 10px;
+            z-index: 999999;
+            overflow-y: scroll;
+            padding: 5px;
+            pointer-events: none;
+            display: none;
+            text-align: left;
+        }
+
+        #debug-console.show {
+            display: block;
+            pointer-events: auto;
+        }
     </style>
 </head>
+
 <body class="theme-dark">
-
-<div id="flash-overlay"></div>
-<div class="app-overlay"></div>
-
-<!-- HEADER -->
-<div class="top-bar">
-    <div class="logo">
-        <span style="background:var(--accent); color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #fff;">$</span>
-        CONTROLE FINANCEIRO
+    <div id="debug-console">
+        <strong>DEBUG CONSOLE (MIT App Inventor Mode)</strong><br>
     </div>
-    <div class="controls">
-        <div class="icon-btn" onclick="toggleMute()"><span id="muteIcon">🔊</span></div>
-        <div class="icon-btn" onclick="toggleTheme()">⚡</div>
-        <input type="month" id="mesSelect">
+
+    <div id="flash-overlay"></div>
+    <div class="app-overlay"></div>
+
+    <!-- HEADER -->
+    <div class="top-bar">
+        <div class="logo">
+            <span
+                style="background:var(--accent); color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #fff;">$</span>
+            CONTROLE FINANCEIRO
+        </div>
+        <div class="controls">
+            <div class="icon-btn" onclick="toggleMute()"><span id="muteIcon">🔊</span></div>
+            <div class="icon-btn" onclick="toggleTheme()">⚡</div>
+            <input type="month" id="mesSelect">
+        </div>
     </div>
-</div>
 
-<!-- MAIN -->
-<div class="main-content">
-    <div class="scroll-area">
-        
-        <!-- HOME -->
-        <div id="p-home" class="page active">
-            <div class="grid-stats">
-                <div class="card c-orange"><h3>Saldo</h3><div class="val" id="dSaldo">0</div></div>
-                <div class="card c-green"><h3>Receita</h3><div class="val" id="dRec">0</div></div>
-                <div class="card c-red"><h3>Despesa</h3><div class="val" id="dDesp">0</div></div>
-            </div>
-            
-            <button class="full-btn pdf" onclick="gerarPDF()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                BAIXAR PDF
-            </button>
+    <!-- MAIN -->
+    <div class="main-content">
+        <div class="scroll-area">
 
-            <!-- Grafico 1: Receita vs Despesa (Pizza) -->
-            <h3 class="section-title">Resumo Geral</h3>
-            <div class="chart-container"><canvas id="cHomePieMain"></canvas></div>
-
-            <!-- Grafico 2: Evolução (Linha) -->
-            <h3 class="section-title">Evolução Mensal</h3>
-            <div class="chart-container"><canvas id="cHomeLine"></canvas></div>
-        </div>
-
-        <!-- GRANA -->
-        <div id="p-grana" class="page">
-            <div class="grid-stats">
-                <div class="card c-green"><h3>Entrada</h3><div class="val" id="gEnt">0</div></div>
-                <div class="card c-red"><h3>Saída</h3><div class="val" id="gSai">0</div></div>
-                <div class="card c-blue"><h3>Pago</h3><div class="val" id="gPag">0</div></div>
-            </div>
-            
-            <div id="listGrana">
-                <!-- Preenchido via JS -->
-            </div>
-            
-            <div class="fab" onclick="openModal('modalTrans')">+</div>
-        </div>
-
-        <!-- MERCADO -->
-        <div id="p-mercado" class="page">
-            <div class="card c-orange" style="margin-bottom: 10px;">
-                <h3>Total Carrinho</h3><div class="val" id="mMontante">R$ 0,00</div>
-            </div>
-            
-            <div class="card c-blue" style="margin-bottom: 10px; background: rgba(59, 130, 246, 0.1); border-color: #3b82f6;">
-                <h3>Total Benefícios (VR + VA)</h3>
-                <div class="val" id="mTotalBeneficios">R$ 0,00</div>
-            </div>
-
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <div class="card c-blue" style="flex:1">
-                    <h3>Refeição</h3>
-                    <input type="number" id="saldoVR" placeholder="R$ 0,00" style="background:transparent; border:none; text-align:center; font-weight:800; color:inherit; padding:0; margin:0;" onchange="saveSaldos()">
-                </div>
-                <div class="card c-green" style="flex:1">
-                    <h3>Alimentação</h3>
-                    <input type="number" id="saldoVA" placeholder="R$ 0,00" style="background:transparent; border:none; text-align:center; font-weight:800; color:inherit; padding:0; margin:0;" onchange="saveSaldos()">
-                </div>
-            </div>
-
-            <div style="background:var(--card); padding:10px; border-radius:10px; border:1px solid var(--border);">
-                <div style="display: flex; gap: 5px; margin-bottom:5px;">
-                    <input type="text" id="mItem" placeholder="Item" style="flex:2">
-                    <input type="number" id="mQtd" placeholder="Q" style="flex:1">
-                    <input type="number" id="mVal" placeholder="$" style="flex:1">
-                </div>
-                
-                <!-- SELEÇÃO DE CARTÃO ATUALIZADA -->
-                <select id="mCard" style="margin-bottom:5px;">
-                    <option value="none">Selecione o Pagamento...</option>
-                    <option value="Credito">Cartão de Crédito</option>
-                    <option value="Debito">Cartão de Débito</option>
-                    <option value="Dinheiro">Dinheiro/PIX</option>
-                    <option value="VR">Vale Refeição (Descontar)</option>
-                    <option value="VA">Vale Alimentação (Descontar)</option>
-                </select>
-                
-                <button class="full-btn" onclick="addMercado()">Adicionar</button>
-            </div>
-
-            <div id="listMercado" style="margin-top: 15px;"></div>
-            <button class="full-btn red" onclick="limparMercado()">Limpar Tudo</button>
-        </div>
-
-        <!-- CARRO -->
-        <div id="p-carro" class="page">
-            <div class="grid-stats">
-                <div class="card c-blue"><h3>Km/L</h3><div class="val" id="cKm">--</div></div>
-                <div class="card c-orange"><h3>Gasto</h3><div class="val" id="cGasto">0</div></div>
-            </div>
-            
-            <h3 class="section-title">Gastos por Mês</h3>
-            <div class="chart-container"><canvas id="cCarroMes"></canvas></div>
-
-            <div style="display: flex; gap: 10px;">
-                <button class="full-btn" onclick="toggleId('formGas')">Abastecer</button>
-                <button class="full-btn red" onclick="toggleId('formMan')">Manutenção</button>
-            </div>
-            
-            <div id="formGas" style="display:none; background:var(--card); padding:10px; margin-top:10px; border-radius:10px; border:1px solid var(--border);">
-                <input type="date" id="gData">
-                <input type="number" id="gKm" placeholder="KM Atual">
-                
-                <!-- Seleção de Combustivel -->
-                <select id="gTipo" style="margin-bottom:8px;">
-                    <option value="Gasolina">Gasolina</option>
-                    <option value="Etanol">Etanol</option>
-                </select>
-
-                <input type="number" id="gLit" placeholder="Litros">
-                <input type="number" id="gVal" placeholder="Valor Total">
-                <button class="full-btn" onclick="addGas()">Salvar Abastecimento</button>
-            </div>
-
-            <div id="formMan" style="display:none; background:var(--card); padding:10px; margin-top:10px; border-radius:10px; border:1px solid var(--border);">
-                <input type="text" id="manDesc" placeholder="Descrição">
-                <input type="number" id="manVal" placeholder="Valor">
-                <button class="full-btn" onclick="addMan()">Salvar Manutenção</button>
-            </div>
-            <div id="listCarro" style="margin-top: 15px;"></div>
-        </div>
-
-        <!-- COFRE -->
-        <div id="p-cofre" class="page">
-            <div id="vaultLock" style="text-align: center; margin-top: 30px;">
-                <h2>🔒 COFRE</h2>
-                <input type="password" id="vPin" placeholder="PIN" readonly style="font-size: 2em; text-align: center; letter-spacing: 5px; width: 150px; margin-bottom: 20px; background: transparent; border:none; color:var(--accent);">
-                
-                <div class="numpad" id="numpad-container">
-                    <!-- JS GERA -->
-                </div>
-                <p onclick="resetVault()" style="margin-top:20px; text-decoration: underline; cursor:pointer;">Resetar</p>
-            </div>
-            <div id="vaultOpen" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h3>Senhas</h3>
-                    <button class="icon-btn" onclick="lockVault()">🔒</button>
-                </div>
-                <div style="margin-top: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
-                    <small>Recuperar Backup:</small>
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="recID" placeholder="ID Antigo" style="margin:0">
-                        <button class="full-btn" style="width:auto; margin:0; padding:5px 15px;" onclick="recoverData()">OK</button>
+            <!-- HOME -->
+            <div id="p-home" class="page active">
+                <div class="grid-stats">
+                    <div class="card c-orange">
+                        <h3>Saldo</h3>
+                        <div class="val" id="dSaldo">0</div>
                     </div>
-                    <small style="color:#666">Seu ID: <span id="uidDisplay"></span></small>
+                    <div class="card c-green">
+                        <h3>Receita</h3>
+                        <div class="val" id="dRec">0</div>
+                    </div>
+                    <div class="card c-red">
+                        <h3>Despesa</h3>
+                        <div class="val" id="dDesp">0</div>
+                    </div>
                 </div>
-                <hr style="border-color: var(--border); margin: 15px 0;">
-                <input type="text" id="pSite" placeholder="Site">
-                <input type="text" id="pUser" placeholder="User">
-                <input type="text" id="pPass" placeholder="Pass">
-                <button class="full-btn" onclick="addPass()">Salvar Senha</button>
-                <div id="listPass" style="margin-top: 15px;"></div>
+
+                <button class="full-btn pdf" onclick="gerarPDF()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                    BAIXAR PDF
+                </button>
+
+                <!-- Grafico 1: Receita vs Despesa (Pizza) -->
+                <h3 class="section-title">Resumo Geral</h3>
+                <div class="chart-container"><canvas id="cHomePieMain"></canvas></div>
+
+                <!-- Grafico 2: Evolução (Linha) -->
+                <h3 class="section-title">Evolução Mensal</h3>
+                <div class="chart-container"><canvas id="cHomeLine"></canvas></div>
+            </div>
+
+            <!-- GRANA -->
+            <div id="p-grana" class="page">
+                <div class="grid-stats">
+                    <div class="card c-green">
+                        <h3>Entrada</h3>
+                        <div class="val" id="gEnt">0</div>
+                    </div>
+                    <div class="card c-red">
+                        <h3>Saída</h3>
+                        <div class="val" id="gSai">0</div>
+                    </div>
+                    <div class="card c-blue">
+                        <h3>Pago</h3>
+                        <div class="val" id="gPag">0</div>
+                    </div>
+                </div>
+
+                <div id="listGrana">
+                    <!-- Preenchido via JS -->
+                </div>
+
+                <div class="fab" onclick="openModal('modalTrans')">+</div>
+            </div>
+
+            <!-- MERCADO -->
+            <div id="p-mercado" class="page">
+                <div class="card c-orange" style="margin-bottom: 10px;">
+                    <h3>Total Carrinho</h3>
+                    <div class="val" id="mMontante">R$ 0,00</div>
+                </div>
+
+                <div class="card c-blue"
+                    style="margin-bottom: 10px; background: rgba(59, 130, 246, 0.1); border-color: #3b82f6;">
+                    <h3>Total Benefícios (VR + VA)</h3>
+                    <div class="val" id="mTotalBeneficios">R$ 0,00</div>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <div class="card c-blue" style="flex:1">
+                        <h3>Refeição</h3>
+                        <input type="number" id="saldoVR" placeholder="R$ 0,00"
+                            style="background:transparent; border:none; text-align:center; font-weight:800; color:inherit; padding:0; margin:0;"
+                            onchange="saveSaldos()">
+                    </div>
+                    <div class="card c-green" style="flex:1">
+                        <h3>Alimentação</h3>
+                        <input type="number" id="saldoVA" placeholder="R$ 0,00"
+                            style="background:transparent; border:none; text-align:center; font-weight:800; color:inherit; padding:0; margin:0;"
+                            onchange="saveSaldos()">
+                    </div>
+                </div>
+
+                <div style="background:var(--card); padding:10px; border-radius:10px; border:1px solid var(--border);">
+                    <div style="display: flex; gap: 5px; margin-bottom:5px;">
+                        <input type="text" id="mItem" placeholder="Item" style="flex:2">
+                        <input type="number" id="mQtd" placeholder="Q" style="flex:1">
+                        <input type="number" id="mVal" placeholder="$" style="flex:1">
+                    </div>
+
+                    <!-- SELEÇÃO DE CARTÃO ATUALIZADA -->
+                    <select id="mCard" style="margin-bottom:5px;">
+                        <option value="none">Selecione o Pagamento...</option>
+                        <option value="Credito">Cartão de Crédito</option>
+                        <option value="Debito">Cartão de Débito</option>
+                        <option value="Dinheiro">Dinheiro/PIX</option>
+                        <option value="VR">Vale Refeição (Descontar)</option>
+                        <option value="VA">Vale Alimentação (Descontar)</option>
+                    </select>
+
+                    <button class="full-btn" onclick="addMercado()">Adicionar</button>
+                </div>
+
+                <div id="listMercado" style="margin-top: 15px;"></div>
+                <button class="full-btn red" onclick="limparMercado()">Limpar Tudo</button>
+            </div>
+
+            <!-- CARRO -->
+            <div id="p-carro" class="page">
+                <div class="grid-stats">
+                    <div class="card c-blue">
+                        <h3>Km/L</h3>
+                        <div class="val" id="cKm">--</div>
+                    </div>
+                    <div class="card c-orange">
+                        <h3>Gasto</h3>
+                        <div class="val" id="cGasto">0</div>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Gastos por Mês</h3>
+                <div class="chart-container"><canvas id="cCarroMes"></canvas></div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="full-btn" onclick="toggleId('formGas')">Abastecer</button>
+                    <button class="full-btn red" onclick="toggleId('formMan')">Manutenção</button>
+                </div>
+
+                <div id="formGas"
+                    style="display:none; background:var(--card); padding:10px; margin-top:10px; border-radius:10px; border:1px solid var(--border);">
+                    <input type="date" id="gData">
+                    <input type="number" id="gKm" placeholder="KM Atual">
+
+                    <!-- Seleção de Combustivel -->
+                    <select id="gTipo" style="margin-bottom:8px;">
+                        <option value="Gasolina">Gasolina</option>
+                        <option value="Etanol">Etanol</option>
+                    </select>
+
+                    <input type="number" id="gLit" placeholder="Litros">
+                    <input type="number" id="gVal" placeholder="Valor Total">
+                    <button class="full-btn" onclick="addGas()">Salvar Abastecimento</button>
+                </div>
+
+                <div id="formMan"
+                    style="display:none; background:var(--card); padding:10px; margin-top:10px; border-radius:10px; border:1px solid var(--border);">
+                    <input type="text" id="manDesc" placeholder="Descrição">
+                    <input type="number" id="manVal" placeholder="Valor">
+                    <button class="full-btn" onclick="addMan()">Salvar Manutenção</button>
+                </div>
+                <div id="listCarro" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- COFRE -->
+            <div id="p-cofre" class="page">
+                <div id="vaultLock" style="text-align: center; margin-top: 30px;">
+                    <h2>🔒 COFRE</h2>
+                    <input type="password" id="vPin" placeholder="PIN" readonly
+                        style="font-size: 2em; text-align: center; letter-spacing: 5px; width: 150px; margin-bottom: 20px; background: transparent; border:none; color:var(--accent);">
+
+                    <div class="numpad" id="numpad-container">
+                        <!-- JS GERA -->
+                    </div>
+                    <p onclick="resetVault()" style="margin-top:20px; text-decoration: underline; cursor:pointer;">
+                        Resetar</p>
+                </div>
+                <div id="vaultOpen" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Senhas</h3>
+                        <button class="icon-btn" onclick="lockVault()">🔒</button>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        <small>Recuperar Backup:</small>
+                        <div style="display:flex; gap:5px;">
+                            <input type="text" id="recID" placeholder="ID Antigo" style="margin:0">
+                            <button class="full-btn" style="width:auto; margin:0; padding:5px 15px;"
+                                onclick="recoverData()">OK</button>
+                        </div>
+                        <small style="color:#666">Seu ID: <span id="uidDisplay"></span></small>
+                    </div>
+                    <hr style="border-color: var(--border); margin: 15px 0;">
+                    <input type="text" id="pSite" placeholder="Site">
+                    <input type="text" id="pUser" placeholder="User">
+                    <input type="text" id="pPass" placeholder="Pass">
+                    <button class="full-btn" onclick="addPass()">Salvar Senha</button>
+                    <div id="listPass" style="margin-top: 15px;"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- NAV INFERIOR -->
+    <div class="bottom-nav">
+        <div class="nav-btn active" onclick="nav('p-home', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+            </svg>
+            <span>Home</span>
+        </div>
+        <div class="nav-btn" onclick="nav('p-grana', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            <span>Grana</span>
+        </div>
+        <div class="nav-btn" onclick="nav('p-mercado', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            </svg>
+            <span>Mkt</span>
+        </div>
+        <div class="nav-btn" onclick="nav('p-carro', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                    d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2" />
+                <circle cx="6.5" cy="16.5" r="2.5" />
+                <circle cx="16.5" cy="16.5" r="2.5" />
+            </svg>
+            <span>Carro</span>
+        </div>
+        <div class="nav-btn" onclick="nav('p-cofre', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <span>Cofre</span>
+        </div>
+    </div>
+
+    <!-- MODAL TRANSAÇÃO -->
+    <div id="modalTrans" class="modal">
+        <div class="modal-box">
+            <h3 style="text-align: center; color: var(--accent);">NOVO LANÇAMENTO</h3>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <button class="type-btn active" id="btnRec" style="background:#10b981; color:#fff;"
+                    onclick="setType('receita')">RECEITA</button>
+                <button class="type-btn" id="btnDes" style="background:#ef4444; color:#fff;"
+                    onclick="setType('despesa')">DESPESA</button>
+            </div>
+            <input type="text" id="tDesc" placeholder="Descrição">
+            <input type="number" id="tVal" placeholder="Valor">
+            <!-- Input Date: Abre seletor de dia/mes/ano -->
+            <input type="date" id="tData">
+            <div class="icon-grid" id="iconPicker"></div>
+            <button class="full-btn" onclick="saveTrans()">SALVAR</button>
+            <button class="full-btn red" onclick="closeModal()">FECHAR</button>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRM (Custom replacement for native confirm) -->
+    <div id="modalConfirm" class="modal">
+        <div class="modal-box" style="text-align: center;">
+            <h3 id="confirmMsg" style="margin-bottom: 20px;">Tem certeza?</h3>
+            <div style="display: flex; gap: 10px;">
+                <button class="full-btn" id="btnConfirmYes">SIM</button>
+                <button class="full-btn red"
+                    onclick="document.getElementById('modalConfirm').classList.remove('open')">NÃO</button>
             </div>
         </div>
-
     </div>
-</div>
 
-<!-- NAV INFERIOR -->
-<div class="bottom-nav">
-    <div class="nav-btn active" onclick="nav('p-home', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>Home</span>
-    </div>
-    <div class="nav-btn" onclick="nav('p-grana', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <span>Grana</span>
-    </div>
-    <div class="nav-btn" onclick="nav('p-mercado', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span>Mkt</span>
-    </div>
-    <div class="nav-btn" onclick="nav('p-carro', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>
-        <span>Carro</span>
-    </div>
-    <div class="nav-btn" onclick="nav('p-cofre', this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span>Cofre</span>
-    </div>
-</div>
+    <script>
+        // --- 1. CONFIGURAÇÃO E GLOBAIS ---
 
-<!-- MODAL TRANSAÇÃO -->
-<div id="modalTrans" class="modal">
-    <div class="modal-box">
-        <h3 style="text-align: center; color: var(--accent);">NOVO LANÇAMENTO</h3>
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <button class="type-btn active" id="btnRec" style="background:#10b981; color:#fff;" onclick="setType('receita')">RECEITA</button>
-            <button class="type-btn" id="btnDes" style="background:#ef4444; color:#fff;" onclick="setType('despesa')">DESPESA</button>
-        </div>
-        <input type="text" id="tDesc" placeholder="Descrição">
-        <input type="number" id="tVal" placeholder="Valor">
-        <!-- Input Date: Abre seletor de dia/mes/ano -->
-        <input type="date" id="tData">
-        <div class="icon-grid" id="iconPicker"></div>
-        <button class="full-btn" onclick="saveTrans()">SALVAR</button>
-        <button class="full-btn red" onclick="closeModal()">FECHAR</button>
-    </div>
-</div>
-
-<!-- MODAL CONFIRM (Custom replacement for native confirm) -->
-<div id="modalConfirm" class="modal">
-    <div class="modal-box" style="text-align: center;">
-        <h3 id="confirmMsg" style="margin-bottom: 20px;">Tem certeza?</h3>
-        <div style="display: flex; gap: 10px;">
-            <button class="full-btn" id="btnConfirmYes">SIM</button>
-            <button class="full-btn red" onclick="document.getElementById('modalConfirm').classList.remove('open')">NÃO</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- 1. CONFIGURAÇÃO E GLOBAIS ---
-    var firebaseConfig = {
-        apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
-        authDomain: "finan1313.firebaseapp.com",
-        projectId: "finan1313",
-        storageBucket: "finan1313.firebasestorage.app",
-        messagingSenderId: "92060764433",
-        appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
-    };
-
-    var db = null;
-    try {
-        if(typeof firebase !== 'undefined') {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-        }
-    } catch (e) { console.log("Offline Mode"); }
-
-    var USER_ID = localStorage.getItem('z_uid') || 'u_' + Date.now();
-    localStorage.setItem('z_uid', USER_ID);
-
-    var dataStore = { lancamentos: [], mercado: [], carro: [], vault: [], saldos: { vr: 0, va: 0 } };
-    var currentType = 'receita';
-    var currentIcon = 'zap';
-    var pinBuffer = "";
-    var charts = {};
-    var isMuted = false;
-    
-    // Configuração Global ChartJS - Círculos na Legenda
-    if(typeof Chart !== 'undefined') {
-        Chart.defaults.plugins.legend.labels.usePointStyle = true;
-        Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
-    }
-
-    // --- 2. ÍCONES SVG ---
-    var SVGS = {
-        'zap': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
-        'home': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-        'cart': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
-        'car': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>',
-        'gift': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
-        'phone': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
-        'wifi': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
-        'trash': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
-        'check': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
-        'circle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>',
-        'fuel': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22v-8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8"/><path d="M11 22h4a2 2 0 0 0 2-2V4.5a2.5 2.5 0 0 0-5 0V6"/><path d="M14 12h2"/></svg>',
-        'tool': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
-        'lock': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
-        'dollar': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-        'credit-card': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
-        'wallet': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>',
-        'piggy-bank': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5c-1.5 0-2.8 0.6-3.8 1.5l-3 3-5-2-3 3v2h2l1 2v3h3v-2h5v2h3v-6l2-2v-2l-1-1c-1-1-2.5-1.5-4-1.5z"/><path d="M16 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>',
-        'chart-pie': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',
-        'trend-up': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
-        'trend-down': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>',
-        'bag': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
-        'bus': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M5 21v-2"/><path d="M19 21v-2"/><path d="M3 11h18"/><path d="M3 15h18"/></svg>',
-        'bike': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>',
-        'plane': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L2 11l8 3 3 8 9-20z"/></svg>',
-        'coffee': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>',
-        'pizza': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l10 18H2L12 2z"/><circle cx="12" cy="14" r="1.5"/><circle cx="15.5" cy="9" r="1.5"/><circle cx="8.5" cy="9" r="1.5"/></svg>',
-        'apple': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>',
-        'bed': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>',
-        'heart': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-        'star': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
-        'smile': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
-        'frown': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
-        'user': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
-        'users': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-        'gamepad': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></svg>',
-        'music': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-        'film': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>',
-        'ticket': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>',
-        'camera': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
-        'dumbbell': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>',
-        'activity': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
-        'pill': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>',
-        'book': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
-        'briefcase': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V7a4 4 0 0 0-4-4H12a4 4 0 0 0-4 4v14"/></svg>',
-        'grad-cap': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
-        'laptop': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>',
-        'bell': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
-        'key': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 2-2 2m-7.6 7.6a6 6 0 1 1-2.4-2.4l5-5 1 1 2 2 1 1 1 1-3 3-2 2z"/></svg>',
-        'sun': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg>',
-        'moon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
-        'cloud': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>',
-        'umbrella': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7"/></svg>',
-        'anchor': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg>',
-        'crown': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>',
-        'diamond': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/></svg>',
-        'trophy': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
-        'map-pin': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-        'watch': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/></svg>',
-        'calendar': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-        'scissors': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>',
-        'calculator': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="12" y1="18" x2="12" y2="18"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="16" y1="18" x2="16" y2="18"/></svg>',
-        'droplet': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.74 5.88a7 7 0 1 1-9.9 0L12 2.69z"/></svg>'
-    };
-
-    // --- 3. STARTUP ---
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('mesSelect').value = new Date().toISOString().slice(0, 7);
-        document.getElementById('mesSelect').addEventListener('change', loadData);
-        document.getElementById('uidDisplay').innerText = USER_ID;
-        
-        // Gerar Grid de Icones no Modal
-        var ig = document.getElementById('iconPicker');
-        if (ig) {
-            Object.keys(SVGS).forEach(function(k) {
-                if(k === 'trash' || k === 'check' || k === 'circle') return; 
-                var d = document.createElement('div');
-                d.className = 'icon-opt';
-                d.innerHTML = SVGS[k];
-                d.onclick = function() {
-                    document.querySelectorAll('.icon-opt').forEach(function(el){ el.classList.remove('selected'); });
-                    d.classList.add('selected'); currentIcon = k;
-                };
-                ig.appendChild(d);
-            });
-        }
-
-        // Gerar Numpad
-        var pad = document.getElementById('numpad-container');
-        if (pad) {
-            pad.innerHTML = '';
-            [1,2,3,4,5,6,7,8,9].forEach(function(n) {
-                pad.innerHTML += '<div class="num-btn" onclick="typePin(' + n + ')">' + n + '</div>';
-            });
-            pad.innerHTML += '<div class="num-btn del" onclick="clearPin()">C</div><div class="num-btn" onclick="typePin(0)">0</div><div class="num-btn ok" onclick="checkPin()">OK</div>';
-        }
-
-        loadData();
-    });
-
-    // --- 4. LÓGICA DE DADOS ROBUSTA (Offline/Online) ---
-    async function loadData() {
-        var monthKey = 'data_' + USER_ID + '_' + document.getElementById('mesSelect').value;
-        
-        // 1. Carrega do LocalStorage (Sempre funciona)
-        var local = localStorage.getItem(monthKey);
-        if (local) {
-            dataStore = JSON.parse(local);
-        } else {
-            dataStore = { lancamentos: [], mercado: [], carro: [], vault: [], saldos: { vr: 0, va: 0 } };
-        }
-        
-        // Atualiza UI imediatamente
-        renderAll();
-
-        // 2. Tenta sincronizar com nuvem (Se houver internet)
-        if (db) {
-            try {
-                var doc = await db.collection('users').doc(USER_ID).collection('meses').doc(document.getElementById('mesSelect').value).get();
-                if (doc.exists) {
-                    dataStore = doc.data();
-                    if(!dataStore.saldos) dataStore.saldos = { vr: 0, va: 0 }; // Backward compat
-                    renderAll();
-                    localStorage.setItem(monthKey, JSON.stringify(dataStore)); // Atualiza cache local
-                }
-            } catch (e) { console.log("Sem conexão, usando dados locais."); }
-        }
-    }
-
-    async function saveData() {
-        var monthKey = 'data_' + USER_ID + '_' + document.getElementById('mesSelect').value;
-        localStorage.setItem(monthKey, JSON.stringify(dataStore)); // Salva local
-        
-        if (db) {
-            try {
-                await db.collection('users').doc(USER_ID).collection('meses').doc(document.getElementById('mesSelect').value).set(dataStore, {merge:true});
-            } catch (e) { console.log("Salvo apenas offline"); }
-        }
-    }
-
-    function renderAll() {
-        renderTrans();
-        renderMercado();
-        renderCarro();
-        renderHomeCharts();
-    }
-
-    // --- 5. FUNÇÕES DE NEGÓCIO ---
-    window.nav = function(pageId, el) {
-        playSound('click');
-        document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
-        document.getElementById(pageId).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
-        el.classList.add('active');
-        
-        if(pageId === 'p-home') renderHomeCharts();
-        if(pageId === 'p-carro') renderCarroChart();
-        if(pageId === 'p-cofre') lockVault();
-    };
-
-    window.toggleId = function(id) {
-        var el = document.getElementById(id);
-        el.style.display = el.style.display === 'none' ? 'block' : 'none';
-    };
-
-    window.setType = function(t) {
-        currentType = t;
-        var btnRec = document.getElementById('btnRec');
-        var btnDes = document.getElementById('btnDes');
-        
-        btnRec.classList.remove('active');
-        btnDes.classList.remove('active');
-        
-        if(t === 'receita') {
-            btnRec.classList.add('active');
-            btnRec.style.opacity = '1';
-            btnDes.style.opacity = '0.4';
-        } else {
-            btnDes.classList.add('active');
-            btnDes.style.opacity = '1';
-            btnRec.style.opacity = '0.4';
-        }
-    };
-    
-    window.openModal = function(id) { document.getElementById(id).classList.add('open'); };
-    window.closeModal = function() { document.querySelector('.modal.open').classList.remove('open'); };
-    
-    // Custom Confirm Helper
-    function doConfirm(text, callback) {
-        document.getElementById('confirmMsg').innerText = text;
-        document.getElementById('modalConfirm').classList.add('open');
-        document.getElementById('btnConfirmYes').onclick = function() {
-            document.getElementById('modalConfirm').classList.remove('open');
-            callback();
-        };
-    }
-
-    // --- GRANA (NOVO LAYOUT) ---
-    window.saveTrans = async function() {
-        var desc = document.getElementById('tDesc').value;
-        var val = parseFloat(document.getElementById('tVal').value);
-        if(!desc || !val) return;
-        
-        playSound('click'); // Alterado para não tocar SSJ em salvamento comum
-        dataStore.lancamentos.push({ id: Date.now(), type: currentType, desc: desc, val: val, icon: currentIcon, paid: false, date: document.getElementById('tData').value });
-        await saveData();
-        closeModal();
-        renderTrans();
-    };
-
-    window.togglePaid = async function(id) {
-        playSound('tap');
-        var item = dataStore.lancamentos.find(function(i) { return i.id === id; });
-        if(item) { item.paid = !item.paid; await saveData(); renderTrans(); }
-    };
-
-    window.delTrans = async function(id) {
-        doConfirm('Excluir?', async function() {
-            dataStore.lancamentos = dataStore.lancamentos.filter(function(i) { return i.id !== id; });
-            await saveData();
-            renderTrans();
-        });
-    };
-
-    function renderTrans() {
-        var div = document.getElementById('listGrana'); if(div) div.innerHTML = '';
-        var recTotal=0, despTotal=0, pagoTotal=0;
-        
-        var htmlRec = '';
-        var htmlDesp = '';
-
-        dataStore.lancamentos.forEach(function(t) {
-            if(t.type === 'receita') recTotal += t.val;
-            else { 
-                despTotal += t.val; 
-                if(t.paid) pagoTotal += t.val; 
+        // DEBUGGER OVERLAY
+        window.onerror = function (msg, url, line) {
+            var d = document.getElementById('debug-console');
+            if (d) {
+                d.classList.add('show');
+                d.innerHTML += '<p style="color:#ff5555; margin:2px 0; border-bottom:1px solid #330000;">ERROR: ' + msg + ' <br>Line: ' + line + '</p>';
             }
-            
-            var iconSvg = SVGS[t.icon] || SVGS['zap'];
-            
-            // CARD HTML
-            var card = `
+        };
+        function safeLog(msg) {
+            var d = document.getElementById('debug-console');
+            if (d) {
+                d.classList.add('show');
+                d.innerHTML += '<p style="color:#aaffaa; margin:1px 0;">> ' + msg + '</p>';
+            }
+            console.log(msg);
+        }
+        safeLog("Iniciando App...");
+
+        // Safe LocalStorage
+        var safeStore = {
+            getItem: function (k) { try { return localStorage.getItem(k); } catch (e) { safeLog("LS Error Get: " + e); return null; } },
+            setItem: function (k, v) { try { localStorage.setItem(k, v); } catch (e) { safeLog("LS Error Set: " + e); } },
+            removeItem: function (k) { try { localStorage.removeItem(k); } catch (e) { safeLog("LS Error Del: " + e); } }
+        };
+
+        var firebaseConfig = {
+            apiKey: "AIzaSyAZxNVb44XMy0NBE0d0G6Y6U2NqWxBXP5U",
+            authDomain: "finan1313.firebaseapp.com",
+            projectId: "finan1313",
+            storageBucket: "finan1313.firebasestorage.app",
+            messagingSenderId: "92060764433",
+            appId: "1:92060764433:web:d44aece91c3f6669a3a4b0"
+        };
+
+        var db = null;
+        try {
+            if (typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+            }
+        } catch (e) { safeLog("Offline Mode (Firebase error)"); }
+
+        var USER_ID = safeStore.getItem('z_uid') || 'u_' + Date.now();
+        safeStore.setItem('z_uid', USER_ID);
+
+        var dataStore = { lancamentos: [], mercado: [], carro: [], vault: [], saldos: { vr: 0, va: 0 } };
+        var currentType = 'receita';
+        var currentIcon = 'zap';
+        var pinBuffer = "";
+        var charts = {};
+        var isMuted = false;
+
+        // Configuração Global ChartJS - Círculos na Legenda
+        if (typeof Chart !== 'undefined') {
+            Chart.defaults.plugins.legend.labels.usePointStyle = true;
+            Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+        }
+
+        // --- 2. ÍCONES SVG ---
+        var SVGS = {
+            'zap': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+            'home': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+            'cart': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+            'car': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/><circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>',
+            'gift': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
+            'phone': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+            'wifi': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+            'trash': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+            'check': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+            'circle': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>',
+            'fuel': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22v-8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v8"/><path d="M11 22h4a2 2 0 0 0 2-2V4.5a2.5 2.5 0 0 0-5 0V6"/><path d="M14 12h2"/></svg>',
+            'tool': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+            'lock': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+            'dollar': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+            'credit-card': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+            'wallet': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>',
+            'piggy-bank': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5c-1.5 0-2.8 0.6-3.8 1.5l-3 3-5-2-3 3v2h2l1 2v3h3v-2h5v2h3v-6l2-2v-2l-1-1c-1-1-2.5-1.5-4-1.5z"/><path d="M16 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>',
+            'chart-pie': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',
+            'trend-up': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+            'trend-down': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>',
+            'bag': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+            'bus': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M5 21v-2"/><path d="M19 21v-2"/><path d="M3 11h18"/><path d="M3 15h18"/></svg>',
+            'bike': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>',
+            'plane': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L2 11l8 3 3 8 9-20z"/></svg>',
+            'coffee': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>',
+            'pizza': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l10 18H2L12 2z"/><circle cx="12" cy="14" r="1.5"/><circle cx="15.5" cy="9" r="1.5"/><circle cx="8.5" cy="9" r="1.5"/></svg>',
+            'apple': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>',
+            'bed': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>',
+            'heart': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+            'star': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+            'smile': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+            'frown': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
+            'user': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+            'users': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            'gamepad': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="2"/></svg>',
+            'music': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+            'film': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>',
+            'ticket': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg>',
+            'camera': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+            'dumbbell': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>',
+            'activity': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+            'pill': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>',
+            'book': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+            'briefcase': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V7a4 4 0 0 0-4-4H12a4 4 0 0 0-4 4v14"/></svg>',
+            'grad-cap': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
+            'laptop': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>',
+            'bell': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+            'key': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 2-2 2m-7.6 7.6a6 6 0 1 1-2.4-2.4l5-5 1 1 2 2 1 1 1 1-3 3-2 2z"/></svg>',
+            'sun': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg>',
+            'moon': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+            'cloud': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>',
+            'umbrella': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7"/></svg>',
+            'anchor': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg>',
+            'crown': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>',
+            'diamond': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/></svg>',
+            'trophy': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
+            'map-pin': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+            'watch': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="7"/><polyline points="12 9 12 12 13.5 13.5"/><path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"/></svg>',
+            'calendar': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+            'scissors': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>',
+            'calculator': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="12" y1="18" x2="12" y2="18"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="16" y1="18" x2="16" y2="18"/></svg>',
+            'droplet': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.74 5.88a7 7 0 1 1-9.9 0L12 2.69z"/></svg>'
+        };
+
+        // --- 3. STARTUP ---
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('mesSelect').value = new Date().toISOString().slice(0, 7);
+            document.getElementById('mesSelect').addEventListener('change', loadData);
+            document.getElementById('uidDisplay').innerText = USER_ID;
+
+            // Gerar Grid de Icones no Modal
+            var ig = document.getElementById('iconPicker');
+            if (ig) {
+                Object.keys(SVGS).forEach(function (k) {
+                    if (k === 'trash' || k === 'check' || k === 'circle') return;
+                    var d = document.createElement('div');
+                    d.className = 'icon-opt';
+                    d.innerHTML = SVGS[k];
+                    d.onclick = function () {
+                        document.querySelectorAll('.icon-opt').forEach(function (el) { el.classList.remove('selected'); });
+                        d.classList.add('selected'); currentIcon = k;
+                    };
+                    ig.appendChild(d);
+                });
+            }
+
+            // Gerar Numpad
+            var pad = document.getElementById('numpad-container');
+            if (pad) {
+                pad.innerHTML = '';
+                [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function (n) {
+                    pad.innerHTML += '<div class="num-btn" onclick="typePin(' + n + ')">' + n + '</div>';
+                });
+                pad.innerHTML += '<div class="num-btn del" onclick="clearPin()">C</div><div class="num-btn" onclick="typePin(0)">0</div><div class="num-btn ok" onclick="checkPin()">OK</div>';
+            }
+
+            loadData();
+        });
+
+        // --- 4. LÓGICA DE DADOS ROBUSTA (Offline/Online) ---
+        async function loadData() {
+            safeLog("Carregando Dados...");
+            var monthKey = 'data_' + USER_ID + '_' + document.getElementById('mesSelect').value;
+
+            // 1. Carrega do LocalStorage (Sempre funciona)
+            var local = safeStore.getItem(monthKey);
+            if (local) {
+                try {
+                    dataStore = JSON.parse(local);
+                } catch (e) { safeLog("JSON Parse Error"); }
+            } else {
+                dataStore = { lancamentos: [], mercado: [], carro: [], vault: [], saldos: { vr: 0, va: 0 } };
+            }
+
+            // Atualiza UI imediatamente
+            renderAll();
+
+            // 2. Tenta sincronizar com nuvem (Se houver internet)
+            if (db) {
+                try {
+                    var doc = await db.collection('users').doc(USER_ID).collection('meses').doc(document.getElementById('mesSelect').value).get();
+                    if (doc.exists) {
+                        dataStore = doc.data();
+                        if (!dataStore.saldos) dataStore.saldos = { vr: 0, va: 0 }; // Backward compat
+                        renderAll();
+                        safeStore.setItem(monthKey, JSON.stringify(dataStore)); // Atualiza cache local
+                    }
+                } catch (e) { safeLog("Sem Sync (Offline)"); }
+            }
+        }
+
+        async function saveData() {
+            var monthKey = 'data_' + USER_ID + '_' + document.getElementById('mesSelect').value;
+            safeStore.setItem(monthKey, JSON.stringify(dataStore)); // Salva local
+
+            if (db) {
+                try {
+                    await db.collection('users').doc(USER_ID).collection('meses').doc(document.getElementById('mesSelect').value).set(dataStore, { merge: true });
+                } catch (e) { }
+            }
+        }
+
+        function renderAll() {
+            renderTrans();
+            renderMercado();
+            renderCarro();
+            renderHomeCharts();
+        }
+
+        // --- 5. FUNÇÕES DE NEGÓCIO ---
+        window.nav = function (pageId, el) {
+            playSound('click');
+            document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+            document.getElementById(pageId).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
+            el.classList.add('active');
+
+            if (pageId === 'p-home') renderHomeCharts();
+            if (pageId === 'p-carro') renderCarroChart();
+            if (pageId === 'p-cofre') lockVault();
+        };
+
+        window.toggleId = function (id) {
+            var el = document.getElementById(id);
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        };
+
+        window.setType = function (t) {
+            currentType = t;
+            var btnRec = document.getElementById('btnRec');
+            var btnDes = document.getElementById('btnDes');
+
+            btnRec.classList.remove('active');
+            btnDes.classList.remove('active');
+
+            if (t === 'receita') {
+                btnRec.classList.add('active');
+                btnRec.style.opacity = '1';
+                btnDes.style.opacity = '0.4';
+            } else {
+                btnDes.classList.add('active');
+                btnDes.style.opacity = '1';
+                btnRec.style.opacity = '0.4';
+            }
+        };
+
+        window.openModal = function (id) { document.getElementById(id).classList.add('open'); };
+        window.closeModal = function () { document.querySelector('.modal.open').classList.remove('open'); };
+
+        // Custom Confirm Helper
+        function doConfirm(text, callback) {
+            document.getElementById('confirmMsg').innerText = text;
+            document.getElementById('modalConfirm').classList.add('open');
+            document.getElementById('btnConfirmYes').onclick = function () {
+                document.getElementById('modalConfirm').classList.remove('open');
+                callback();
+            };
+        }
+
+        // --- GRANA (NOVO LAYOUT) ---
+        window.saveTrans = async function () {
+            var desc = document.getElementById('tDesc').value;
+            var val = parseFloat(document.getElementById('tVal').value);
+            if (!desc || !val) return;
+
+            playSound('click'); // Alterado para não tocar SSJ em salvamento comum
+            dataStore.lancamentos.push({ id: Date.now(), type: currentType, desc: desc, val: val, icon: currentIcon, paid: false, date: document.getElementById('tData').value });
+            await saveData();
+            closeModal();
+            renderTrans();
+        };
+
+        window.togglePaid = async function (id) {
+            playSound('tap');
+            var item = dataStore.lancamentos.find(function (i) { return i.id === id; });
+            if (item) { item.paid = !item.paid; await saveData(); renderTrans(); }
+        };
+
+        window.delTrans = async function (id) {
+            doConfirm('Excluir?', async function () {
+                dataStore.lancamentos = dataStore.lancamentos.filter(function (i) { return i.id !== id; });
+                await saveData();
+                renderTrans();
+            });
+        };
+
+        function renderTrans() {
+            var div = document.getElementById('listGrana'); if (div) div.innerHTML = '';
+            var recTotal = 0, despTotal = 0, pagoTotal = 0;
+
+            var htmlRec = '';
+            var htmlDesp = '';
+
+            dataStore.lancamentos.forEach(function (t) {
+                if (t.type === 'receita') recTotal += t.val;
+                else {
+                    despTotal += t.val;
+                    if (t.paid) pagoTotal += t.val;
+                }
+
+                var iconSvg = SVGS[t.icon] || SVGS['zap'];
+
+                // CARD HTML
+                var card = `
                 <div class="trans-card ${t.type} ${t.paid ? 'paid' : ''}">
                     <div class="tc-header">
                         <div class="tc-icon">${iconSvg}</div>
@@ -760,11 +1409,11 @@
                     <div class="tc-desc">${t.desc}</div>
                     <div class="tc-date">${t.date || '-'}</div>
                     <div class="tc-actions">
-                        ${t.type === 'despesa' ? 
-                            `<div class="btn-action btn-check ${t.paid ? 'active' : ''}" onclick="togglePaid(${t.id})">
+                        ${t.type === 'despesa' ?
+                        `<div class="btn-action btn-check ${t.paid ? 'active' : ''}" onclick="togglePaid(${t.id})">
                                 ${SVGS['check']}
                             </div>` : ''
-                        }
+                    }
                         <div class="btn-action btn-trash" onclick="delTrans(${t.id})">
                             ${SVGS['trash']}
                         </div>
@@ -772,424 +1421,435 @@
                 </div>
             `;
 
-            if(t.type === 'receita') htmlRec += card;
-            else htmlDesp += card;
-        });
+                if (t.type === 'receita') htmlRec += card;
+                else htmlDesp += card;
+            });
 
-        // Montar a estrutura final
-        var finalHtml = '';
-        if(htmlRec) {
-            finalHtml += `<div class="section-title">Receitas</div><div class="cards-grid">${htmlRec}</div>`;
-        }
-        if(htmlDesp) {
-            finalHtml += `<div class="section-title" style="margin-top:20px;">Despesas</div><div class="cards-grid">${htmlDesp}</div>`;
-        }
-        
-        if(!finalHtml) finalHtml = '<p style="text-align:center; opacity:0.5; margin-top:20px;">Sem lançamentos</p>';
-
-        div.innerHTML = finalHtml;
-
-        document.getElementById('gEnt').innerText = recTotal.toFixed(2);
-        document.getElementById('gSai').innerText = despTotal.toFixed(2);
-        document.getElementById('gPag').innerText = pagoTotal.toFixed(2);
-        
-        document.getElementById('dRec').innerText = recTotal.toFixed(2);
-        document.getElementById('dDesp').innerText = despTotal.toFixed(2);
-        document.getElementById('dSaldo').innerText = (recTotal-pagoTotal).toFixed(2);
-    }
-
-    // --- MERCADO (NOVA LÓGICA) ---
-    window.saveSaldos = async function() {
-        dataStore.saldos.vr = parseFloat(document.getElementById('saldoVR').value) || 0;
-        dataStore.saldos.va = parseFloat(document.getElementById('saldoVA').value) || 0;
-        await saveData();
-        renderMercado(); // Para atualizar o total de beneficios
-    };
-
-    window.addMercado = async function() {
-        var item = document.getElementById('mItem').value;
-        var qtd = parseFloat(document.getElementById('mQtd').value) || 1;
-        var val = parseFloat(document.getElementById('mVal').value) || 0;
-        var cardType = document.getElementById('mCard').value;
-
-        if (!item || !val) return;
-
-        // Desconta do Saldo
-        if (cardType === 'VR') dataStore.saldos.vr -= (val * qtd);
-        if (cardType === 'VA') dataStore.saldos.va -= (val * qtd);
-
-        dataStore.mercado.push({ item: item, qtd: qtd, val: val, card: cardType });
-        
-        await saveData(); 
-        renderMercado();
-        
-        document.getElementById('mItem').value=''; 
-        document.getElementById('mQtd').value=''; 
-        document.getElementById('mVal').value='';
-    };
-
-    function renderMercado() {
-        var vr = dataStore.saldos.vr || 0;
-        var va = dataStore.saldos.va || 0;
-        document.getElementById('saldoVR').value = vr.toFixed(2);
-        document.getElementById('saldoVA').value = va.toFixed(2);
-        document.getElementById('mTotalBeneficios').innerText = "R$ " + (vr + va).toFixed(2);
-
-        var div = document.getElementById('listMercado'); if(div) div.innerHTML = ''; var tot=0;
-        dataStore.mercado.forEach(function(i, idx) {
-            var sub = i.qtd * i.val; tot += sub;
-            var cardLabel = '';
-            if(i.card === 'VR') cardLabel = '(VR)';
-            else if(i.card === 'VA') cardLabel = '(VA)';
-            else if(i.card === 'Credito') cardLabel = '(Crédito)';
-            else if(i.card === 'Debito') cardLabel = '(Débito)';
-            else if(i.card === 'Dinheiro') cardLabel = '(Dinheiro)';
-
-            
-            div.innerHTML += '<div class="list-item out">' +
-                '<div>' + i.qtd + 'x ' + i.item + ' <small>' + cardLabel + '</small></div>' +
-                '<div>R$ ' + sub.toFixed(2) + ' <span onclick="delMercado(' + idx + ')" style="color:red; margin-left:10px; cursor:pointer;">X</span></div>' +
-            '</div>';
-        });
-        document.getElementById('mMontante').innerText = 'R$ ' + tot.toFixed(2);
-    }
-
-    window.delMercado = async function(idx) { 
-        dataStore.mercado.splice(idx,1); 
-        await saveData(); 
-        renderMercado(); 
-    };
-    
-    window.limparMercado = async function() { 
-        doConfirm('Limpar tudo?', async function() {
-            dataStore.mercado=[]; await saveData(); renderMercado();
-        });
-    };
-
-    // --- CARRO ---
-    window.addGas = async function() {
-        var tipo = document.getElementById('gTipo').value;
-        dataStore.carro.push({ 
-            type:'gas', 
-            fuelType: tipo,
-            data: document.getElementById('gData').value, 
-            km: document.getElementById('gKm').value, 
-            lit: document.getElementById('gLit').value, 
-            val: parseFloat(document.getElementById('gVal').value) 
-        });
-        await saveData(); toggleId('formGas'); renderCarro();
-    };
-    window.addMan = async function() {
-        dataStore.carro.push({ type:'man', desc: document.getElementById('manDesc').value, val: parseFloat(document.getElementById('manVal').value) });
-        await saveData(); toggleId('formMan'); renderCarro();
-    };
-    
-    function renderCarro() {
-        var div = document.getElementById('listCarro'); if(div) div.innerHTML=''; var tot=0, gas=[];
-        dataStore.carro.forEach(function(i, idx) {
-            tot += i.val; if(i.type==='gas') gas.push(i);
-            
-            var label = i.type==='gas' 
-                ? '⛽ ' + (i.fuelType || 'Gasolina') + ' - ' + i.km + 'km' 
-                : '🔧 ' + i.desc;
-
-            div.innerHTML += '<div class="list-item ' + (i.type==='gas'?'paid':'out') + '"><div>' + label + '</div><div>R$ ' + i.val.toFixed(2) + ' <span onclick="delCarro(' + idx + ')" style="color:red; cursor:pointer;">X</span></div></div>';
-        });
-        document.getElementById('cGasto').innerText = tot.toFixed(2);
-        
-        // KM/L calc (simples)
-        gas.sort(function(a,b){ return a.km - b.km });
-        if(gas.length>1) {
-             var last = gas[gas.length-1];
-             var prev = gas[gas.length-2];
-             // Apenas calcula se for do mesmo tipo, ou simplificado
-             var diff = last.km - prev.km;
-             if(diff > 0 && last.lit > 0) {
-                 document.getElementById('cKm').innerText = (diff / last.lit).toFixed(1);
-             }
-        }
-        
-        renderCarroChart();
-    }
-    window.delCarro = async function(idx) { dataStore.carro.splice(idx,1); await saveData(); renderCarro(); };
-
-    // --- COFRE ---
-    window.typePin = function(n) { if(pinBuffer.length < 4) { pinBuffer+=n; updateDots(); playSound('tap'); } };
-    window.clearPin = function() { pinBuffer=""; updateDots(); };
-    function updateDots() { 
-        var dotsHtml = '';
-        for(var i=1;i<=4;i++) {
-            var filled = i <= pinBuffer.length ? 'filled' : '';
-            dotsHtml += '<div class="pin-dot ' + filled + '"></div>';
-        }
-        var container = document.querySelector('.pin-display');
-        if(!container) {
-            container = document.createElement('div');
-            container.className = 'pin-display';
-            document.getElementById('vPin').insertAdjacentElement('afterend', container);
-        }
-        container.innerHTML = dotsHtml;
-    }
-    window.checkPin = function() {
-        var saved = localStorage.getItem('pin_z');
-        if(!saved) { 
-            if(pinBuffer.length===4) { 
-                localStorage.setItem('pin_z', pinBuffer); 
-                unlockVault(); 
-            } 
-        } else { 
-            if(pinBuffer===saved) {
-                unlockVault(); 
-            } else { 
-                var lock = document.getElementById('vaultLock');
-                lock.style.animation = 'shakeHard 0.5s';
-                setTimeout(() => lock.style.animation = '', 500);
-                clearPin(); 
-            } 
-        }
-    };
-    window.unlockVault = function() {
-        playSound('ssj');
-        document.getElementById('vaultLock').style.display='none';
-        document.getElementById('vaultOpen').style.display='block';
-        clearPin(); loadVault();
-    };
-    window.lockVault = function() {
-        document.getElementById('vaultLock').style.display='block';
-        document.getElementById('vaultOpen').style.display='none';
-        clearPin();
-    };
-    window.resetVault = function() { 
-        doConfirm('Resetar PIN?', function() {
-            localStorage.removeItem('pin_z'); 
-            clearPin(); 
-            document.getElementById('vPin').placeholder = "NOVO PIN";
-        });
-    };
-    window.recoverData = function() {
-        var old = document.getElementById('recID').value;
-        if(old) { USER_ID = old; localStorage.setItem('z_uid', old); location.reload(); }
-    };
-    function loadVault() {
-        var saved = localStorage.getItem('vault_' + USER_ID);
-        dataStore.vault = saved ? JSON.parse(saved) : [];
-        var div = document.getElementById('listPass'); if(div) div.innerHTML='';
-        dataStore.vault.forEach(function(i, idx) {
-            div.innerHTML += '<div class="list-item"><div><strong>' + i.site + '</strong><br><small>' + i.user + '</small></div><div><span onclick="this.innerText=\'' + i.pass + '\'">****</span> <span onclick="delPass(' + idx + ')" style="color:red; margin-left:5px; cursor:pointer;">X</span></div></div>';
-        });
-    }
-    window.addPass = async function() {
-        dataStore.vault.push({ site: document.getElementById('pSite').value, user: document.getElementById('pUser').value, pass: document.getElementById('pPass').value });
-        localStorage.setItem('vault_' + USER_ID, JSON.stringify(dataStore.vault));
-        loadVault();
-        document.getElementById('pSite').value = '';
-        document.getElementById('pUser').value = '';
-        document.getElementById('pPass').value = '';
-    };
-    window.delPass = async function(idx) {
-        doConfirm('Apagar senha?', function() {
-            dataStore.vault.splice(idx,1); 
-            localStorage.setItem('vault_' + USER_ID, JSON.stringify(dataStore.vault)); 
-            loadVault();
-        });
-    };
-
-    // --- PDF ---
-    window.gerarPDF = function() {
-        if (typeof window.jspdf === 'undefined') { console.log("PDF Lib offline"); return; }
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(22); doc.setTextColor(255, 69, 0); doc.text("Relatório Z", 105, 20, null, null, "center");
-        doc.setFontSize(12); doc.setTextColor(0,0,0);
-        doc.text("Referência: " + document.getElementById('mesSelect').value, 14, 30);
-        var saldo = document.getElementById('dSaldo').innerText;
-        doc.text("Saldo Atual: " + saldo, 14, 40);
-        var bodyData = [];
-        dataStore.lancamentos.forEach(function(t) { bodyData.push([t.date, t.desc, t.type.toUpperCase(), "R$ " + t.val.toFixed(2)]); });
-        doc.autoTable({ startY: 50, head: [['Data', 'Descrição', 'Tipo', 'Valor']], body: bodyData, theme: 'striped', headStyles: { fillColor: [255, 69, 0] } });
-        doc.save("Relatorio_Z.pdf");
-    };
-
-    // --- AUDIO AVANÇADO (SSJ + Trovões) ---
-    var AudioCtx = window.AudioContext || window.webkitAudioContext;
-    var ctx = new AudioCtx();
-    window.toggleMute = function() { isMuted = !isMuted; document.getElementById('muteIcon').innerText = isMuted ? '🔇' : '🔊'; };
-    
-    // Função auxiliar para criar barulho (noise buffer)
-    function createNoiseBuffer() {
-        var bufferSize = ctx.sampleRate * 2.0; // 2 segundos de buffer
-        var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        var data = buffer.getChannelData(0);
-        for (var i = 0; i < bufferSize; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-        return buffer;
-    }
-    var noiseBuffer = null;
-
-    function playSound(t) {
-        if(isMuted) return;
-        if(ctx.state==='suspended') ctx.resume();
-        if(!noiseBuffer) noiseBuffer = createNoiseBuffer();
-        
-        var n = ctx.currentTime;
-
-        if(t==='click') { 
-            var o = ctx.createOscillator(); var g = ctx.createGain();
-            o.connect(g); g.connect(ctx.destination);
-            o.frequency.setValueAtTime(600,n); o.frequency.exponentialRampToValueAtTime(100,n+0.1); 
-            g.gain.setValueAtTime(0.1,n); g.gain.exponentialRampToValueAtTime(0.01,n+0.1); 
-            o.start(n); o.stop(n+0.1); 
-        }
-        else if(t==='ssj') {
-            // --- EFEITO AURA (SHIU SHIU) ---
-            var auraSrc = ctx.createBufferSource();
-            auraSrc.buffer = noiseBuffer;
-            var auraFilter = ctx.createBiquadFilter();
-            auraFilter.type = 'bandpass';
-            auraFilter.Q.value = 1;
-            auraFilter.frequency.setValueAtTime(200, n);
-            auraFilter.frequency.linearRampToValueAtTime(800, n+2); // Sobe o tom
-            
-            var auraGain = ctx.createGain();
-            auraGain.gain.setValueAtTime(0, n);
-            auraGain.gain.linearRampToValueAtTime(0.8, n+0.5);
-            auraGain.gain.linearRampToValueAtTime(0, n+2.5);
-
-            auraSrc.connect(auraFilter); auraFilter.connect(auraGain); auraGain.connect(ctx.destination);
-            auraSrc.start(n);
-            
-            // --- EFEITO RAIOS (TRAC TRAC) - Múltiplos estalos ---
-            for(let i=0; i<6; i++) {
-                let timeOffset = n + Math.random() * 2;
-                let sparkSrc = ctx.createBufferSource();
-                sparkSrc.buffer = noiseBuffer;
-                
-                let sparkFilter = ctx.createBiquadFilter();
-                sparkFilter.type = 'highpass';
-                sparkFilter.frequency.value = 1000;
-                
-                let sparkGain = ctx.createGain();
-                sparkGain.gain.setValueAtTime(0, timeOffset);
-                sparkGain.gain.linearRampToValueAtTime(0.6, timeOffset + 0.02);
-                sparkGain.gain.exponentialRampToValueAtTime(0.01, timeOffset + 0.1);
-                
-                sparkSrc.connect(sparkFilter); sparkFilter.connect(sparkGain); sparkGain.connect(ctx.destination);
-                sparkSrc.start(timeOffset);
-                sparkSrc.stop(timeOffset + 0.15);
+            // Montar a estrutura final
+            var finalHtml = '';
+            if (htmlRec) {
+                finalHtml += `<div class="section-title">Receitas</div><div class="cards-grid">${htmlRec}</div>`;
             }
-        }
-        else if(t==='tap') { 
-             var o = ctx.createOscillator(); var g = ctx.createGain();
-             o.connect(g); g.connect(ctx.destination);
-             o.frequency.setValueAtTime(800,n); 
-             g.gain.setValueAtTime(0.05,n); g.gain.exponentialRampToValueAtTime(0.01,n+0.05); 
-             o.start(n); o.stop(n+0.05); 
-        }
-    }
-
-    var themeIdx = 0;
-    var themeClasses = ['theme-dark', 'theme-light', 'theme-ssj'];
-    window.toggleTheme = function() {
-        document.body.classList.remove(themeClasses[themeIdx]);
-        themeIdx = (themeIdx + 1) % 3;
-        var newClass = themeClasses[themeIdx];
-        
-        if(newClass === 'theme-ssj') {
-            document.body.classList.add('transforming'); 
-            playSound('ssj'); // Som Trovão/Aura
-            setTimeout(function() { document.body.classList.remove('transforming'); document.body.classList.add(newClass); }, 2500);
-        } else {
-            document.body.classList.add(newClass); 
-            playSound('click');
-        }
-    };
-
-    // --- GRÁFICOS (NOVOS E ATUALIZADOS) ---
-    function renderHomeCharts() {
-        if(typeof Chart === 'undefined') return;
-        if(document.getElementById('p-home').style.display === 'none') return;
-        
-        var rec=0, desp=0;
-        var evolucao = {}; 
-
-        dataStore.lancamentos.forEach(function(t) { 
-            if(t.type==='receita') rec+=t.val; 
-            else { desp+=t.val; }
-            
-            if(t.date) {
-                // Pega mês YYYY-MM
-                var m = t.date.substring(0, 7); 
-                if(!evolucao[m]) evolucao[m] = {rec:0, desp:0};
-                if(t.type==='receita') evolucao[m].rec += t.val;
-                else evolucao[m].desp += t.val;
+            if (htmlDesp) {
+                finalHtml += `<div class="section-title" style="margin-top:20px;">Despesas</div><div class="cards-grid">${htmlDesp}</div>`;
             }
-        });
 
-        // 1. Receita vs Despesa (PIZZA)
-        if(charts.pieMain) charts.pieMain.destroy();
-        charts.pieMain = new Chart(document.getElementById('cHomePieMain'), {
-            type: 'pie', 
-            data: { labels: ['Receita', 'Despesa'], datasets: [{ data: [rec, desp], backgroundColor: ['#10b981', '#ef4444'] }] },
-            options: { plugins: { legend: {position:'right'} }, maintainAspectRatio: false }
-        });
+            if (!finalHtml) finalHtml = '<p style="text-align:center; opacity:0.5; margin-top:20px;">Sem lançamentos</p>';
 
-        // 2. Evolução (LINHA)
-        var dates = Object.keys(evolucao).sort();
-        var dataRec = dates.map(d => evolucao[d].rec);
-        var dataDesp = dates.map(d => evolucao[d].desp);
+            div.innerHTML = finalHtml;
 
-        if(charts.line) charts.line.destroy();
-        charts.line = new Chart(document.getElementById('cHomeLine'), {
-            type: 'line',
-            data: { 
-                labels: dates, 
-                datasets: [
-                    { label: 'Receita', data: dataRec, borderColor: '#10b981', tension: 0.3 },
-                    { label: 'Despesa', data: dataDesp, borderColor: '#ef4444', tension: 0.3 }
-                ]
-            },
-            options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } } } }
-        });
-        
-        // Remove grafico de categorias da home se existir
-        if(charts.pieCats) charts.pieCats.destroy();
-    }
+            document.getElementById('gEnt').innerText = recTotal.toFixed(2);
+            document.getElementById('gSai').innerText = despTotal.toFixed(2);
+            document.getElementById('gPag').innerText = pagoTotal.toFixed(2);
 
-    function renderCarroChart() {
-        if(typeof Chart === 'undefined') return;
-        if(document.getElementById('p-carro').style.display === 'none') return;
-        
-        var gastosMes = {};
-        
-        dataStore.carro.forEach(function(c) { 
-            // Agrupar por mes
-            if(c.data) {
-                var m = c.data.substring(0, 7); // YYYY-MM
-                gastosMes[m] = (gastosMes[m] || 0) + c.val;
+            document.getElementById('dRec').innerText = recTotal.toFixed(2);
+            document.getElementById('dDesp').innerText = despTotal.toFixed(2);
+            document.getElementById('dSaldo').innerText = (recTotal - pagoTotal).toFixed(2);
+        }
+
+        // --- MERCADO (NOVA LÓGICA) ---
+        window.saveSaldos = async function () {
+            dataStore.saldos.vr = parseFloat(document.getElementById('saldoVR').value) || 0;
+            dataStore.saldos.va = parseFloat(document.getElementById('saldoVA').value) || 0;
+            await saveData();
+            renderMercado(); // Para atualizar o total de beneficios
+        };
+
+        window.addMercado = async function () {
+            var item = document.getElementById('mItem').value;
+            var qtd = parseFloat(document.getElementById('mQtd').value) || 1;
+            var val = parseFloat(document.getElementById('mVal').value) || 0;
+            var cardType = document.getElementById('mCard').value;
+
+            if (!item || !val) return;
+
+            // Desconta do Saldo
+            if (cardType === 'VR') dataStore.saldos.vr -= (val * qtd);
+            if (cardType === 'VA') dataStore.saldos.va -= (val * qtd);
+
+            dataStore.mercado.push({ item: item, qtd: qtd, val: val, card: cardType });
+
+            await saveData();
+            renderMercado();
+
+            document.getElementById('mItem').value = '';
+            document.getElementById('mQtd').value = '';
+            document.getElementById('mVal').value = '';
+        };
+
+        function renderMercado() {
+            var vr = dataStore.saldos.vr || 0;
+            var va = dataStore.saldos.va || 0;
+            document.getElementById('saldoVR').value = vr.toFixed(2);
+            document.getElementById('saldoVA').value = va.toFixed(2);
+            document.getElementById('mTotalBeneficios').innerText = "R$ " + (vr + va).toFixed(2);
+
+            var div = document.getElementById('listMercado'); if (div) div.innerHTML = ''; var tot = 0;
+            dataStore.mercado.forEach(function (i, idx) {
+                var sub = i.qtd * i.val; tot += sub;
+                var cardLabel = '';
+                if (i.card === 'VR') cardLabel = '(VR)';
+                else if (i.card === 'VA') cardLabel = '(VA)';
+                else if (i.card === 'Credito') cardLabel = '(Crédito)';
+                else if (i.card === 'Debito') cardLabel = '(Débito)';
+                else if (i.card === 'Dinheiro') cardLabel = '(Dinheiro)';
+
+
+                div.innerHTML += '<div class="list-item out">' +
+                    '<div>' + i.qtd + 'x ' + i.item + ' <small>' + cardLabel + '</small></div>' +
+                    '<div>R$ ' + sub.toFixed(2) + ' <span onclick="delMercado(' + idx + ')" style="color:red; margin-left:10px; cursor:pointer;">X</span></div>' +
+                    '</div>';
+            });
+            document.getElementById('mMontante').innerText = 'R$ ' + tot.toFixed(2);
+        }
+
+        window.delMercado = async function (idx) {
+            dataStore.mercado.splice(idx, 1);
+            await saveData();
+            renderMercado();
+        };
+
+        window.limparMercado = async function () {
+            doConfirm('Limpar tudo?', async function () {
+                dataStore.mercado = []; await saveData(); renderMercado();
+            });
+        };
+
+        // --- CARRO ---
+        window.addGas = async function () {
+            var tipo = document.getElementById('gTipo').value;
+            dataStore.carro.push({
+                type: 'gas',
+                fuelType: tipo,
+                data: document.getElementById('gData').value,
+                km: document.getElementById('gKm').value,
+                lit: document.getElementById('gLit').value,
+                val: parseFloat(document.getElementById('gVal').value)
+            });
+            await saveData(); toggleId('formGas'); renderCarro();
+        };
+        window.addMan = async function () {
+            dataStore.carro.push({ type: 'man', desc: document.getElementById('manDesc').value, val: parseFloat(document.getElementById('manVal').value) });
+            await saveData(); toggleId('formMan'); renderCarro();
+        };
+
+        function renderCarro() {
+            var div = document.getElementById('listCarro'); if (div) div.innerHTML = ''; var tot = 0, gas = [];
+            dataStore.carro.forEach(function (i, idx) {
+                tot += i.val; if (i.type === 'gas') gas.push(i);
+
+                var label = i.type === 'gas'
+                    ? '⛽ ' + (i.fuelType || 'Gasolina') + ' - ' + i.km + 'km'
+                    : '🔧 ' + i.desc;
+
+                div.innerHTML += '<div class="list-item ' + (i.type === 'gas' ? 'paid' : 'out') + '"><div>' + label + '</div><div>R$ ' + i.val.toFixed(2) + ' <span onclick="delCarro(' + idx + ')" style="color:red; cursor:pointer;">X</span></div></div>';
+            });
+            document.getElementById('cGasto').innerText = tot.toFixed(2);
+
+            // KM/L calc (simples)
+            gas.sort(function (a, b) { return a.km - b.km });
+            if (gas.length > 1) {
+                var last = gas[gas.length - 1];
+                var prev = gas[gas.length - 2];
+                // Apenas calcula se for do mesmo tipo, ou simplificado
+                var diff = last.km - prev.km;
+                if (diff > 0 && last.lit > 0) {
+                    document.getElementById('cKm').innerText = (diff / last.lit).toFixed(1);
+                }
+            }
+
+            renderCarroChart();
+        }
+        window.delCarro = async function (idx) { dataStore.carro.splice(idx, 1); await saveData(); renderCarro(); };
+
+        // --- COFRE ---
+        window.typePin = function (n) { if (pinBuffer.length < 4) { pinBuffer += n; updateDots(); playSound('tap'); } };
+        window.clearPin = function () { pinBuffer = ""; updateDots(); };
+        function updateDots() {
+            var dotsHtml = '';
+            for (var i = 1; i <= 4; i++) {
+                var filled = i <= pinBuffer.length ? 'filled' : '';
+                dotsHtml += '<div class="pin-dot ' + filled + '"></div>';
+            }
+            var container = document.querySelector('.pin-display');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'pin-display';
+                document.getElementById('vPin').insertAdjacentElement('afterend', container);
+            }
+            container.innerHTML = dotsHtml;
+        }
+        window.checkPin = function () {
+            var saved = safeStore.getItem('pin_z');
+            if (!saved) {
+                if (pinBuffer.length === 4) {
+                    safeStore.setItem('pin_z', pinBuffer);
+                    unlockVault();
+                }
             } else {
-                gastosMes['N/D'] = (gastosMes['N/D'] || 0) + c.val;
+                if (pinBuffer === saved) {
+                    unlockVault();
+                } else {
+                    var lock = document.getElementById('vaultLock');
+                    lock.style.animation = 'shakeHard 0.5s';
+                    setTimeout(() => lock.style.animation = '', 500);
+                    clearPin();
+                }
             }
-        });
-        
-        // Grafico de Pizza dos Meses
-        if(charts.carMes) charts.carMes.destroy();
-        charts.carMes = new Chart(document.getElementById('cCarroMes'), {
-            type: 'pie', 
-            data: { 
-                labels: Object.keys(gastosMes), 
-                datasets: [{ 
-                    data: Object.values(gastosMes), 
-                    backgroundColor: ['#3b82f6', '#ff7e00', '#10b981', '#ef4444', '#8b5cf6', '#eab308'] 
-                }] 
-            },
-            options: { maintainAspectRatio: false, plugins: { legend: {position:'right'} } }
-        });
+        };
+        window.unlockVault = function () {
+            playSound('ssj');
+            document.getElementById('vaultLock').style.display = 'none';
+            document.getElementById('vaultOpen').style.display = 'block';
+            clearPin(); loadVault();
+        };
+        window.lockVault = function () {
+            document.getElementById('vaultLock').style.display = 'block';
+            document.getElementById('vaultOpen').style.display = 'none';
+            clearPin();
+        };
+        window.resetVault = function () {
+            doConfirm('Resetar PIN?', function () {
+                safeStore.removeItem('pin_z');
+                clearPin();
+                document.getElementById('vPin').placeholder = "NOVO PIN";
+            });
+        };
+        window.recoverData = function () {
+            var old = document.getElementById('recID').value;
+            if (old) { USER_ID = old; safeStore.setItem('z_uid', old); location.reload(); }
+        };
+        function loadVault() {
+            var saved = safeStore.getItem('vault_' + USER_ID);
+            dataStore.vault = saved ? JSON.parse(saved) : [];
+            var div = document.getElementById('listPass'); if (div) div.innerHTML = '';
+            dataStore.vault.forEach(function (i, idx) {
+                div.innerHTML += '<div class="list-item"><div><strong>' + i.site + '</strong><br><small>' + i.user + '</small></div><div><span onclick="this.innerText=\'' + i.pass + '\'">****</span> <span onclick="delPass(' + idx + ')" style="color:red; margin-left:5px; cursor:pointer;">X</span></div></div>';
+            });
+        }
+        window.addPass = async function () {
+            dataStore.vault.push({ site: document.getElementById('pSite').value, user: document.getElementById('pUser').value, pass: document.getElementById('pPass').value });
+            safeStore.setItem('vault_' + USER_ID, JSON.stringify(dataStore.vault));
+            loadVault();
+            document.getElementById('pSite').value = '';
+            document.getElementById('pUser').value = '';
+            document.getElementById('pPass').value = '';
+        };
+        window.delPass = async function (idx) {
+            doConfirm('Apagar senha?', function () {
+                dataStore.vault.splice(idx, 1);
+                safeStore.setItem('vault_' + USER_ID, JSON.stringify(dataStore.vault));
+                loadVault();
+            });
+        };
 
-        // Remove graficos antigos se existirem
-        if(charts.carComb) charts.carComb.destroy();
-        if(charts.carMan) charts.carMan.destroy();
-    }
-</script>
+        // --- PDF ---
+        window.gerarPDF = function () {
+            if (typeof window.jspdf === 'undefined') { console.log("PDF Lib offline"); return; }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(22); doc.setTextColor(255, 69, 0); doc.text("Relatório Z", 105, 20, null, null, "center");
+            doc.setFontSize(12); doc.setTextColor(0, 0, 0);
+            doc.text("Referência: " + document.getElementById('mesSelect').value, 14, 30);
+            var saldo = document.getElementById('dSaldo').innerText;
+            doc.text("Saldo Atual: " + saldo, 14, 40);
+            var bodyData = [];
+            dataStore.lancamentos.forEach(function (t) { bodyData.push([t.date, t.desc, t.type.toUpperCase(), "R$ " + t.val.toFixed(2)]); });
+            doc.autoTable({ startY: 50, head: [['Data', 'Descrição', 'Tipo', 'Valor']], body: bodyData, theme: 'striped', headStyles: { fillColor: [255, 69, 0] } });
+            doc.save("Relatorio_Z.pdf");
+        };
+
+        // --- AUDIO AVANÇADO (SSJ + Trovões) ---
+        // --- AUDIO AVANÇADO (SAFE) ---
+        var AudioCtx = window.AudioContext || window.webkitAudioContext;
+        var ctx = null; // Lazy load
+
+        window.toggleMute = function () { isMuted = !isMuted; document.getElementById('muteIcon').innerText = isMuted ? '🔇' : '🔊'; };
+
+        // Função auxiliar para criar barulho (noise buffer)
+        function createNoiseBuffer() {
+            if (!ctx) return null;
+            var bufferSize = ctx.sampleRate * 2.0; // 2 segundos de buffer
+            var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            var data = buffer.getChannelData(0);
+            for (var i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            return buffer;
+        }
+        var noiseBuffer = null;
+
+        function playSound(t) {
+            if (isMuted) return;
+
+            // Lazy Init Safe
+            try {
+                if (!ctx && AudioCtx) ctx = new AudioCtx();
+                if (!ctx) return;
+                if (ctx.state === 'suspended') ctx.resume();
+            } catch (e) { safeLog("Audio Error: " + e); return; }
+
+            if (!noiseBuffer) noiseBuffer = createNoiseBuffer();
+
+            var n = ctx.currentTime;
+
+            if (t === 'click') {
+                var o = ctx.createOscillator(); var g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.frequency.setValueAtTime(600, n); o.frequency.exponentialRampToValueAtTime(100, n + 0.1);
+                g.gain.setValueAtTime(0.1, n); g.gain.exponentialRampToValueAtTime(0.01, n + 0.1);
+                o.start(n); o.stop(n + 0.1);
+            }
+            else if (t === 'ssj') {
+                // --- EFEITO AURA (SHIU SHIU) ---
+                var auraSrc = ctx.createBufferSource();
+                auraSrc.buffer = noiseBuffer;
+                var auraFilter = ctx.createBiquadFilter();
+                auraFilter.type = 'bandpass';
+                auraFilter.Q.value = 1;
+                auraFilter.frequency.setValueAtTime(200, n);
+                auraFilter.frequency.linearRampToValueAtTime(800, n + 2); // Sobe o tom
+
+                var auraGain = ctx.createGain();
+                auraGain.gain.setValueAtTime(0, n);
+                auraGain.gain.linearRampToValueAtTime(0.8, n + 0.5);
+                auraGain.gain.linearRampToValueAtTime(0, n + 2.5);
+
+                auraSrc.connect(auraFilter); auraFilter.connect(auraGain); auraGain.connect(ctx.destination);
+                auraSrc.start(n);
+
+                // --- EFEITO RAIOS (TRAC TRAC) - Múltiplos estalos ---
+                for (let i = 0; i < 6; i++) {
+                    let timeOffset = n + Math.random() * 2;
+                    let sparkSrc = ctx.createBufferSource();
+                    sparkSrc.buffer = noiseBuffer;
+
+                    let sparkFilter = ctx.createBiquadFilter();
+                    sparkFilter.type = 'highpass';
+                    sparkFilter.frequency.value = 1000;
+
+                    let sparkGain = ctx.createGain();
+                    sparkGain.gain.setValueAtTime(0, timeOffset);
+                    sparkGain.gain.linearRampToValueAtTime(0.6, timeOffset + 0.02);
+                    sparkGain.gain.exponentialRampToValueAtTime(0.01, timeOffset + 0.1);
+
+                    sparkSrc.connect(sparkFilter); sparkFilter.connect(sparkGain); sparkGain.connect(ctx.destination);
+                    sparkSrc.start(timeOffset);
+                    sparkSrc.stop(timeOffset + 0.15);
+                }
+            }
+            else if (t === 'tap') {
+                var o = ctx.createOscillator(); var g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.frequency.setValueAtTime(800, n);
+                g.gain.setValueAtTime(0.05, n); g.gain.exponentialRampToValueAtTime(0.01, n + 0.05);
+                o.start(n); o.stop(n + 0.05);
+            }
+        }
+
+        var themeIdx = 0;
+        var themeClasses = ['theme-dark', 'theme-light', 'theme-ssj'];
+        window.toggleTheme = function () {
+            document.body.classList.remove(themeClasses[themeIdx]);
+            themeIdx = (themeIdx + 1) % 3;
+            var newClass = themeClasses[themeIdx];
+
+            if (newClass === 'theme-ssj') {
+                document.body.classList.add('transforming');
+                playSound('ssj'); // Som Trovão/Aura
+                setTimeout(function () { document.body.classList.remove('transforming'); document.body.classList.add(newClass); }, 2500);
+            } else {
+                document.body.classList.add(newClass);
+                playSound('click');
+            }
+        };
+
+        // --- GRÁFICOS (NOVOS E ATUALIZADOS) ---
+        function renderHomeCharts() {
+            if (typeof Chart === 'undefined') return;
+            if (document.getElementById('p-home').style.display === 'none') return;
+
+            var rec = 0, desp = 0;
+            var evolucao = {};
+
+            dataStore.lancamentos.forEach(function (t) {
+                if (t.type === 'receita') rec += t.val;
+                else { desp += t.val; }
+
+                if (t.date) {
+                    // Pega mês YYYY-MM
+                    var m = t.date.substring(0, 7);
+                    if (!evolucao[m]) evolucao[m] = { rec: 0, desp: 0 };
+                    if (t.type === 'receita') evolucao[m].rec += t.val;
+                    else evolucao[m].desp += t.val;
+                }
+            });
+
+            // 1. Receita vs Despesa (PIZZA)
+            if (charts.pieMain) charts.pieMain.destroy();
+            charts.pieMain = new Chart(document.getElementById('cHomePieMain'), {
+                type: 'pie',
+                data: { labels: ['Receita', 'Despesa'], datasets: [{ data: [rec, desp], backgroundColor: ['#10b981', '#ef4444'] }] },
+                options: { plugins: { legend: { position: 'right' } }, maintainAspectRatio: false }
+            });
+
+            // 2. Evolução (LINHA)
+            var dates = Object.keys(evolucao).sort();
+            var dataRec = dates.map(d => evolucao[d].rec);
+            var dataDesp = dates.map(d => evolucao[d].desp);
+
+            if (charts.line) charts.line.destroy();
+            charts.line = new Chart(document.getElementById('cHomeLine'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        { label: 'Receita', data: dataRec, borderColor: '#10b981', tension: 0.3 },
+                        { label: 'Despesa', data: dataDesp, borderColor: '#ef4444', tension: 0.3 }
+                    ]
+                },
+                options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } } } }
+            });
+
+            // Remove grafico de categorias da home se existir
+            if (charts.pieCats) charts.pieCats.destroy();
+        }
+
+        function renderCarroChart() {
+            if (typeof Chart === 'undefined') return;
+            if (document.getElementById('p-carro').style.display === 'none') return;
+
+            var gastosMes = {};
+
+            dataStore.carro.forEach(function (c) {
+                // Agrupar por mes
+                if (c.data) {
+                    var m = c.data.substring(0, 7); // YYYY-MM
+                    gastosMes[m] = (gastosMes[m] || 0) + c.val;
+                } else {
+                    gastosMes['N/D'] = (gastosMes['N/D'] || 0) + c.val;
+                }
+            });
+
+            // Grafico de Pizza dos Meses
+            if (charts.carMes) charts.carMes.destroy();
+            charts.carMes = new Chart(document.getElementById('cCarroMes'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(gastosMes),
+                    datasets: [{
+                        data: Object.values(gastosMes),
+                        backgroundColor: ['#3b82f6', '#ff7e00', '#10b981', '#ef4444', '#8b5cf6', '#eab308']
+                    }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
+
+            // Remove graficos antigos se existirem
+            if (charts.carComb) charts.carComb.destroy();
+            if (charts.carMan) charts.carMan.destroy();
+        }
+    </script>
 </body>
+
 </html>
